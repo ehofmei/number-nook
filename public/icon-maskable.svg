@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
-  <title id="title">Number Nook app icon</title>
-  <desc id="description">A cheerful golden cat with a math sparkle on a purple background.</desc>
+  <title id="title">Number Nook maskable app icon</title>
+  <desc id="description">A cheerful golden cat with a math sparkle on a full purple background.</desc>
   <defs>
-    <linearGradient id="background" x1="70" y1="54" x2="448" y2="462" gradientUnits="userSpaceOnUse">
+    <linearGradient id="background" x1="40" y1="32" x2="472" y2="486" gradientUnits="userSpaceOnUse">
       <stop stop-color="#7957ff"/>
       <stop offset="0.55" stop-color="#5433ed"/>
       <stop offset="1" stop-color="#3420a8"/>
@@ -17,7 +17,7 @@
     </filter>
   </defs>
 
-  <rect x="12" y="12" width="488" height="488" rx="116" fill="url(#background)"/>
+  <rect width="512" height="512" fill="url(#background)"/>
 
   <g transform="translate(-24 -12)" filter="url(#shadow)">
     <path d="M148 237 141 111l92 62c15-4 31-6 47-6s32 2 47 6l92-62-7 126c18 27 28 60 28 95 0 85-67 137-160 137s-160-52-160-137c0-35 10-68 28-95Z" fill="url(#fur)" stroke="#fff3cf" stroke-linejoin="round" stroke-width="12"/>

@@ -255,7 +255,7 @@ test('the complete collection shares one remembered art-style preference', async
   );
 });
 
-test('sound preference persists and the home control can recover from zero volume', async ({
+test('sound and music preferences persist independently and recover from zero volume', async ({
   page,
 }) => {
   await onboard(page);
@@ -277,7 +277,57 @@ test('sound preference persists and the home control can recover from zero volum
   const serialized = await page.evaluate(
     () => localStorage.getItem('first-math-game:audio-preferences') ?? '{}',
   );
-  expect(JSON.parse(serialized) as unknown).toEqual({ effectsEnabled: true, effectsVolume: 0.4 });
+  expect(JSON.parse(serialized) as unknown).toEqual({
+    effectsEnabled: true,
+    effectsVolume: 0.4,
+    musicEnabled: false,
+    musicVolume: 0.18,
+    musicTrackId: 'starlight-stream',
+  });
+
+  await page.getByRole('button', { name: 'Turn on background music' }).click();
+  await expect(page.getByRole('button', { name: 'Mute background music' })).toBeVisible();
+  await page.getByRole('button', { name: 'Start first round' }).click();
+  await expect(page.getByRole('button', { name: 'Mute background music' })).toBeHidden();
+  await page.getByRole('button', { name: 'Exit game' }).click();
+  await expect(page.getByRole('button', { name: 'Mute background music' })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Mute background music' })).toBeVisible();
+});
+
+test('audio settings persist volumes and soundtrack selection, then reset cleanly', async ({
+  page,
+}) => {
+  await onboard(page);
+  await page.getByRole('button', { name: /^Settings/ }).click();
+  await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+
+  await page.getByRole('slider', { name: 'Effects volume' }).fill('0.65');
+  await page.getByRole('checkbox', { name: 'Background music off' }).click();
+  await page.getByRole('slider', { name: 'Music volume' }).fill('0.3');
+  await page.getByRole('button', { name: /Moonlit Window/ }).click();
+  await expect(page.getByRole('button', { name: /Moonlit Window/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+
+  await page.reload();
+  await page.getByRole('button', { name: /^Settings/ }).click();
+  await expect(page.getByRole('slider', { name: 'Effects volume' })).toHaveValue('0.65');
+  await expect(page.getByRole('slider', { name: 'Music volume' })).toHaveValue('0.3');
+  await expect(page.getByRole('button', { name: /Moonlit Window/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+
+  await page.getByRole('button', { name: 'Reset audio defaults' }).click();
+  await expect(page.getByRole('slider', { name: 'Effects volume' })).toHaveValue('0.4');
+  await expect(page.getByRole('slider', { name: 'Music volume' })).toHaveValue('0.18');
+  await expect(page.getByRole('checkbox', { name: 'Background music off' })).not.toBeChecked();
+  await expect(page.getByRole('button', { name: /Starlight Stream/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
 });
 
 test('focus moves away from the selected answer when the next question appears', async ({
@@ -531,7 +581,7 @@ test('a backup can be restored on a device before onboarding', async ({ page }) 
   await expect(page.getByRole('heading', { name: "Ada's Number Nook" })).toBeVisible();
 });
 
-test('onboarding, home, history, and setup have no detectable accessibility violations', async ({
+test('onboarding and primary menu screens have no detectable accessibility violations', async ({
   page,
 }) => {
   let results = await new AxeBuilder({ page }).analyze();
@@ -547,6 +597,11 @@ test('onboarding, home, history, and setup have no detectable accessibility viol
   await page.getByRole('button', { name: 'Back', exact: true }).click();
 
   await page.getByRole('button', { name: 'Backup & restore' }).click();
+  results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+
+  await page.getByRole('button', { name: /^Settings/ }).click();
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
   await page.getByRole('button', { name: 'Back', exact: true }).click();
@@ -582,6 +637,13 @@ test('@visual home responsive layout', async ({ page }, testInfo) => {
   );
   await onboard(page);
   await expect(page).toHaveScreenshot('home.png', { fullPage: true, maxDiffPixels: 50 });
+});
+
+test('@visual settings phone layout', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'This baseline targets the phone viewport.');
+  await onboard(page);
+  await page.getByRole('button', { name: /^Settings/ }).click();
+  await expect(page).toHaveScreenshot('settings.png', { fullPage: true });
 });
 
 test('@visual empty history phone layout', async ({ page }, testInfo) => {
@@ -643,6 +705,84 @@ test('@pwa production build works after the network goes offline', async ({
   browserName,
 }) => {
   test.skip(browserName !== 'chromium', 'Offline reload is covered once in Chromium.');
+  await expect(page).toHaveTitle('Number Nook');
+  const installMetadata = await page.evaluate(async () => {
+    const manifestLink = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+    const appleTouchLink = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
+    if (!manifestLink || !appleTouchLink) throw new Error('Install metadata links are missing.');
+    const manifestResponse = await fetch(manifestLink.href);
+    const manifest = (await manifestResponse.json()) as {
+      name: string;
+      short_name: string;
+      theme_color: string;
+      background_color: string;
+      icons: { src: string; sizes: string; type: string; purpose?: string }[];
+    };
+    const readPng = async (src: string) => {
+      const response = await fetch(new URL(src, manifestLink.href));
+      const bitmap = await createImageBitmap(await response.blob());
+      const result = { ok: response.ok, width: bitmap.width, height: bitmap.height };
+      bitmap.close();
+      return result;
+    };
+    return {
+      manifest,
+      manifestPath: new URL(manifestLink.href).pathname,
+      appleTouchPath: new URL(appleTouchLink.href).pathname,
+      htmlMetadata: {
+        themeColor: document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content,
+        applicationName: document.querySelector<HTMLMetaElement>('meta[name="application-name"]')
+          ?.content,
+        appleTitle: document.querySelector<HTMLMetaElement>(
+          'meta[name="apple-mobile-web-app-title"]',
+        )?.content,
+      },
+      pngs: await Promise.all(
+        manifest.icons
+          .filter(({ type }) => type === 'image/png')
+          .map(async (icon) => ({ ...icon, ...(await readPng(icon.src)) })),
+      ),
+      appleTouch: await readPng(appleTouchLink.href),
+    };
+  });
+  expect(installMetadata.manifest).toMatchObject({
+    name: 'Number Nook',
+    short_name: 'Number Nook',
+    theme_color: '#5433ed',
+    background_color: '#fff8ee',
+  });
+  expect(installMetadata.manifestPath).toBe('/number-nook/manifest.webmanifest');
+  expect(installMetadata.appleTouchPath).toBe('/number-nook/apple-touch-icon.png');
+  expect(installMetadata.htmlMetadata).toEqual({
+    themeColor: '#5433ed',
+    applicationName: 'Number Nook',
+    appleTitle: 'Number Nook',
+  });
+  expect(installMetadata.pngs).toEqual([
+    expect.objectContaining({
+      sizes: '192x192',
+      purpose: 'any',
+      ok: true,
+      width: 192,
+      height: 192,
+    }),
+    expect.objectContaining({
+      sizes: '512x512',
+      purpose: 'any',
+      ok: true,
+      width: 512,
+      height: 512,
+    }),
+    expect.objectContaining({
+      sizes: '512x512',
+      purpose: 'maskable',
+      ok: true,
+      width: 512,
+      height: 512,
+    }),
+  ]);
+  expect(installMetadata.appleTouch).toEqual({ ok: true, width: 180, height: 180 });
+
   await page.evaluate('navigator.serviceWorker.ready');
   const starterPortrait = page.getByRole('button', { name: 'Moonbeam' }).locator('img');
   await expect(starterPortrait).toHaveAttribute('src', /moonbeam-sticker\.webp$/);

@@ -10,12 +10,14 @@ import {
 } from 'react';
 import { buildPlayHistoryExport, serializePlayHistory } from './analytics/history';
 import { GAME_AUDIO_CUES } from './audio/cues';
+import { MUSIC_TRACKS } from './audio/music';
 import {
   DEFAULT_AUDIO_PREFERENCES,
   LocalStorageAudioPreferencesRepository,
   type AudioPreferences,
 } from './audio/preferences';
 import { useAudioPlayer } from './audio/useAudioPlayer';
+import { useMusicPlayer } from './audio/useMusicPlayer';
 import { rememberDialoguePhrase, selectCompanionDialogue } from './companions/engine';
 import { deriveResultDialogueFacts } from './companions/resultFacts';
 import type { DialogueContext, ResultDialogueFacts, SelectedDialogue } from './companions/types';
@@ -78,7 +80,8 @@ type Screen =
   | 'backup'
   | 'capsule'
   | 'gallery'
-  | 'history';
+  | 'history'
+  | 'settings';
 
 interface ReviewState {
   summary: SessionSummary;
@@ -112,6 +115,13 @@ const SoundLab = import.meta.env.DEV
   ? lazy(() =>
       import('./dev/SoundLab').then(({ SoundLab: DevelopmentSoundLab }) => ({
         default: DevelopmentSoundLab,
+      })),
+    )
+  : null;
+const MusicLab = import.meta.env.DEV
+  ? lazy(() =>
+      import('./dev/MusicLab').then(({ MusicLab: DevelopmentMusicLab }) => ({
+        default: DevelopmentMusicLab,
       })),
     )
   : null;
@@ -189,6 +199,20 @@ function SoundToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => 
       title={enabled ? 'Mute sound effects' : 'Turn on sound effects'}
     >
       <span aria-hidden="true">{enabled ? '🔊' : '🔇'}</span>
+    </button>
+  );
+}
+
+function MusicToggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
+  return (
+    <button
+      className="icon-button music-toggle"
+      type="button"
+      onClick={onToggle}
+      aria-label={enabled ? 'Mute background music' : 'Turn on background music'}
+      title={enabled ? 'Mute background music' : 'Turn on background music'}
+    >
+      <span aria-hidden="true">{enabled ? '♫' : '♪'}</span>
     </button>
   );
 }
@@ -345,8 +369,10 @@ function Home({
   onCapsule,
   onHistory,
   onBackup,
+  onSettings,
   audioPreferences,
   onToggleAudio,
+  onToggleMusic,
 }: {
   save: SaveData;
   dialogue?: SelectedDialogue;
@@ -356,8 +382,10 @@ function Home({
   onCapsule: () => void;
   onHistory: () => void;
   onBackup: () => void;
+  onSettings: () => void;
   audioPreferences: AudioPreferences;
   onToggleAudio: () => void;
+  onToggleMusic: () => void;
 }) {
   const companion = getCollectible(save.equippedCollectibleId);
   const lastSession = save.sessions.at(-1);
@@ -377,6 +405,10 @@ function Home({
           <SoundToggle
             enabled={audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0}
             onToggle={onToggleAudio}
+          />
+          <MusicToggle
+            enabled={audioPreferences.musicEnabled && audioPreferences.musicVolume > 0}
+            onToggle={onToggleMusic}
           />
           <div className="coin-pill" aria-label={`${save.coins} Paw Coins`}>
             <span>🐾</span>
@@ -509,6 +541,177 @@ function Home({
           </span>
           <span aria-hidden="true">→</span>
         </button>
+        <button
+          className="dashboard-card dashboard-card--settings"
+          type="button"
+          onClick={onSettings}
+        >
+          <span className="dashboard-icon" aria-hidden="true">
+            ♪
+          </span>
+          <span>
+            <strong>Settings</strong>
+            <small>Sound effects, music, volume, and soundtrack</small>
+          </span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </main>
+  );
+}
+
+export function Settings({
+  preferences,
+  onChange,
+  onReset,
+  onBack,
+}: {
+  preferences: AudioPreferences;
+  onChange: (preferences: AudioPreferences) => void;
+  onReset: () => void;
+  onBack: () => void;
+}) {
+  const update = (changes: Partial<AudioPreferences>) => onChange({ ...preferences, ...changes });
+  const effectsAudible = preferences.effectsEnabled && preferences.effectsVolume > 0;
+  const musicAudible = preferences.musicEnabled && preferences.musicVolume > 0;
+
+  return (
+    <main className="page-shell settings-page">
+      <header className="page-header">
+        <button className="icon-button" type="button" onClick={onBack} aria-label="Back">
+          ←
+        </button>
+        <div>
+          <span className="eyebrow">Device preferences</span>
+          <h1>Settings</h1>
+          <p>Choose how Number Nook sounds on this device.</p>
+        </div>
+      </header>
+
+      <div className="settings-stack">
+        <section className="panel settings-panel" aria-labelledby="effects-settings-heading">
+          <div className="settings-panel__heading">
+            <span className="settings-panel__icon" aria-hidden="true">
+              ✦
+            </span>
+            <div>
+              <h2 id="effects-settings-heading">Sound effects</h2>
+              <p>Answer feedback, Paw Coins, capsules, and other little cues.</p>
+            </div>
+          </div>
+          <label className="sound-switch">
+            <input
+              type="checkbox"
+              checked={effectsAudible}
+              onChange={(event) =>
+                update({
+                  effectsEnabled: event.currentTarget.checked,
+                  effectsVolume:
+                    event.currentTarget.checked && preferences.effectsVolume === 0
+                      ? DEFAULT_AUDIO_PREFERENCES.effectsVolume
+                      : preferences.effectsVolume,
+                })
+              }
+            />
+            <span>Sound effects {effectsAudible ? 'on' : 'off'}</span>
+          </label>
+          <label className="settings-volume" htmlFor="settings-effects-volume">
+            <span>Effects volume</span>
+            <output htmlFor="settings-effects-volume">
+              {Math.round(preferences.effectsVolume * 100)}%
+            </output>
+            <input
+              id="settings-effects-volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={preferences.effectsVolume}
+              disabled={!preferences.effectsEnabled}
+              onChange={(event) => update({ effectsVolume: Number(event.currentTarget.value) })}
+            />
+          </label>
+        </section>
+
+        <section className="panel settings-panel" aria-labelledby="music-settings-heading">
+          <div className="settings-panel__heading">
+            <span className="settings-panel__icon" aria-hidden="true">
+              ♪
+            </span>
+            <div>
+              <h2 id="music-settings-heading">Background music</h2>
+              <p>Gentle instrumental loops for menus and progress screens.</p>
+            </div>
+          </div>
+          <label className="sound-switch">
+            <input
+              type="checkbox"
+              checked={musicAudible}
+              onChange={(event) =>
+                update({
+                  musicEnabled: event.currentTarget.checked,
+                  musicVolume:
+                    event.currentTarget.checked && preferences.musicVolume === 0
+                      ? DEFAULT_AUDIO_PREFERENCES.musicVolume
+                      : preferences.musicVolume,
+                })
+              }
+            />
+            <span>Background music {musicAudible ? 'on' : 'off'}</span>
+          </label>
+          <label className="settings-volume" htmlFor="settings-music-volume">
+            <span>Music volume</span>
+            <output htmlFor="settings-music-volume">
+              {Math.round(preferences.musicVolume * 100)}%
+            </output>
+            <input
+              id="settings-music-volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.02"
+              value={preferences.musicVolume}
+              disabled={!preferences.musicEnabled}
+              onChange={(event) => update({ musicVolume: Number(event.currentTarget.value) })}
+            />
+          </label>
+
+          <fieldset className="settings-soundtracks">
+            <legend>Soundtrack</legend>
+            <p>
+              Pick a favorite now, even if music is off. Changes play immediately when it is on.
+            </p>
+            <div className="settings-track-grid">
+              {MUSIC_TRACKS.map((track) => {
+                const selected = preferences.musicTrackId === track.id;
+                return (
+                  <button
+                    key={track.id}
+                    className={`settings-track ${selected ? 'settings-track--selected' : ''}`}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => update({ musicTrackId: track.id })}
+                  >
+                    <span className="music-style-label">{track.styleLabel}</span>
+                    <strong>{track.label}</strong>
+                    <small>{track.description}</small>
+                    {selected && <span className="settings-track__selected">Selected</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        </section>
+
+        <section className="settings-reset" aria-label="Reset audio settings">
+          <div>
+            <strong>Want the original setup?</strong>
+            <span>Effects on, music off, and Starlight Stream selected.</span>
+          </div>
+          <button className="secondary-button" type="button" onClick={onReset}>
+            Reset audio defaults
+          </button>
+        </section>
       </div>
     </main>
   );
@@ -1791,6 +1994,14 @@ export default function App() {
   const [capsuleOpening, setCapsuleOpening] = useState(false);
   const [audioPreferences, setAudioPreferences] = useState(() => audioPreferencesRepository.load());
   const { playCue } = useAudioPlayer(audioPreferences);
+  const musicActive = !developmentView && screen !== 'play';
+  const musicStartDelay = screen === 'results' ? 2_200 : 0;
+  const { startMusicTrack, stopMusic } = useMusicPlayer(
+    audioPreferences,
+    musicActive,
+    audioPreferences.musicTrackId,
+    musicStartDelay,
+  );
   const transitionTimer = useRef<number | null>(null);
   const capsuleTimer = useRef<number | null>(null);
   const [presentedCoinSummaryId, setPresentedCoinSummaryId] = useState<string | null>(null);
@@ -1873,24 +2084,52 @@ export default function App() {
     }
   }, []);
 
-  const toggleAudio = useCallback(() => {
-    setAudioPreferences((current) => {
-      const isAudible = current.effectsEnabled && current.effectsVolume > 0;
-      const next = {
-        ...current,
-        effectsEnabled: !isAudible,
-        effectsVolume:
-          !isAudible && current.effectsVolume === 0
-            ? DEFAULT_AUDIO_PREFERENCES.effectsVolume
-            : current.effectsVolume,
-      };
+  const updateAudioPreferences = useCallback(
+    (next: AudioPreferences) => {
+      let saved = next;
       try {
-        return audioPreferencesRepository.save(next);
+        saved = audioPreferencesRepository.save(next);
       } catch {
-        return next;
+        // The preference still works for this tab when storage is unavailable.
       }
+      setAudioPreferences(saved);
+      const musicChanged =
+        saved.musicEnabled !== audioPreferences.musicEnabled ||
+        saved.musicVolume !== audioPreferences.musicVolume ||
+        saved.musicTrackId !== audioPreferences.musicTrackId;
+      if (!musicChanged) return;
+      if (saved.musicEnabled && saved.musicVolume > 0) {
+        void startMusicTrack(saved.musicTrackId, saved);
+      } else {
+        stopMusic();
+      }
+    },
+    [audioPreferences, startMusicTrack, stopMusic],
+  );
+
+  const toggleAudio = useCallback(() => {
+    const isAudible = audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0;
+    updateAudioPreferences({
+      ...audioPreferences,
+      effectsEnabled: !isAudible,
+      effectsVolume:
+        !isAudible && audioPreferences.effectsVolume === 0
+          ? DEFAULT_AUDIO_PREFERENCES.effectsVolume
+          : audioPreferences.effectsVolume,
     });
-  }, []);
+  }, [audioPreferences, updateAudioPreferences]);
+
+  const toggleMusic = useCallback(() => {
+    const isAudible = audioPreferences.musicEnabled && audioPreferences.musicVolume > 0;
+    updateAudioPreferences({
+      ...audioPreferences,
+      musicEnabled: !isAudible,
+      musicVolume:
+        !isAudible && audioPreferences.musicVolume === 0
+          ? DEFAULT_AUDIO_PREFERENCES.musicVolume
+          : audioPreferences.musicVolume,
+    });
+  }, [audioPreferences, updateAudioPreferences]);
 
   useEffect(() => {
     void repository.load().then((loaded) => {
@@ -1924,6 +2163,7 @@ export default function App() {
 
   const startGame = useCallback(() => {
     if (!save) return;
+    stopMusic();
     void playCue(GAME_AUDIO_CUES.roundStart);
     const seed = createRandomSeed();
     const now = performance.now();
@@ -1944,7 +2184,7 @@ export default function App() {
     setCapsuleReward(undefined);
     setCapsuleOpening(false);
     setScreen('play');
-  }, [playCue, save]);
+  }, [playCue, save, stopMusic]);
 
   const chooseAnswer = useCallback(
     (selectedAnswer: number) => {
@@ -2033,6 +2273,12 @@ export default function App() {
         <SoundLab />
       </Suspense>
     );
+  if (developmentView === 'music' && MusicLab)
+    return (
+      <Suspense fallback={<DevelopmentViewLoading />}>
+        <MusicLab />
+      </Suspense>
+    );
   if (developmentView === 'art' && ArtLab)
     return (
       <Suspense fallback={<DevelopmentViewLoading />}>
@@ -2091,6 +2337,16 @@ export default function App() {
           commitSave(next);
           setScreen('home');
         }}
+      />
+    );
+
+  if (screen === 'settings')
+    return (
+      <Settings
+        preferences={audioPreferences}
+        onChange={updateAudioPreferences}
+        onReset={() => updateAudioPreferences(DEFAULT_AUDIO_PREFERENCES)}
+        onBack={() => setScreen('home')}
       />
     );
 
@@ -2257,8 +2513,10 @@ export default function App() {
       onGallery={() => setScreen('gallery')}
       onHistory={() => setScreen('history')}
       onBackup={() => setScreen('backup')}
+      onSettings={() => setScreen('settings')}
       audioPreferences={audioPreferences}
       onToggleAudio={toggleAudio}
+      onToggleMusic={toggleMusic}
       onCapsule={() => {
         clearCapsuleTimer();
         setSummary(null);

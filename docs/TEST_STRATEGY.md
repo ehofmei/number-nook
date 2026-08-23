@@ -134,6 +134,8 @@ It is excluded from normal production navigation and contains no privileged prod
 
 The separate development Sound Lab at `/?dev=sounds` exposes every synthesized cue, its duration and building blocks, shared mute and volume controls, an aligned pitch/length/intensity/attack/noise/pan and waveform playground, repeat and contextual sequence tests, copyable recipes, and alternatives not yet wired into the game. It provides reproducible listening targets without requiring a player to repeatedly manufacture a particular game or reward state.
 
+The development Music Lab at `/?dev=music` exposes the default Starlight Stream loop plus the original Cozy Nook reference and pad-only/blended-legato experiments. It provides independent music enable/volume preferences, one-button track switching, tempo/warmth/foreground transforms, start/restart/stop controls, loop duration, and copyable recipe JSON. Unit tests verify the selected production default, every definition, the three distinct architectures, bounded ambience, scheduling contracts, track changes, and legacy preference migration; browser tests verify semantic controls, switching, disabled pad-only foreground control, reset transforms, mute feedback, and stoppable playback. The player-facing Settings screen additionally receives component coverage, persistent Chromium journey coverage, an accessibility scan, and a phone snapshot. Human listening remains required for musical taste, seamless looping, repetition fatigue, cue masking, and real-device speaker quality.
+
 The development Art Lab at `/?dev=art` compares collectible treatments at actual compact, phone, home, and reveal sizes, then applies one selected treatment to collection-card, home, capsule-reveal, and locked-silhouette contexts. It provides a stable visual bake-off without changing the production catalog or save data.
 
 The development Theme Lab at `/?dev=themes` renders every companion palette against representative buttons, focus indicators, panels, correct/incorrect feedback, and text. It exposes contrast results without changing equipped state or save data. Dual-art comparison remains in the Art Lab and the playable gallery so palette inspection stays focused.
@@ -332,7 +334,7 @@ PWA tests must run against a production build because service workers and cachin
 
 Automated scenarios:
 
-- Manifest and icons resolve under the GitHub Pages base path.
+- Manifest, Number Nook install metadata, standard/maskable PNG dimensions, and the Apple touch icon resolve under the GitHub Pages base path.
 - Service worker registers.
 - App shell and the three starter Sticker portraits are precached; the remaining Sticker collection is cached on demand.
 - Reload works with network disabled.

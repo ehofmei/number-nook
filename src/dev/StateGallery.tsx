@@ -11,8 +11,8 @@ export function StateGallery() {
           <h1>Interface state gallery</h1>
           <p>
             Looking for audio or collectible studies? Open the <a href="?dev=sounds">Sound Lab</a>,{' '}
-            <a href="?dev=art">Art Lab</a>, <a href="?dev=themes">Theme Lab</a>, or the{' '}
-            <a href="?dev=companions">Companion Lab</a>.
+            <a href="?dev=music">Music Lab</a>, <a href="?dev=art">Art Lab</a>,{' '}
+            <a href="?dev=themes">Theme Lab</a>, or the <a href="?dev=companions">Companion Lab</a>.
           </p>
         </div>
       </header>

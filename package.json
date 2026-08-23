@@ -1,5 +1,5 @@
 {
-  "name": "first-math-game",
+  "name": "number-nook",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,6 +20,7 @@
     "test:pwa": "playwright test --grep @pwa",
     "test:coverage": "vitest run --config vitest.config.ts --coverage",
     "art:optimize": "node --experimental-strip-types scripts/optimize-sticker-assets.ts",
+    "art:pwa-icons": "node --experimental-strip-types scripts/generate-pwa-icons.ts",
     "content:check": "node --experimental-strip-types scripts/validate-content.ts",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run content:check && npm run test:coverage && npm run test:browser && npm run build && playwright test --project=chromium"
   },

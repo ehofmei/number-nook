@@ -226,9 +226,15 @@ export function SoundLab() {
         <button
           className="text-button"
           type="button"
-          onClick={() => updatePreferences(DEFAULT_AUDIO_PREFERENCES)}
+          onClick={() =>
+            updatePreferences({
+              ...preferences,
+              effectsEnabled: DEFAULT_AUDIO_PREFERENCES.effectsEnabled,
+              effectsVolume: DEFAULT_AUDIO_PREFERENCES.effectsVolume,
+            })
+          }
         >
-          Reset audio defaults
+          Reset sound defaults
         </button>
         <p className="sound-status" role="status" aria-label="Sound Lab status">
           {status}

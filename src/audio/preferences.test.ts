@@ -15,12 +15,57 @@ describe('audio preferences', () => {
     });
   });
 
-  it('defaults effects on at a restrained volume and persists changes', () => {
+  it('defaults effects on and music off at restrained volumes, then persists changes', () => {
     const repository = new LocalStorageAudioPreferencesRepository();
     expect(repository.load()).toEqual(DEFAULT_AUDIO_PREFERENCES);
-    const saved = repository.save({ effectsEnabled: false, effectsVolume: 0.25 });
-    expect(saved).toEqual({ effectsEnabled: false, effectsVolume: 0.25 });
+    const saved = repository.save({
+      effectsEnabled: false,
+      effectsVolume: 0.25,
+      musicEnabled: true,
+      musicVolume: 0.2,
+      musicTrackId: 'moonlit-window',
+    });
+    expect(saved).toEqual({
+      effectsEnabled: false,
+      effectsVolume: 0.25,
+      musicEnabled: true,
+      musicVolume: 0.2,
+      musicTrackId: 'moonlit-window',
+    });
     expect(repository.load()).toEqual(saved);
+  });
+
+  it('migrates the existing effects-only preference shape without losing it', () => {
+    localStorage.setItem(
+      LocalStorageAudioPreferencesRepository.key,
+      JSON.stringify({ effectsEnabled: false, effectsVolume: 0.25 }),
+    );
+    expect(new LocalStorageAudioPreferencesRepository().load()).toEqual({
+      effectsEnabled: false,
+      effectsVolume: 0.25,
+      musicEnabled: false,
+      musicVolume: 0.18,
+      musicTrackId: 'starlight-stream',
+    });
+  });
+
+  it('adds the default soundtrack to preferences saved before soundtrack selection existed', () => {
+    localStorage.setItem(
+      LocalStorageAudioPreferencesRepository.key,
+      JSON.stringify({
+        effectsEnabled: true,
+        effectsVolume: 0.3,
+        musicEnabled: true,
+        musicVolume: 0.15,
+      }),
+    );
+    expect(new LocalStorageAudioPreferencesRepository().load()).toEqual({
+      effectsEnabled: true,
+      effectsVolume: 0.3,
+      musicEnabled: true,
+      musicVolume: 0.15,
+      musicTrackId: 'starlight-stream',
+    });
   });
 
   it('falls back safely when stored preferences are malformed', () => {

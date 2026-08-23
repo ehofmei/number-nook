@@ -3,34 +3,60 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? (process.env.VITE_BASE_PATH ?? '/first-math-game/') : '/',
+  base: mode === 'production' ? (process.env.VITE_BASE_PATH ?? '/number-nook/') : '/',
   plugins: [
     react(),
     VitePWA({
       registerType: 'prompt',
       includeAssets: [
         'icon.svg',
+        'icon-maskable.svg',
+        'icon-192.png',
+        'icon-512.png',
+        'icon-maskable-512.png',
+        'apple-touch-icon.png',
         'collectibles/sunny-sticker.webp',
         'collectibles/moonbeam-sticker.webp',
         'collectibles/pepper-sticker.webp',
       ],
       manifest: {
         id: './',
-        name: 'First Math Game',
-        short_name: 'Math Game',
-        description: 'Fast, friendly arithmetic practice with collectible companions.',
-        theme_color: '#5c3df5',
-        background_color: '#fff9f0',
+        name: 'Number Nook',
+        short_name: 'Number Nook',
+        description:
+          'Fast, friendly arithmetic practice with Paw Coins and collectible companions.',
+        lang: 'en-US',
+        categories: ['education', 'games'],
+        theme_color: '#5433ed',
+        background_color: '#fff8ee',
         display: 'standalone',
         orientation: 'any',
         start_url: './',
         scope: './',
         icons: [
           {
+            src: 'icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: 'icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+          {
             src: 'icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable',
+            purpose: 'any',
           },
         ],
       },

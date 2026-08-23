@@ -358,7 +358,7 @@ Add one independently verified slice at a time:
 11. Improvement Duel after at least five comparable sessions.
 12. Final collectible art and expanded repository packs.
 13. ~~Companion personality dialogue, reusable CSS motion/motif profiles, and a development Companion Lab.~~ Completed across Home, Setup, Results, idle Capsule, equip confirmation, and Play History, with stable event-based selection and browser/visual coverage.
-14. Optional speech and sound. The synthesized contextual-effects pass and development Sound Lab are complete; subjective cue refinement, music, and spoken problems remain future work.
+14. Optional speech and sound. The synthesized contextual-effects pass, opt-in menu/results music, independent device preferences, player-facing audio Settings, and development Sound/Music Labs are complete. After broad style testing exposed disconnected foreground notes, pad-only, blended-legato, and flowing-pattern experiments identified Starlight Stream as the default while retaining all four tracks as player choices. Further refinement, longer arrangements, and spoken problems remain future work.
 
 Each operation must ship with its generator invariants, distractor rules, difficulty tests, UI behavior, progress aggregation, and end-to-end coverage. “Adding the operation” is not complete when only the equation generator exists.
 

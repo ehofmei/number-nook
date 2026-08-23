@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { AudioCueDefinition } from './cues';
 import { AudioPlayer, type AudioBackend } from './player';
+import type { AudioPreferences } from './preferences';
 
 class FakeAudioBackend implements AudioBackend {
   state: AudioContextState = 'suspended';
@@ -20,7 +21,13 @@ describe('AudioPlayer', () => {
     const factory = vi.fn(() => new FakeAudioBackend());
     const player = new AudioPlayer(factory);
     await expect(
-      player.play('correct-chime', { effectsEnabled: false, effectsVolume: 0.4 }),
+      player.play('correct-chime', {
+        effectsEnabled: false,
+        effectsVolume: 0.4,
+        musicEnabled: false,
+        musicVolume: 0.18,
+        musicTrackId: 'starlight-stream',
+      }),
     ).resolves.toBe(false);
     expect(factory).not.toHaveBeenCalled();
   });
@@ -29,7 +36,13 @@ describe('AudioPlayer', () => {
     const backend = new FakeAudioBackend();
     const factory = vi.fn(() => backend);
     const player = new AudioPlayer(factory);
-    const preferences = { effectsEnabled: true, effectsVolume: 0.35 };
+    const preferences: AudioPreferences = {
+      effectsEnabled: true,
+      effectsVolume: 0.35,
+      musicEnabled: false,
+      musicVolume: 0.18,
+      musicTrackId: 'starlight-stream',
+    };
 
     await expect(player.play('correct-chime', preferences)).resolves.toBe(true);
     await expect(player.play('round-complete', preferences)).resolves.toBe(true);
@@ -55,7 +68,13 @@ describe('AudioPlayer', () => {
       throw new Error('Audio is unavailable');
     });
     await expect(
-      player.play('correct-chime', { effectsEnabled: true, effectsVolume: 0.4 }),
+      player.play('correct-chime', {
+        effectsEnabled: true,
+        effectsVolume: 0.4,
+        musicEnabled: false,
+        musicVolume: 0.18,
+        musicTrackId: 'starlight-stream',
+      }),
     ).resolves.toBe(false);
   });
 
@@ -79,7 +98,13 @@ describe('AudioPlayer', () => {
     };
 
     await expect(
-      player.playDefinition(customCue, { effectsEnabled: true, effectsVolume: 0.25 }),
+      player.playDefinition(customCue, {
+        effectsEnabled: true,
+        effectsVolume: 0.25,
+        musicEnabled: false,
+        musicVolume: 0.18,
+        musicTrackId: 'starlight-stream',
+      }),
     ).resolves.toBe(true);
     expect(backend.play).toHaveBeenCalledWith(customCue, 0.25);
   });

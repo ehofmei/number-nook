@@ -42,9 +42,15 @@ describe('SoundLab in a real browser', () => {
       JSON.parse(
         localStorage.getItem(LocalStorageAudioPreferencesRepository.key) ?? '{}',
       ) as unknown,
-    ).toEqual({ effectsEnabled: false, effectsVolume: 0.4 });
+    ).toEqual({
+      effectsEnabled: false,
+      effectsVolume: 0.4,
+      musicEnabled: false,
+      musicVolume: 0.18,
+      musicTrackId: 'starlight-stream',
+    });
 
-    await page.getByRole('button', { name: 'Reset audio defaults' }).click();
+    await page.getByRole('button', { name: 'Reset sound defaults' }).click();
     await expect.element(page.getByRole('checkbox', { name: 'Sound effects on' })).toBeChecked();
     await expect.element(page.getByRole('slider', { name: 'Effects volume' })).toHaveValue('0.4');
   });
