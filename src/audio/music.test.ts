@@ -10,13 +10,13 @@ import {
 } from './music';
 
 describe('music definitions', () => {
-  it('uses the selected smooth favorite as the production default', () => {
-    expect(DEFAULT_MUSIC_TRACK_ID).toBe('starlight-stream');
-    expect(getMusicTrack(DEFAULT_MUSIC_TRACK_ID).label).toBe('Starlight Stream');
+  it('uses the composed Cozy Electric Piano theme as the production default', () => {
+    expect(DEFAULT_MUSIC_TRACK_ID).toBe('cozy-electric-piano-theme');
+    expect(getMusicTrack(DEFAULT_MUSIC_TRACK_ID).label).toBe('Cozy Electric Piano');
   });
 
-  it('provides one reference and three distinct smooth offline experiments', () => {
-    expect(MUSIC_TRACKS).toHaveLength(4);
+  it('provides five production choices with phone-safe output filtering', () => {
+    expect(MUSIC_TRACKS).toHaveLength(5);
     expect(new Set(MUSIC_TRACKS.map((track) => track.id)).size).toBe(MUSIC_TRACKS.length);
     for (const track of MUSIC_TRACKS) {
       expect(track.styleLabel.length).toBeGreaterThan(4);
@@ -26,7 +26,8 @@ describe('music definitions', () => {
         Math.max(...track.notes.map((note) => note.startBeat + note.durationBeats)),
       ).toBeLessThanOrEqual(track.beatsPerLoop + 0.5);
       expect(musicTrackDuration(track)).toBeGreaterThan(12);
-      expect(musicTrackDuration(track)).toBeLessThanOrEqual(17);
+      expect(musicTrackDuration(track)).toBeLessThanOrEqual(60);
+      expect(track.lowCutFrequency).toBeGreaterThanOrEqual(120);
       if (track.ambience) {
         expect(track.ambience.delaySeconds).toBeLessThanOrEqual(0.5);
         expect(track.ambience.feedback).toBeLessThan(0.25);
@@ -37,6 +38,7 @@ describe('music definitions', () => {
     const track = getMusicTrack('cozy-nook');
     expect(track.notes.length).toBeGreaterThan(20);
     expect(musicTrackDuration(track)).toBeCloseTo(13.333, 2);
+    expect(musicTrackDuration(getMusicTrack('cozy-electric-piano-theme'))).toBe(60);
   });
 
   it('clamps lab transforms and scales every foreground role without changing the bed', () => {

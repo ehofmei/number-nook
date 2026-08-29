@@ -47,7 +47,8 @@ describe('SoundLab in a real browser', () => {
       effectsVolume: 0.4,
       musicEnabled: false,
       musicVolume: 0.18,
-      musicTrackId: 'starlight-stream',
+      musicTrackId: 'cozy-electric-piano-theme',
+      musicCatalogVersion: 2,
     });
 
     await page.getByRole('button', { name: 'Reset sound defaults' }).click();

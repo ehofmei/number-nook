@@ -5,6 +5,7 @@ playwright-report/
 blob-report/
 test-results/
 .vitest-attachments/
+**/__screenshots__/
 
 .env
 .env.*

@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   DEFAULT_MUSIC_TRANSFORM,
-  DEFAULT_MUSIC_TRACK_ID,
-  MUSIC_TRACKS,
-  getMusicTrack,
   musicTrackDuration,
   serializeMusicRecipe,
   transformMusicTrack,
-  type MusicTrackId,
   type MusicTrackTransform,
 } from '../audio/music';
+import {
+  MUSIC_LAB_FAMILIES,
+  MUSIC_LAB_TRACKS,
+  getMusicLabTrack,
+  type MusicLabFamily,
+} from '../audio/musicExperiments';
 import { MusicPlayer } from '../audio/musicPlayer';
 import {
   DEFAULT_AUDIO_PREFERENCES,
@@ -19,16 +21,32 @@ import {
 
 const preferencesRepository = new LocalStorageAudioPreferencesRepository();
 
+const FAMILY_LABELS: Record<MusicLabFamily, string> = {
+  piano: 'Piano',
+  plucked: 'Plucked',
+  smooth: 'Smooth',
+  playful: 'Playful',
+  reference: 'References',
+};
+
 export function MusicLab() {
   const [preferences, setPreferences] = useState(() => preferencesRepository.load());
-  const [selectedTrackId, setSelectedTrackId] = useState<MusicTrackId>(DEFAULT_MUSIC_TRACK_ID);
+  const [selectedTrackId, setSelectedTrackId] = useState<string>('cozy-electric-piano-theme');
+  const [familyFilter, setFamilyFilter] = useState<MusicLabFamily | 'all'>('piano');
   const [transform, setTransform] = useState<MusicTrackTransform>(DEFAULT_MUSIC_TRANSFORM);
   const [status, setStatus] = useState(
-    'Music is stopped. Compare the three smooth approaches with the original reference.',
+    'Music is stopped. Start with one family, then compare only the tracks that catch your ear.',
   );
-  const [playingTrackId, setPlayingTrackId] = useState<MusicTrackId | null>(null);
+  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
   const [player] = useState(() => new MusicPlayer());
-  const baseTrack = useMemo(() => getMusicTrack(selectedTrackId), [selectedTrackId]);
+  const baseTrack = useMemo(() => getMusicLabTrack(selectedTrackId), [selectedTrackId]);
+  const visibleTracks = useMemo(
+    () =>
+      familyFilter === 'all'
+        ? MUSIC_LAB_TRACKS
+        : MUSIC_LAB_TRACKS.filter((track) => track.family === familyFilter),
+    [familyFilter],
+  );
   const customizedTrack = useMemo(
     () => transformMusicTrack(baseTrack, transform),
     [baseTrack, transform],
@@ -74,9 +92,9 @@ export function MusicLab() {
     }
   };
 
-  const playTrack = async (trackId: MusicTrackId) => {
+  const playTrack = async (trackId: string) => {
     const nextTransform = DEFAULT_MUSIC_TRANSFORM;
-    const track = transformMusicTrack(getMusicTrack(trackId), nextTransform);
+    const track = transformMusicTrack(getMusicLabTrack(trackId), nextTransform);
     player.stop();
     setSelectedTrackId(trackId);
     setTransform(nextTransform);
@@ -109,7 +127,8 @@ export function MusicLab() {
   const resetLab = () => {
     player.stop();
     setPlayingTrackId(null);
-    setSelectedTrackId(DEFAULT_MUSIC_TRACK_ID);
+    setSelectedTrackId('cozy-electric-piano-theme');
+    setFamilyFilter('piano');
     setTransform(DEFAULT_MUSIC_TRANSFORM);
     updatePreferences({
       ...preferences,
@@ -135,8 +154,8 @@ export function MusicLab() {
           <span className="eyebrow">Development only</span>
           <h1>Number Nook Music Lab</h1>
           <p>
-            Compare three smoother musical approaches with the original track, then tune the closest
-            match. The loops are generated with Web Audio and add no downloaded music files.
+            Compare 30 bass-light sketches across piano, plucked, smooth, and playful families. The
+            loops are generated with Web Audio and add no downloaded music files.
           </p>
         </div>
       </header>
@@ -188,15 +207,40 @@ export function MusicLab() {
             <span className="eyebrow">Style sampler</span>
             <h2 id="music-sampler-heading">Find your direction</h2>
             <p>
-              You do not need music vocabulary. Compare no melody, a long blended melody, and a
-              flowing pattern against the original short-note approach.
+              You do not need music vocabulary. Begin with one sound family, let promising tracks
+              repeat, and notice which ones stay pleasant on the phone.
             </p>
           </div>
-          <span className="mode-pill">3 smooth experiments + original</span>
+          <span className="mode-pill">25 experiments + 5 production tracks</span>
+        </div>
+
+        <div className="music-family-filters" aria-label="Filter tracks by sound family">
+          <button
+            className="choice-chip"
+            type="button"
+            aria-pressed={familyFilter === 'all'}
+            onClick={() => setFamilyFilter('all')}
+          >
+            All <span>{MUSIC_LAB_TRACKS.length}</span>
+          </button>
+          {MUSIC_LAB_FAMILIES.map((family) => {
+            const count = MUSIC_LAB_TRACKS.filter((track) => track.family === family).length;
+            return (
+              <button
+                className="choice-chip"
+                type="button"
+                aria-pressed={familyFilter === family}
+                onClick={() => setFamilyFilter(family)}
+                key={family}
+              >
+                {FAMILY_LABELS[family]} <span>{count}</span>
+              </button>
+            );
+          })}
         </div>
 
         <div className="music-track-grid">
-          {MUSIC_TRACKS.map((track) => {
+          {visibleTracks.map((track) => {
             const isSelected = selectedTrackId === track.id;
             const isPlaying = playingTrackId === track.id;
             return (
@@ -213,6 +257,7 @@ export function MusicLab() {
                 <div className="music-track-meta">
                   <span>{track.bpm} BPM</span>
                   <span>{musicTrackDuration(track).toFixed(1)}s loop</span>
+                  <span>{track.lowCutFrequency ?? 90} Hz low cut</span>
                 </div>
                 <button
                   className={isPlaying ? 'primary-button' : 'secondary-button'}
@@ -334,7 +379,10 @@ export function MusicLab() {
       <section className="panel sound-lab-notes">
         <h2>Production behavior</h2>
         <ul>
-          <li>Production now uses Starlight Stream; the other tracks remain available here.</li>
+          <li>Production now uses Cozy Electric Piano as the main theme.</li>
+          <li>Players can choose among all five production tracks in Settings.</li>
+          <li>The 25 remaining experiments stay development-only for a later music pass.</li>
+          <li>Every experiment removes deep bass and uses little or no echo for phone comfort.</li>
           <li>Music begins only after the player turns it on.</li>
           <li>The loop fades out for active questions so answer cues remain clear.</li>
           <li>It resumes on menus and results after the browser has allowed audio.</li>

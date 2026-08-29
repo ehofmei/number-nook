@@ -2046,6 +2046,34 @@ button.dashboard-card {
   max-width: 680px;
   color: var(--muted);
 }
+.music-family-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.music-family-filters .choice-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.55rem 0.8rem;
+}
+.music-family-filters .choice-chip[aria-pressed='true'] {
+  border-color: var(--theme-accent);
+  color: var(--theme-accent-strong);
+  background: color-mix(in srgb, var(--theme-accent) 10%, white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 8%, transparent);
+}
+.music-family-filters .choice-chip span {
+  display: grid;
+  min-width: 1.7rem;
+  min-height: 1.7rem;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--theme-accent) 8%, #f4f0fa);
+  font-size: 0.72rem;
+}
 .music-track-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

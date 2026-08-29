@@ -2,7 +2,7 @@
 
 ## Current scope
 
-Number Nook provides optional synthesized sound effects and an opt-in background-music experiment without adding audio files or a music dependency. Both are generated at playback time with the browser's Web Audio API, store independent device-local preferences, and leave the game completely playable while muted.
+Number Nook provides optional synthesized sound effects and opt-in background music without adding audio files or a music dependency. Both are generated at playback time with the browser's Web Audio API, store independent device-local preferences, and leave the game completely playable while muted.
 
 Currently wired gameplay cues are:
 
@@ -28,18 +28,19 @@ The Sound Lab marks the exact current gameplay set with **In game** badges.
 
 ## Background music
 
-The production track is **Starlight Stream**, a quiet 16-beat loop built from overlapping sine-wave chord tones over a soft chord bed. At its default 76 BPM it repeats every 12.6 seconds. Slow envelopes, restrained shared delay, a low-pass filter, and conservative per-note gains keep it cohesive and behind dialogue and interface sounds. Music remains opt-in and off by default.
+The production default is **Cozy Electric Piano**, a 60-second composed loop at 64 BPM. Its A-A2-B-A-prime form gives the player a recognizable opening, an answered repetition, a contrasting brighter middle, and a fuller return over one steady accompaniment pattern. Natural electric-piano decay, no ambience, a 155 Hz low cut, and conservative gains keep it comfortable on phone speakers. Music remains opt-in and off by default.
 
-The development-only Music Lab keeps Cozy Nook as an original reference and provides three smoother candidates so listening feedback does not depend on knowing musical terminology:
+The development-only Music Lab keeps the five production tracks alongside 25 experimental sketches so future listening feedback does not depend on knowing musical terminology:
 
 | Track | Direction | Comparison question |
 | --- | --- | --- |
-| Cozy Nook | Original reference | Do the new approaches sound more unified? |
+| Cozy Electric Piano | Composed main theme | Natural and pleasant through a full loop? |
+| Cozy Nook | Original reference | Do the newer approaches sound more unified? |
 | Quiet Cove | Pad only, no melody | Peaceful or too empty? |
 | Moonlit Window | Blended legato melody | Integrated or still separate? |
 | Starlight Stream | Flowing overlapping pattern | Cohesive or still distracting? |
 
-The second pass responds directly to the first sampler's short, disconnected foreground notes: the new tracks use overlapping chords, slower envelopes, soft sine-wave timbres, lower foreground gain, and restrained shared delay. Starlight Stream is the default, while all four tracks are available as player-facing choices so listening experiments can continue without blocking the rest of the app.
+The composed theme responds directly to testing feedback that short foreground notes felt disconnected and longer algorithmic sections sounded like familiar chord tones being shuffled. It repeats a deliberate melody, varies its ending, introduces one related middle theme, and returns home without relying on a resonant pad. Cozy Electric Piano is the default, while all five production tracks remain player-facing choices so soundtrack selection is already supported.
 
 Music follows these product rules:
 
@@ -56,9 +57,9 @@ Home keeps one-tap effects and music controls for convenience. Its full-width **
 
 - Independent effects and music toggles.
 - Independent volume sliders with readable percentages.
-- Cozy Nook, Quiet Cove, Moonlit Window, and Starlight Stream soundtrack choices.
+- Cozy Electric Piano, Cozy Nook, Quiet Cove, Moonlit Window, and Starlight Stream soundtrack choices.
 - Immediate track switching while music is already playing.
-- A reset that restores effects on at 40%, music off at 18%, and Starlight Stream selected.
+- A reset that restores effects on at 40%, music off at 18%, and Cozy Electric Piano selected.
 
 Players can choose a soundtrack while music is off. The selection is ready the next time music is enabled. All choices persist locally on the device and intentionally remain outside progress backup files.
 
@@ -92,7 +93,9 @@ For initial play-testing, compare Mac, iPhone, and iPad speakers at both low and
 The Music Lab can:
 
 - Enable music and change its independent volume using the production preference record.
-- Compare the original against pad-only, blended-melody, and flowing-pattern approaches with one-button switching and a prompt explaining what to listen for.
+- Compare 25 experimental sketches plus all five production tracks, filtered into Piano, Plucked, Smooth, Playful, and References families.
+- Start with a featured 60-second Cozy Electric Piano theme built around recurring musical phrases, while retaining the 75-second algorithmic arrangement and original short sketch for comparison.
+- Audition distinct synthesized soft-piano, electric-piano, music-box, guitar, harp, kalimba, organ, strings, mallet, bell, and pad voices rather than variations of one shared foreground sound.
 - Start, restart, and stop any sampler loop with a short fade.
 - Adjust tempo from 70–130%, warmth from 0–100%, and foreground presence from 0–150%; the foreground control is disabled for the intentionally melody-free Quiet Cove.
 - Show the selected track's BPM and resulting loop duration, then copy a reproducible JSON recipe.
@@ -112,6 +115,8 @@ The Web Audio API is a small real-time sound studio built into the browser. The 
 - **Precise scheduling:** several sound parts can start fractions of a second apart while the interface continues immediately.
 - **Look-ahead loop scheduling:** the music engine schedules complete phrases ahead of playback, then queues the next loop before the current one ends.
 - **Filtering and fades:** the music bed passes through a low-pass filter and fades during screen transitions instead of stopping abruptly.
+- **Phone-safe filtering:** every track also passes through a high-pass filter. The experimental catalog avoids deep fundamentals, and the default theme uses no echo or low pad layer.
+- **Instrument profiles:** layered oscillators and instrument-specific attack, decay, sustain, and release shapes create piano-like, plucked, mallet, organ, string, and bell families without downloaded samples.
 
 This approach is tiny, offline-friendly, easy to tune in TypeScript, and avoids licensing questions. It is best for UI feedback and short game-like effects. Recorded samples become more attractive when a sound needs an identifiable instrument, voice, animal sound, or richer texture.
 
@@ -126,7 +131,7 @@ The playground intentionally exposes a useful subset rather than every Web Audio
 - A separate music-note button on Home toggles background music immediately.
 - Unsupported or blocked audio fails quietly and never blocks an answer or reward.
 - The engine reuses one audio context instead of creating a new one for every cue.
-- Effects and music enable/volume values plus the soundtrack ID share the version-tolerant device-local `first-math-game:audio-preferences` record. Existing effects-only and pre-soundtrack records migrate by adding music-off and Starlight Stream defaults.
+- Effects and music enable/volume values plus the soundtrack ID share the version-tolerant device-local `first-math-game:audio-preferences` record. Existing effects-only and pre-soundtrack records gain music-off and Cozy Electric Piano defaults. Pre-theme records using the former Starlight Stream default migrate once; choices saved afterward remain untouched.
 - Audio preferences are intentionally separate from progress backups. They describe the destination device's output, not player achievement.
 
 ## Test coverage
@@ -139,8 +144,8 @@ Automated tests verify:
 - Browser audio failures are contained.
 - Cue transformations are clamped, deterministic, serializable, and do not mutate the catalog definition.
 - Sound Lab controls are semantic, persist mute/reset behavior, customize cues, and run stoppable sequences in a real Chromium component test.
-- All four sampler definitions have unique IDs, useful comparison guidance, safe durations, bounded ambience, and notes that fit within their scheduled loop tails; transforms are clamped and serializable, and muted playback creates no music backend.
-- The Music Lab exposes independent enable/volume controls, fast track switching, reproducible transforms, and stoppable real-browser loops.
+- All five production definitions and 25 experiments have unique IDs, useful comparison guidance, bounded durations, phone-safe low cuts, and notes that fit within their scheduled loop tails; transforms are clamped and serializable, and muted playback creates no music backend.
+- The Music Lab exposes independent enable/volume controls, family filters, fast track switching, reproducible transforms, and stoppable real-browser loops.
 - Real-browser Settings coverage verifies independent toggles, sliders, all soundtrack choices, reset behavior, navigation, persistence, accessibility, and a phone layout.
 - The player journey verifies that music and soundtrack selection persist, music disappears from the active-question interface, and returns when the player exits the round.
 - The player journey verifies coin presentation, capsule-opening timing, unavailable-capsule behavior, and persistence in Chromium, WebKit, and the iPad browser project.
@@ -155,7 +160,7 @@ Automation can verify the sound graph and controls but cannot judge taste or the
 4. Record only obvious problems that should block the next development phase; preserve subjective refinements in the deferred backlog.
 5. Check the same flows on an iPad before calling the contextual pass complete.
 
-The smooth-architecture sampler is now implemented. Compare the original with the three new approaches before investing in a longer arrangement or more advanced synthesis. Once a direction emerges, listen for looping fatigue, cue masking, speaker distortion, and awkward resume timing on a Mac, iPhone, and iPad. Keep production music disabled by default until that pass feels consistently pleasant.
+The first music pass is complete. Cozy Electric Piano's deliberately composed 60-second A-A2-B-A-prime loop is the production default, and Settings already lets players choose among all five production tracks. The 25 remaining experiments stay in the development-only Music Lab rather than cluttering the player experience. Future music work should begin by composing a small number of equally deliberate songs, then decide whether the soundtrack picker needs categories, previews, or companion-related presentation. Music remains disabled by default until a player chooses to turn it on.
 
 ## Deferred audio backlog
 
@@ -169,6 +174,8 @@ The contextual-audio pass deliberately stops after round launch, answers, round 
 - Filter, resonance, echo, reverb, tremolo, vibrato, detuning, and per-note Sound Lab controls.
 - Rarity-sensitive reveal variations after the base capsule animation has been play-tested.
 - Recorded or generated samples only where synthesis cannot express the desired character.
-- Longer arrangements, companion-specific variations, or reactive layers only after the sampler identifies a direction and background music proves that it improves the experience.
+- More deliberately composed songs using the main theme's motif-and-development approach.
+- A refined soundtrack picker if the production library grows beyond a simple Settings grid.
+- Companion-specific variations or reactive layers only after multiple full songs prove worthwhile.
 
 Ordinary navigation, review/history interaction, scrolling, text entry, and every settings chip should remain silent unless play-testing reveals a specific usability problem.

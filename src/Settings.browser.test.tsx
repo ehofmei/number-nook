@@ -32,7 +32,7 @@ describe('Settings in a real browser', () => {
       .element(page.getByRole('checkbox', { name: 'Background music off' }))
       .not.toBeChecked();
     await expect
-      .element(page.getByRole('button', { name: /Starlight Stream/ }))
+      .element(page.getByRole('button', { name: /Cozy Electric Piano/ }))
       .toHaveAttribute('aria-pressed', 'true');
 
     await page.getByRole('checkbox', { name: 'Sound effects on' }).click();
@@ -55,7 +55,7 @@ describe('Settings in a real browser', () => {
       .not.toBeChecked();
     await expect.element(page.getByRole('slider', { name: 'Music volume' })).toHaveValue('0.18');
     await expect
-      .element(page.getByRole('button', { name: /Starlight Stream/ }))
+      .element(page.getByRole('button', { name: /Cozy Electric Piano/ }))
       .toHaveAttribute('aria-pressed', 'true');
   });
 

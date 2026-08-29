@@ -706,7 +706,7 @@ export function Settings({
         <section className="settings-reset" aria-label="Reset audio settings">
           <div>
             <strong>Want the original setup?</strong>
-            <span>Effects on, music off, and Starlight Stream selected.</span>
+            <span>Effects on, music off, and Cozy Electric Piano selected.</span>
           </div>
           <button className="secondary-button" type="button" onClick={onReset}>
             Reset audio defaults

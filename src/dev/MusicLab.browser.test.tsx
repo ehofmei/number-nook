@@ -39,20 +39,32 @@ describe('MusicLab in a real browser', () => {
       effectsVolume: 0.4,
       musicEnabled: true,
       musicVolume: 0.18,
-      musicTrackId: 'starlight-stream',
+      musicTrackId: 'cozy-electric-piano-theme',
+      musicCatalogVersion: 2,
     });
   });
 
-  it('switches among contrasting tracks, tunes a recipe, and stops cleanly', async () => {
+  it('filters the listening library, switches contrasting tracks, and tunes a recipe', async () => {
     await render(<MusicLab />);
     await page.getByRole('checkbox', { name: 'Background music off' }).click();
-    await page.getByRole('button', { name: 'Play Cozy Nook' }).click();
+    await page.getByRole('button', { name: 'Play Cozy Electric Piano — Theme' }).click();
     await expect
-      .element(page.getByRole('button', { name: 'Playing Cozy Nook' }))
+      .element(page.getByRole('button', { name: 'Playing Cozy Electric Piano — Theme' }))
       .toHaveAttribute('aria-pressed', 'true');
     await expect
       .element(page.getByRole('status', { name: 'Music Lab status' }))
-      .toHaveTextContent('Playing “Cozy Nook.”');
+      .toHaveTextContent('Playing “Cozy Electric Piano — Theme.”');
+
+    await page.getByRole('button', { name: /^Plucked/ }).click();
+    await expect
+      .element(page.getByRole('button', { name: 'Play Music Box Evening' }))
+      .toBeVisible();
+    await expect
+      .element(page.getByRole('button', { name: 'Play Cozy Electric Piano — Theme' }))
+      .not.toBeInTheDocument();
+    await page.getByRole('button', { name: 'Play Music Box Evening' }).click();
+
+    await page.getByRole('button', { name: /^References/ }).click();
     await page.getByRole('button', { name: 'Play Quiet Cove' }).click();
     await expect
       .element(page.getByRole('slider', { name: 'Music foreground presence' }))
@@ -74,7 +86,8 @@ describe('MusicLab in a real browser', () => {
       .element(page.getByRole('button', { name: 'Play Starlight Stream' }))
       .toBeDisabled();
     await page.getByRole('checkbox', { name: 'Background music off' }).click();
-    await page.getByRole('button', { name: 'Play Moonlit Window' }).click();
+    await page.getByRole('button', { name: /^Piano/ }).click();
+    await page.getByRole('button', { name: 'Play Cozy Electric Piano', exact: true }).click();
     await page.getByRole('slider', { name: 'Music tempo' }).fill('115');
     await page.getByRole('slider', { name: 'Music warmth' }).fill('80');
     await page.getByRole('slider', { name: 'Music foreground presence' }).fill('130');
@@ -86,7 +99,7 @@ describe('MusicLab in a real browser', () => {
     await expect.element(page.getByRole('button', { name: 'Stop music' })).toBeEnabled();
     await expect
       .element(page.getByRole('status', { name: 'Music Lab status' }))
-      .toHaveTextContent(/Playing “Moonlit Window”|Turn music on/);
+      .toHaveTextContent(/Playing “Cozy Electric Piano”|Turn music on/);
     await page.getByRole('button', { name: 'Stop music' }).click();
     await expect
       .element(page.getByRole('status', { name: 'Music Lab status' }))

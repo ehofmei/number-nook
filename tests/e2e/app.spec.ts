@@ -282,7 +282,8 @@ test('sound and music preferences persist independently and recover from zero vo
     effectsVolume: 0.4,
     musicEnabled: false,
     musicVolume: 0.18,
-    musicTrackId: 'starlight-stream',
+    musicTrackId: 'cozy-electric-piano-theme',
+    musicCatalogVersion: 2,
   });
 
   await page.getByRole('button', { name: 'Turn on background music' }).click();
@@ -301,6 +302,8 @@ test('audio settings persist volumes and soundtrack selection, then reset cleanl
   await onboard(page);
   await page.getByRole('button', { name: /^Settings/ }).click();
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+  await expect(page.locator('.settings-track')).toHaveCount(5);
+  await expect(page.getByRole('button', { name: /Solo Nook Piano/ })).toHaveCount(0);
 
   await page.getByRole('slider', { name: 'Effects volume' }).fill('0.65');
   await page.getByRole('checkbox', { name: 'Background music off' }).click();
@@ -324,7 +327,7 @@ test('audio settings persist volumes and soundtrack selection, then reset cleanl
   await expect(page.getByRole('slider', { name: 'Effects volume' })).toHaveValue('0.4');
   await expect(page.getByRole('slider', { name: 'Music volume' })).toHaveValue('0.18');
   await expect(page.getByRole('checkbox', { name: 'Background music off' })).not.toBeChecked();
-  await expect(page.getByRole('button', { name: /Starlight Stream/ })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: /Cozy Electric Piano/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );

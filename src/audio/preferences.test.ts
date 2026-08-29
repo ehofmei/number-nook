@@ -45,7 +45,7 @@ describe('audio preferences', () => {
       effectsVolume: 0.25,
       musicEnabled: false,
       musicVolume: 0.18,
-      musicTrackId: 'starlight-stream',
+      musicTrackId: 'cozy-electric-piano-theme',
     });
   });
 
@@ -64,8 +64,30 @@ describe('audio preferences', () => {
       effectsVolume: 0.3,
       musicEnabled: true,
       musicVolume: 0.15,
+      musicTrackId: 'cozy-electric-piano-theme',
+    });
+  });
+
+  it('migrates the former default once but preserves later soundtrack choices', () => {
+    localStorage.setItem(
+      LocalStorageAudioPreferencesRepository.key,
+      JSON.stringify({
+        effectsEnabled: true,
+        effectsVolume: 0.4,
+        musicEnabled: true,
+        musicVolume: 0.18,
+        musicTrackId: 'starlight-stream',
+      }),
+    );
+    const repository = new LocalStorageAudioPreferencesRepository();
+    expect(repository.load().musicTrackId).toBe('cozy-electric-piano-theme');
+
+    repository.save({
+      ...DEFAULT_AUDIO_PREFERENCES,
+      musicEnabled: true,
       musicTrackId: 'starlight-stream',
     });
+    expect(repository.load().musicTrackId).toBe('starlight-stream');
   });
 
   it('falls back safely when stored preferences are malformed', () => {
