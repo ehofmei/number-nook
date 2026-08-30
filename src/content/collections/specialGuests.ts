@@ -34,7 +34,7 @@ export const SPECIAL_GUESTS_PACK = {
       shopEligible: true,
       shopPrice: 1200,
       starterEligible: false,
-      sortOrder: 200,
+      sortOrder: 999,
     },
   ],
 } as const satisfies CollectionPack;

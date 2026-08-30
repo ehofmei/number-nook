@@ -218,6 +218,96 @@ const CLASSIC_CATS: readonly ClassicCat[] = [
     signature: 'Lantern glow',
     status: 'New draft',
   },
+  {
+    id: 'crumpet',
+    name: 'Crumpet',
+    rarity: 'common',
+    image: classicAsset('crumpet.svg'),
+    alt: 'A round cream tabby cat with a teal scarf and steaming cup charm',
+    signature: 'Café scarf and cup',
+    status: 'New draft',
+  },
+  {
+    id: 'tansy',
+    name: 'Tansy',
+    rarity: 'common',
+    image: classicAsset('tansy.svg'),
+    alt: 'A bright tortoiseshell cat with a green collar and coral flower sprig',
+    signature: 'Flower sprig',
+    status: 'New draft',
+  },
+  {
+    id: 'puddle',
+    name: 'Puddle',
+    rarity: 'common',
+    image: classicAsset('puddle.svg'),
+    alt: 'A blue-gray cat with white paws, yellow rain collar, and raindrop charm',
+    signature: 'Rain collar and drop',
+    status: 'New draft',
+  },
+  {
+    id: 'wick',
+    name: 'Wick',
+    rarity: 'common',
+    image: classicAsset('wick.svg'),
+    alt: 'A small charcoal kitten with amber eyes and a glowing lantern charm',
+    signature: 'Tiny lantern',
+    status: 'New draft',
+  },
+  {
+    id: 'inkwell',
+    name: 'Inkwell',
+    rarity: 'uncommon',
+    image: classicAsset('inkwell.svg'),
+    alt: 'A tuxedo cat with indigo spectacles and an open bound book',
+    signature: 'Spectacles and book',
+    status: 'New draft',
+  },
+  {
+    id: 'chime',
+    name: 'Chime',
+    rarity: 'uncommon',
+    image: classicAsset('chime.svg'),
+    alt: 'A lilac-point cat with violet eyes and a golden bell charm',
+    signature: 'Bell and chimes',
+    status: 'New draft',
+  },
+  {
+    id: 'maribel',
+    name: 'Maribel',
+    rarity: 'uncommon',
+    image: classicAsset('maribel.svg'),
+    alt: 'A cinnamon longhair cat with a plum bow and theater-star charm',
+    signature: 'Theater bow and star',
+    status: 'New draft',
+  },
+  {
+    id: 'gable',
+    name: 'Gable',
+    rarity: 'rare',
+    image: classicAsset('gable.svg'),
+    alt: 'A broad russet Maine Coon cat with a green scarf and weather-vane charm',
+    signature: 'Rooftop scarf',
+    status: 'New draft',
+  },
+  {
+    id: 'mosaic',
+    name: 'Mosaic',
+    rarity: 'rare',
+    image: classicAsset('mosaic.svg'),
+    alt: 'A silver spotted cat with teal eyes and a colorful glass collar piece',
+    signature: 'Stained-glass jewel',
+    status: 'New draft',
+  },
+  {
+    id: 'lumina',
+    name: 'Lumina',
+    rarity: 'legendary',
+    image: classicAsset('lumina.svg'),
+    alt: 'A regal white-and-gold longhair cat beneath an arch of glowing lanterns',
+    signature: 'Lantern arch',
+    status: 'New draft',
+  },
 ];
 
 const STICKER_ANCHORS = [
@@ -532,6 +622,156 @@ const STICKER_ANCHORS = [
     ],
   },
   {
+    id: 'crumpet',
+    name: 'Crumpet',
+    rarity: 'common',
+    classic: classicAsset('crumpet.svg'),
+    purpose: 'Café warmth',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('crumpet-sticker.webp'),
+        alt: 'Crumpet Sticker version 3 welcoming the viewer from a warm café window',
+      },
+    ],
+  },
+  {
+    id: 'tansy',
+    name: 'Tansy',
+    rarity: 'common',
+    classic: classicAsset('tansy.svg'),
+    purpose: 'Florist color',
+    preferredVersion: 'Sticker v4',
+    stickers: [
+      {
+        version: 'Sticker v4',
+        image: classicAsset('tansy-sticker.webp'),
+        alt: 'Tansy Sticker version 4 posing playfully beside a flower box',
+      },
+    ],
+  },
+  {
+    id: 'puddle',
+    name: 'Puddle',
+    rarity: 'common',
+    classic: classicAsset('puddle.svg'),
+    purpose: 'Rain reflection',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('puddle-sticker.webp'),
+        alt: 'Puddle Sticker version 3 playing beside a rain-washed reflection',
+      },
+    ],
+  },
+  {
+    id: 'wick',
+    name: 'Wick',
+    rarity: 'common',
+    classic: classicAsset('wick.svg'),
+    purpose: 'Tiny lamplight',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('wick-sticker.webp'),
+        alt: 'Wick Sticker version 2 tending a tiny lantern at dusk',
+      },
+    ],
+  },
+  {
+    id: 'inkwell',
+    name: 'Inkwell',
+    rarity: 'uncommon',
+    classic: classicAsset('inkwell.svg'),
+    purpose: 'Bookshop motion',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('inkwell-sticker.webp'),
+        alt: 'Inkwell Sticker version 3 moving eagerly across a bookbinding counter',
+      },
+    ],
+  },
+  {
+    id: 'chime',
+    name: 'Chime',
+    rarity: 'uncommon',
+    classic: classicAsset('chime.svg'),
+    purpose: 'Gentle rhythm',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('chime-sticker.webp'),
+        alt: 'Chime Sticker version 2 listening beneath softly moving brass chimes',
+      },
+    ],
+  },
+  {
+    id: 'maribel',
+    name: 'Maribel',
+    rarity: 'uncommon',
+    classic: classicAsset('maribel.svg'),
+    purpose: 'Theater welcome',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('maribel-sticker.webp'),
+        alt: 'Maribel Sticker version 3 offering a warm welcome in a theater doorway',
+      },
+    ],
+  },
+  {
+    id: 'gable',
+    name: 'Gable',
+    rarity: 'rare',
+    classic: classicAsset('gable.svg'),
+    purpose: 'Rooftop adventure',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('gable-sticker.webp'),
+        alt: 'Gable Sticker version 3 bounding confidently across a rooftop',
+      },
+    ],
+  },
+  {
+    id: 'mosaic',
+    name: 'Mosaic',
+    rarity: 'rare',
+    classic: classicAsset('mosaic.svg'),
+    purpose: 'Stained-glass play',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('mosaic-sticker.webp'),
+        alt: 'Mosaic Sticker version 2 rolling playfully through stained-glass light',
+      },
+    ],
+  },
+  {
+    id: 'lumina',
+    name: 'Lumina',
+    rarity: 'legendary',
+    classic: classicAsset('lumina.svg'),
+    purpose: 'Lantern Night glow',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('lumina-sticker.webp'),
+        alt: 'Lumina Sticker version 3 greeting the viewer beneath three glowing lanterns',
+      },
+    ],
+  },
+  {
     id: 'button-bunny',
     name: 'Button Bunny',
     rarity: 'special',
@@ -612,8 +852,8 @@ export function ArtLab() {
           <span className="eyebrow">Development only</span>
           <h1>Number Nook Art Lab</h1>
           <p>
-            Review companion identities across Classic and Sticker art, including both complete
-            ordinary collections and the first Special Guest.
+            Review companion identities across Classic and Sticker art, including three ordinary
+            collections and the first Special Guest.
           </p>
           <nav className="lab-links" aria-label="Development labs">
             <a href="?dev=states">State gallery</a>
@@ -664,7 +904,7 @@ export function ArtLab() {
               Compare identity across styles and inspect approved source portraits at compact size.
             </p>
           </div>
-          <span className="mode-pill">21 companions</span>
+          <span className="mode-pill">31 companions</span>
         </div>
 
         <div className="sticker-anchor-grid">
@@ -714,10 +954,10 @@ export function ArtLab() {
             <h2 id="classic-collection-heading">Classic collection contact sheets</h2>
             <p>
               Check silhouette, palette, signature motif, and rarity balance across the Nook
-              Neighbors and Nookside Pups.
+              Neighbors, Nookside Pups, and Lantern Lane Cats.
             </p>
           </div>
-          <span className="mode-pill">20 / 20 drafted</span>
+          <span className="mode-pill">30 / 30 drafted</span>
         </div>
 
         <div className="classic-collection-actions">
@@ -855,8 +1095,10 @@ export function ArtLab() {
           <li>Could the treatment plausibly stay consistent across one hundred cats and Guests?</li>
         </ul>
         <p>
-          Both ordinary collections now have production Classic and Sticker art. The additional
-          Moonbeam treatments remain studies for future refinements and alternate art experiments.
+          The first two ordinary collections have production Classic and Sticker art. Lantern Lane
+          Cats currently use their Classic portraits as the safe Sticker fallback while the next
+          polished batch is designed. The additional Moonbeam treatments remain studies for future
+          refinements and alternate art experiments.
         </p>
       </section>
     </main>

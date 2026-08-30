@@ -26,6 +26,16 @@ const APPROVED_STICKERS = [
   ['echo-sticker-v3.png', 'echo-sticker.webp'],
   ['velvet-sticker-v2.png', 'velvet-sticker.webp'],
   ['beacon-sticker-v2.png', 'beacon-sticker.webp'],
+  ['crumpet-sticker-v3.png', 'crumpet-sticker.webp'],
+  ['tansy-sticker-v4.png', 'tansy-sticker.webp'],
+  ['puddle-sticker-v3.png', 'puddle-sticker.webp'],
+  ['wick-sticker-v2.png', 'wick-sticker.webp'],
+  ['inkwell-sticker-v3.png', 'inkwell-sticker.webp'],
+  ['chime-sticker-v2.png', 'chime-sticker.webp'],
+  ['maribel-sticker-v3.png', 'maribel-sticker.webp'],
+  ['gable-sticker-v3.png', 'gable-sticker.webp'],
+  ['mosaic-sticker-v2.png', 'mosaic-sticker.webp'],
+  ['lumina-sticker-v3.png', 'lumina-sticker.webp'],
 ] as const;
 
 const SOURCE_DIRECTORY = resolve('src/dev/assets');

@@ -1,4 +1,5 @@
 import { NOOKSIDE_PUPS_SIGNATURE_PHRASES } from './signatures/nooksidePups.ts';
+import { LANTERN_LANE_CATS_SIGNATURE_PHRASES } from './signatures/lanternLaneCats.ts';
 import type { DialoguePhrase } from './types.ts';
 
 const SHARED_HOME_PHRASES = [
@@ -731,4 +732,5 @@ export const DIALOGUE_PHRASES = [
   ...SHARED_PROGRESS_PHRASES,
   ...SIGNATURE_PHRASES,
   ...NOOKSIDE_PUPS_SIGNATURE_PHRASES,
+  ...LANTERN_LANE_CATS_SIGNATURE_PHRASES,
 ] as const satisfies readonly DialoguePhrase[];

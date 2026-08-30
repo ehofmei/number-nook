@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs><radialGradient id="bg"><stop stop-color="#ffe8a4"/><stop offset=".5" stop-color="#6d628f"/><stop offset="1" stop-color="#292742"/></radialGradient><linearGradient id="fur" x2="1" y2="1"><stop stop-color="#fffdf2"/><stop offset="1" stop-color="#e9d69d"/></linearGradient></defs>
+  <rect width="400" height="400" rx="88" fill="url(#bg)"/>
+  <path d="M54 112q146-103 292 0" fill="none" stroke="#4a405f" stroke-width="7"/>
+  <g fill="#ffd875" stroke="#8e5c10" stroke-width="5"><path d="M51 90h40v48H51Z"/><path d="M180 53h40v48h-40Z"/><path d="M309 90h40v48h-40Z"/></g><g stroke="#fff2bd" stroke-width="5"><path d="M60 106h22m-11-16v48m118-69h22m-11-16v48m118 5h22m-11-16v48"/></g>
+  <path d="m98 165 25-118 77 84m102 34-25-118-77 84" fill="#f5e5b5" stroke="#a7792d" stroke-width="11" stroke-linejoin="round"/>
+  <path d="m125 77 42 53-54 18m162-71-42 53 54 18" fill="#d4a857"/>
+  <path d="M200 98c68 0 114 50 114 118 23 19 17 51-11 62-14 36-50 58-103 58s-89-22-103-58c-28-11-34-43-11-62 0-68 46-118 114-118Z" fill="url(#fur)"/>
+  <path d="M126 271q15 65 74 65t74-65q-74 25-148 0Z" fill="#fff8df"/>
+  <ellipse cx="155" cy="211" rx="19" ry="24" fill="#a66b15"/><ellipse cx="245" cy="211" rx="19" ry="24" fill="#a66b15"/><ellipse cx="155" cy="216" rx="7" ry="13" fill="#47320e"/><ellipse cx="245" cy="216" rx="7" ry="13" fill="#47320e"/><circle cx="149" cy="203" r="5" fill="#fff"/><circle cx="239" cy="203" r="5" fill="#fff"/>
+  <ellipse cx="200" cy="255" rx="53" ry="39" fill="#fff8df"/><path d="m187 244 13 12 13-12-13-8Z" fill="#b8787b"/><path d="M169 274q31 23 62 0" fill="none" stroke="#64513f" stroke-width="8" stroke-linecap="round"/>
+  <path d="M121 319q79-35 158 0" fill="none" stroke="#8e5c10" stroke-width="19" stroke-linecap="round"/>
+  <g transform="translate(200 332)"><path d="M-24-21h48v55h-48Z" fill="#ffd875" stroke="#8e5c10" stroke-width="7"/><path d="M-12-21q0-19 12-19t12 19" fill="none" stroke="#8e5c10" stroke-width="7"/><path d="M-15 5h30M0-15v42" stroke="#fff8cd" stroke-width="6"/></g>
+</svg>

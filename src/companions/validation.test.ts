@@ -11,7 +11,7 @@ describe('companion content validation', () => {
   it('accepts the complete production registry and phrase bank', () => {
     expect(validateCompanionContent(collectibleIds)).toEqual([]);
     expect(COMPANION_PERSONALITIES).toHaveLength(collectibleIds.length);
-    expect(DIALOGUE_PHRASES).toHaveLength(158);
+    expect(DIALOGUE_PHRASES).toHaveLength(188);
   });
 
   it('lets the labeled companion speak directly instead of narrating itself', () => {

@@ -26,6 +26,7 @@ describe('collectible catalog', () => {
     expect(getCollectible('cozy-cats:sunny')?.name).toBe('Sunny');
     expect(getCollectible('missing:item')).toBeUndefined();
     expect(getCollection('cozy-cats')?.name).toBe('The Nook Neighbors');
+    expect(getCollection('lantern-lane-cats')?.name).toBe('Lantern Lane Cats');
     expect(getCollection('missing')).toBeUndefined();
   });
 
@@ -60,6 +61,26 @@ describe('collectible catalog', () => {
     expect(pups.every(({ art }) => Boolean(art.classic && art.sticker))).toBe(true);
     expect(getCollectibleImage(getCollectible('nookside-pups:poppy')!, 'sticker')).toBe(
       'collectibles/poppy-sticker.webp',
+    );
+  });
+
+  it('contains the complete dual-art Lantern Lane Cats rarity distribution', () => {
+    const laneCats = catalog.collectibles.filter(
+      ({ collectionId }) => collectionId === 'lantern-lane-cats',
+    );
+    const rarityCounts = laneCats.reduce<Record<string, number>>((counts, collectible) => {
+      counts[collectible.rarity] = (counts[collectible.rarity] ?? 0) + 1;
+      return counts;
+    }, {});
+
+    expect(laneCats).toHaveLength(10);
+    expect(rarityCounts).toEqual({ common: 4, uncommon: 3, rare: 2, legendary: 1 });
+    expect(laneCats.every(({ species, specialGuest }) => species === 'cat' && !specialGuest)).toBe(
+      true,
+    );
+    expect(laneCats.every(({ art }) => Boolean(art.classic && art.sticker))).toBe(true);
+    expect(getCollectibleImage(getCollectible('lantern-lane-cats:crumpet')!, 'sticker')).toBe(
+      'collectibles/crumpet-sticker.webp',
     );
   });
 

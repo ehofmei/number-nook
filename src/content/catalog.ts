@@ -1,4 +1,5 @@
 import { COZY_CATS_PACK } from './collections/cozyCats.ts';
+import { LANTERN_LANE_CATS_PACK } from './collections/lanternLaneCats.ts';
 import { NOOKSIDE_PUPS_PACK } from './collections/nooksidePups.ts';
 import { SPECIAL_GUESTS_PACK } from './collections/specialGuests.ts';
 import type { CollectionPack } from './collections/types.ts';
@@ -13,11 +14,12 @@ import {
 const COLLECTION_PACKS: readonly CollectionPack[] = [
   COZY_CATS_PACK,
   NOOKSIDE_PUPS_PACK,
+  LANTERN_LANE_CATS_PACK,
   SPECIAL_GUESTS_PACK,
 ];
 
 const rawCatalog = {
-  version: '2.4.0',
+  version: '2.6.0',
   collections: COLLECTION_PACKS.map(({ collection }) => collection),
   collectibles: COLLECTION_PACKS.flatMap(({ collectibles }) => collectibles),
 } satisfies CatalogData;

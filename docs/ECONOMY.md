@@ -38,7 +38,7 @@ The regular economy remains at 60 coins per duplicate-protected capsule and a 30
 - use the normal reveal, ownership, history, sound, and accessibility behavior;
 - remain separate from daily and weekly bonuses.
 
-After the catalog reaches twenty-one and again at thirty-one companions, run deterministic acquisition simulations covering different starter choices, rarity orderings, and established saves. Measure time to early variety, first Rare, first Legendary, collection completion, and complete-catalog ownership. Use those results and family play data before considering pity guarantees, featured capsules, price changes, or the direct-purchase shop.
+The catalog has now reached thirty-one companions. Run deterministic acquisition simulations covering different starter choices, rarity orderings, and established saves before the next economy change. Measure time to early variety, first Rare, first Legendary, collection completion, and complete-catalog ownership. Use those results and family play data before considering pity guarantees, featured capsules, price changes, or the direct-purchase shop.
 
 ## Save behavior
 

@@ -364,11 +364,11 @@ Each operation must ship with its generator invariants, distractor rules, diffic
 
 ## Near-term kid-ready roadmap
 
-The current priority is collectible depth and repeat-play motivation before additional math modes. The catalog has reached the twenty-one-companion internal expansion checkpoint with the Classic Nookside Pups collection. Thirty-one companions remains the target before treating the game as ready for regular family play.
+The current priority is collectible depth and repeat-play motivation before additional math modes. The catalog has reached the thirty-one-companion kid-ready target with complete Classic and Sticker art. Acquisition simulation and family playtesting remain before treating that target as fully polished.
 
 1. ~~Split the catalog and personality registries into collection-specific modules while preserving one aggregated public catalog and every permanent ID.~~ Completed in catalog 2.3.
 2. **Nookside Pups is complete**, with ten ordinary dog companions distributed across four Common, three Uncommon, two Rare, and one Legendary. Catalog entries, themes, personalities, phrases, CSS motifs, Classic SVGs, optimized Sticker WebPs, and art-style switching are implemented without species-specific application logic. The roster and dual-art record live in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md).
-3. Design and ship a second ten-member cat collection using the same content, dual-art, theme, dialogue, economy, and testing contracts. This raises the catalog to thirty-one while keeping cats at the center of the game.
+3. ~~Design and ship a second ten-member cat collection using the same content, theme, dialogue, economy, and testing contracts.~~ Lantern Lane Cats completed its Classic SVG phase in catalog 2.5 and its ten optimized Sticker portraits in catalog 2.6, raising the dual-art catalog to thirty-one while keeping cats at the center.
 4. Add one duplicate-protected welcome capsule after the first completed round. It is a one-time onboarding reward, costs no Paw Coins, and does not consume the daily earning allowance.
 5. Add the small daily participation bonus, three-days-per-week goal, collection-completion celebrations, and a compact recent-discoveries or favorites presentation.
 6. Simulate acquisition across the larger catalog before changing capsule cost, rarity weights, guarantee rules, or building the direct-purchase shop.
@@ -406,4 +406,4 @@ A feature is complete only when:
 
 ## Current development decision point
 
-Nookside Pups is complete in catalog 2.4 with ten approved Classic SVG and optimized Sticker WebP pairs. The next collectible milestone is a third ordinary collection, selected only after the finished pups have been exercised in gallery, capsule, equipped-companion, and family playtesting contexts.
+Lantern Lane Cats is fully implemented in catalog 2.6 with ten Classic SVGs, ten optimized Sticker portraits, themes, personalities, signature dialogue, economy data, fallback behavior, and collection documentation. The immediate collectible milestone is live-context and family playtesting followed by acquisition simulation. The next full collection should probably be non-cat; current candidates are maintained in [Future Companion Collection Ideas](./FUTURE_COMPANION_COLLECTIONS.md).

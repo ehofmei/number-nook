@@ -221,18 +221,19 @@ test('the complete collection shares one remembered art-style preference', async
   await page.getByRole('button', { name: /^Collection/ }).click();
 
   await expect.poll(() => page.evaluate<number>('window.scrollY')).toBe(0);
-  await expect(page.locator('.collection-grid .collectible-card')).toHaveCount(21);
+  await expect(page.locator('.collection-grid .collectible-card')).toHaveCount(31);
   await expect(page.getByRole('button', { name: 'Polished Sticker' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
   await expect(page.getByRole('region', { name: 'Equipped companion' })).toContainText('Moonbeam');
-  await expect(page.getByRole('progressbar', { name: '1 of 21 companions found' })).toHaveAttribute(
+  await expect(page.getByRole('progressbar', { name: '1 of 31 companions found' })).toHaveAttribute(
     'aria-valuenow',
     '1',
   );
   await expect(page.getByRole('button', { name: 'The Nook Neighbors 1/10' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Nookside Pups 0/10' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Lantern Lane Cats 0/10' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Moonbeam' }).locator('img')).toHaveAttribute(
     'src',
     /moonbeam-sticker\.webp$/,
@@ -244,6 +245,8 @@ test('the complete collection shares one remembered art-style preference', async
   await expect(buttonBunnyPortrait).toHaveAttribute('src', /button-bunny-sticker\.webp$/);
   const poppyPortrait = page.locator('.collection-grid .collectible-card').nth(10).locator('img');
   await expect(poppyPortrait).toHaveAttribute('src', /poppy-sticker\.webp$/);
+  const crumpetPortrait = page.locator('.collection-grid .collectible-card').nth(20).locator('img');
+  await expect(crumpetPortrait).toHaveAttribute('src', /crumpet-sticker\.webp$/);
 
   await page.getByRole('button', { name: 'Simple SVG' }).click();
   await expect(page.getByRole('button', { name: 'Moonbeam' }).locator('img')).toHaveAttribute(
@@ -252,6 +255,7 @@ test('the complete collection shares one remembered art-style preference', async
   );
   await expect(buttonBunnyPortrait).toHaveAttribute('src', /button-bunny\.svg$/);
   await expect(poppyPortrait).toHaveAttribute('src', /poppy\.svg$/);
+  await expect(crumpetPortrait).toHaveAttribute('src', /crumpet\.svg$/);
   await page.reload();
   await page.getByRole('button', { name: /^Collection/ }).click();
   await expect(page.getByRole('button', { name: 'Simple SVG' })).toHaveAttribute(

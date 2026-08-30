@@ -92,6 +92,25 @@ if (nooksidePups.some(({ species, specialGuest }) => species !== 'dog' || specia
 if (nooksidePups.some(({ art }) => !art.classic || !art.sticker)) {
   throw new Error('Every Nookside Pup must ship with both Classic and Sticker art.');
 }
+
+const lanternLaneCats = catalog.collectibles.filter(
+  ({ collectionId }) => collectionId === 'lantern-lane-cats',
+);
+if (lanternLaneCats.length !== 10) {
+  throw new Error(`Expected 10 Lantern Lane Cats, found ${lanternLaneCats.length}.`);
+}
+for (const [rarity, expected] of Object.entries(expectedRarities)) {
+  const actual = lanternLaneCats.filter((collectible) => collectible.rarity === rarity).length;
+  if (actual !== expected) {
+    throw new Error(`Expected ${expected} ${rarity} Lantern Lane Cats, found ${actual}.`);
+  }
+}
+if (lanternLaneCats.some(({ species, specialGuest }) => species !== 'cat' || specialGuest)) {
+  throw new Error('Lantern Lane Cats must be ordinary cat companions.');
+}
+if (lanternLaneCats.some(({ art }) => !art.classic || !art.sticker)) {
+  throw new Error('Every Lantern Lane Cat must ship with both Classic and Sticker art.');
+}
 for (const [rarity, expected] of Object.entries(expectedRarities)) {
   const actual = nookNeighbors.filter((collectible) => collectible.rarity === rarity).length;
   if (actual !== expected) {
