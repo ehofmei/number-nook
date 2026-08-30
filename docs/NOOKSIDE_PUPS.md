@@ -22,7 +22,7 @@ Player-facing collection description:
 
 > Ten good-hearted pups who turn every walk around Number Nook into a small adventure.
 
-All ten members use `species: "dog"`, are not Special Guests, may appear in ordinary Companion Capsules, and may later be offered in the direct-purchase shop. None changes the existing set of three starters.
+All ten members use `species: "dog"`, are not Special Guests, and may appear in Surprise or Nookside Pups Collection Capsules. None changes the existing set of three starters.
 
 ## Rarity distribution
 

@@ -4,7 +4,7 @@ This document defines how Number Nook companions can feel expressive and memorab
 
 The system should be bold enough to make collecting feel worthwhile, but simple enough to scale from eleven companions to one hundred or more.
 
-Implementation status: the pure engine boundary, development-only Companion Lab, and all six initial player-facing dialogue contexts are complete. The repository now contains 128 validated phrases, all eleven personality definitions, deterministic condition-aware selection, per-context eight-line recent queues, token rendering, unit/property coverage, responsive presentation previews, CSS motion/motif profiles, and Draw 50 diagnostics. Stable companion dialogue appears on Home, Game Setup, Round Results, the idle Capsule screen, equip confirmation, and Play History.
+Implementation status: the pure engine boundary, development-only Companion Lab, and all six initial player-facing dialogue contexts are complete. The repository now contains 188 validated phrases, all thirty-one personality definitions, deterministic condition-aware selection, per-context eight-line recent queues, token rendering, unit/property coverage, responsive presentation previews, CSS motion/motif profiles, and Draw 50 diagnostics. Stable companion dialogue appears on Home, Game Setup, Round Results, the idle Capsule screen, equip confirmation, and Play History.
 
 The initial copy-polish pass established the companion as the direct first-person speaker, replaced formal educational phrasing with warmer conversational language, and added restrained cute imagery without changing phrase IDs, eligibility, or result conditions.
 

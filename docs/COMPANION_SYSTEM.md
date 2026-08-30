@@ -86,8 +86,8 @@ The equipped companion should feel present without competing with arithmetic.
 | Game setup | Compact portrait and a short neutral line such as “Cloud will cheer you on.” |
 | Active questions | Small static portrait in the header, outside the equation and answer grid. No dialogue or mistake reaction. |
 | Round results | Larger celebratory portrait regardless of score, paired with the round-complete treatment. |
-| Collection | A “By your side” spotlight, overall and per-collection completion counts, clear equipped state, full character details, and an easy equip action. |
-| Capsule | Compact equipped-companion dialogue while idle; the revealed companion keeps the large reveal presentation without competing dialogue. |
+| Collection | A prominent equipped-companion spotlight, overall and per-collection completion counts, full character details, and an easy equip action. Replace the subtle “By your side” eyebrow with a themed border or glow, overlapping paw/check badge, and direct `Equipped` pill. |
+| Capsule | Compact equipped-companion dialogue while idle; the revealed companion keeps the large reveal presentation without competing dialogue. A newly discovered companion can be equipped directly from the reveal screen. |
 | History | Compact coach card above the statistics, describing current practice without implying participation in older rounds. |
 | Backup | Equipped theme remains active; character imagery is omitted from the data-focused workflow. |
 
@@ -104,6 +104,16 @@ The unified gallery should continue to show every companion. As the catalog grow
 - show Special Guests inline with a visible badge;
 - never require separate ownership, reward, shop, or equip logic for a species.
 
+Equipped state must be more obvious than the current text-only treatment. Use the same visual language anywhere a selectable companion appears:
+
+- a strong theme-colored outline or glow around the equipped portrait or card;
+- an overlapping filled paw/check badge with a stable shape;
+- a concise `Equipped` pill beside the companion name;
+- an accessible name such as `Lumina, equipped` so color is never the only signal;
+- restrained motion that respects reduced-motion preferences.
+
+On a capsule reveal, `Equip {name}` is the primary action and `View collection` is secondary. After selection, keep the reveal visible, apply the new theme immediately, and replace the primary action with a clear equipped confirmation.
+
 ## Implementation sequence
 
 1. ~~Generalize the catalog schema while preserving every current stable ID and save behavior.~~ Completed in catalog version 2.0.0.
@@ -118,7 +128,8 @@ The unified gallery should continue to show every companion. As the catalog grow
 10. ~~Split catalog and personality content into collection-specific modules while preserving the aggregated runtime contracts.~~ Completed in catalog 2.3.
 11. ~~Complete the ten-member [Nookside Pups](./NOOKSIDE_PUPS.md) collection.~~ Completed in catalog 2.4 with catalog entries, themes, personalities, signature dialogue, general-purpose motifs, Classic SVGs, and optimized Sticker WebPs implemented without species-specific application logic.
 12. ~~Add a second ten-member cat collection and reach the thirty-one-companion kid-ready target.~~ Lantern Lane Cats completed its Classic phase in catalog 2.5 and full Sticker coverage in catalog 2.6.
-13. Add one welcome capsule, weekly participation goals, collection celebrations, and a small recent-discoveries or favorites presentation.
-14. Tune the larger economy from deterministic acquisition simulations and family play data before building a direct-purchase shop.
+13. Add the visually explicit equipped state and direct equip action on capsule reveals.
+14. Add the collection-directed Capsule Shelf, welcome capsule, daily and weekly participation rewards, and collection celebrations.
+15. Tune the larger economy from deterministic acquisition simulations and family play data. Direct purchasing is deferred unless collection selection proves insufficient.
 
-The thirty-one-companion target is fully illustrated in both art styles. The next collectible slices are live-context and family playtesting, followed by acquisition simulation against the larger catalog. The next full collection should likely be non-cat and should not reopen species, Guest, art-fallback, theme, ownership, or save architecture.
+The thirty-one-companion target is fully illustrated in both art styles. The active priorities are maintained in [Number Nook Next Steps](./NEXT_STEPS.md): simulate the collection-directed economy, strengthen equipped-state presentation, equip directly from reveals, and build the Capsule Shelf before the next full collection. The next collection should likely be non-cat and should not reopen species, Guest, art-fallback, theme, ownership, or save architecture.

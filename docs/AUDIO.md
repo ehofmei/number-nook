@@ -168,7 +168,7 @@ The contextual-audio pass deliberately stops after round launch, answers, round 
 
 - A distinct personal-best accent layered after Round complete.
 - Daily and weekly goal-completion cues when those systems exist.
-- A successful direct-purchase sequence when the shop exists.
+- Distinct but related selection and reveal cues for Surprise and Collection Capsules if testing shows that the visual treatment needs additional audio identity.
 - Optional final-seconds feedback for a future Time Rush mode.
 - A tiny confirmation when sound is turned on.
 - Filter, resonance, echo, reverb, tremolo, vibrato, detuning, and per-note Sound Lab controls.

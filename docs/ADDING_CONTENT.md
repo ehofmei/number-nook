@@ -38,8 +38,8 @@ Use a permanent, namespaced ID such as `lantern-lane-cats:new-cat`, `nookside-pu
 | `altText` | Short visual description for players using assistive technology. |
 | `capsuleEligible` | Whether the item can be discovered in a capsule. |
 | `capsuleWeight` | Relative random weight among currently unowned eligible items. |
-| `shopEligible` | Whether a future direct-purchase shop may offer the item. |
-| `shopPrice` | Future direct-purchase price in Paw Coins. |
+| `shopEligible` | Reserved compatibility field from the deferred direct-purchase design; it currently has no player-facing effect. |
+| `shopPrice` | Reserved compatibility value for that deferred design; it currently has no player-facing effect. |
 | `starterEligible` | Exactly three collectibles must be starters. |
 | `sortOrder` | Stable display order in the gallery. |
 
