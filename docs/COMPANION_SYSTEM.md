@@ -1,6 +1,6 @@
 # Companion Identity, Themes, and Presence
 
-This document records the direction for making equipped collectibles feel valuable throughout Number Nook while allowing the catalog to grow beyond cats. The generalized catalog, complete dual-art Nook Neighbors roster, companion palettes, Theme Lab, application-wide equipped theme, art-style setting, collection polish, and all six initial dialogue contexts are implemented. A future non-cat collection remains the final proof that expansion requires content rather than species-specific application code.
+This document records the direction for making equipped collectibles feel valuable throughout Number Nook while allowing the catalog to grow beyond cats. The generalized catalog, complete dual-art Nook Neighbors roster, companion palettes, Theme Lab, application-wide equipped theme, art-style setting, collection polish, all six initial dialogue contexts, and the first non-cat collection's Classic phase are implemented.
 
 ## Product direction
 
@@ -13,6 +13,18 @@ This document records the direction for making equipped collectibles feel valuab
 - Existing collectible IDs, including the `cozy-cats` namespace, remain permanent so current saves continue to resolve.
 
 The generic reward is named **Companion Capsule**. This keeps Button Bunny and future species inside one clearly shared reward system. Individual featured capsules may later use collection-specific names without changing the reward rules.
+
+## Catalog growth target
+
+The live catalog contains the ten-member Nook Neighbors, the ten-member Nookside Pups, and Button Bunny as a Special Guest. Nookside Pups uses the permanent namespace `nookside-pups`; its complete roster is defined in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md). The expansion uses complete ordinary collections rather than isolated additions:
+
+- **Twenty-one-companion checkpoint:** reached with ten Nookside Pups using the shared collection, species, dialogue, theme, gallery, capsule, and save behavior. Classic art is live; Polished Sticker production remains.
+- **Thirty-one-companion kid-ready target:** add a second ten-member cat collection so regular family play begins with meaningful discovery depth while cats remain the majority.
+- **Long-term direction:** grow toward roughly one hundred companions in repository-delivered packs only after the two new collections validate the production workflow.
+
+Each ordinary ten-member collection uses four Common, three Uncommon, two Rare, and one Legendary companion unless later acquisition data justifies a different contract. Special Guests remain outside that distribution and should normally arrive alongside enough ordinary content that they do not distort capsule variety.
+
+The catalog and personality registries are split into collection-specific modules while the application continues importing one aggregated catalog. Ownership continues storing only permanent collectible IDs. This is an organizational boundary for content scale, not a new runtime abstraction.
 
 ## Target content model
 
@@ -101,6 +113,10 @@ The unified gallery should continue to show every companion. As the catalog grow
 7. ~~Optimize assets, verify offline caching, and test the complete collectible loop on phone and tablet layouts.~~ Completed with 768-pixel production WebPs, starter precaching, on-demand collection caching, and automated device coverage.
 8. ~~Strengthen companion visibility and collection navigation without distracting from arithmetic.~~ Completed with the home companion shortcut, dashboard portrait and progress bar, gallery spotlight, per-collection counts, and species-neutral Companion Capsule label.
 9. ~~Implement the pure phrase engine, personality registry, and development-only Companion Lab defined in [Companion Personality, Dialogue, and Motion](./COMPANION_PERSONALITY.md).~~ Completed with deterministic scenario controls, repetition and distribution diagnostics, responsive stress views, and reusable motion/motif experiments.
-10. Use a future non-cat collection to prove that no species-specific application changes are required.
+10. ~~Split catalog and personality content into collection-specific modules while preserving the aggregated runtime contracts.~~ Completed in catalog 2.3.
+11. Complete the ten-member [Nookside Pups](./NOOKSIDE_PUPS.md) collection. Catalog entries, themes, personalities, signature dialogue, general-purpose motifs, Classic SVGs, and fallback behavior are implemented without species-specific application logic; Polished Sticker art remains.
+12. Add a second ten-member cat collection and reach the thirty-one-companion kid-ready target.
+13. Add one welcome capsule, weekly participation goals, collection celebrations, and a small recent-discoveries or favorites presentation.
+14. Tune the larger economy from deterministic acquisition simulations and family play data before building a direct-purchase shop.
 
-This foundation now precedes the large catalog expansion. The next slice can add content without reopening species, Guest, art-fallback, or theme architecture.
+The twenty-one-companion checkpoint is now functional. The next collectible slice is the Nookside Pups Sticker anchor batch, followed by the remaining Sticker portraits and acquisition simulation; it should not reopen species, Guest, art-fallback, theme, ownership, or save architecture.

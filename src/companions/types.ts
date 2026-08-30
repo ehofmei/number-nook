@@ -43,6 +43,15 @@ export const COMPANION_MOTIFS = [
   'aurora',
   'comet',
   'stitch',
+  'letter',
+  'checker',
+  'chalk',
+  'clover',
+  'steam',
+  'book',
+  'music',
+  'ribbon',
+  'lantern',
 ] as const;
 export type CompanionMotif = (typeof COMPANION_MOTIFS)[number];
 

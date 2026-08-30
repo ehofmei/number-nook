@@ -33,6 +33,7 @@ import {
 } from './content/catalog';
 import type { ArtStyle, CollectibleDefinition } from './content/schema';
 import { companionThemeCssVariables, DEFAULT_COMPANION_THEME } from './content/theme';
+import { DEVELOPMENT_COIN_GRANT, grantDevelopmentCoins } from './dev/cheats';
 import { SystemClock } from './domain/clock';
 import { answerFeedbackDelay } from './domain/feedback';
 import {
@@ -1706,6 +1707,7 @@ function Capsule({
   reward,
   opening,
   onOpen,
+  onGrantDevelopmentCoins,
   onGallery,
   onBack,
 }: {
@@ -1715,6 +1717,7 @@ function Capsule({
   reward: CollectibleDefinition | null | undefined;
   opening: boolean;
   onOpen: () => void;
+  onGrantDevelopmentCoins?: () => void;
   onGallery: () => void;
   onBack: () => void;
 }) {
@@ -1800,6 +1803,15 @@ function Capsule({
                 ? `Need ${CAPSULE_COST - save.coins} more coins`
                 : 'Open capsule'}
             </button>
+            {onGrantDevelopmentCoins && !complete && (
+              <aside className="developer-cheat" aria-label="Developer testing tools">
+                <span>Development tool</span>
+                <button className="text-button" type="button" onClick={onGrantDevelopmentCoins}>
+                  Add {DEVELOPMENT_COIN_GRANT} Paw Coins
+                </button>
+                <small>Testing coins do not count toward today’s practice limit.</small>
+              </aside>
+            )}
           </>
         )}
       </section>
@@ -2479,6 +2491,9 @@ export default function App() {
             capsuleTimer.current = null;
           }, 760);
         }}
+        onGrantDevelopmentCoins={
+          import.meta.env.DEV ? () => commitSave(grantDevelopmentCoins(save)) : undefined
+        }
         onGallery={() => setScreen('gallery')}
         onBack={() => setScreen(summary ? 'results' : 'home')}
       />

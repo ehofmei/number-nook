@@ -10,8 +10,8 @@ const collectibleIds = catalog.collectibles.map(({ id }) => id);
 describe('companion content validation', () => {
   it('accepts the complete production registry and phrase bank', () => {
     expect(validateCompanionContent(collectibleIds)).toEqual([]);
-    expect(COMPANION_PERSONALITIES).toHaveLength(11);
-    expect(DIALOGUE_PHRASES).toHaveLength(128);
+    expect(COMPANION_PERSONALITIES).toHaveLength(collectibleIds.length);
+    expect(DIALOGUE_PHRASES).toHaveLength(158);
   });
 
   it('lets the labeled companion speak directly instead of narrating itself', () => {

@@ -362,6 +362,20 @@ Add one independently verified slice at a time:
 
 Each operation must ship with its generator invariants, distractor rules, difficulty tests, UI behavior, progress aggregation, and end-to-end coverage. “Adding the operation” is not complete when only the equation generator exists.
 
+## Near-term kid-ready roadmap
+
+The current priority is collectible depth and repeat-play motivation before additional math modes. The catalog has reached the twenty-one-companion internal expansion checkpoint with the Classic Nookside Pups collection. Thirty-one companions remains the target before treating the game as ready for regular family play.
+
+1. ~~Split the catalog and personality registries into collection-specific modules while preserving one aggregated public catalog and every permanent ID.~~ Completed in catalog 2.3.
+2. **Nookside Pups is complete**, with ten ordinary dog companions distributed across four Common, three Uncommon, two Rare, and one Legendary. Catalog entries, themes, personalities, phrases, CSS motifs, Classic SVGs, optimized Sticker WebPs, and art-style switching are implemented without species-specific application logic. The roster and dual-art record live in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md).
+3. Design and ship a second ten-member cat collection using the same content, dual-art, theme, dialogue, economy, and testing contracts. This raises the catalog to thirty-one while keeping cats at the center of the game.
+4. Add one duplicate-protected welcome capsule after the first completed round. It is a one-time onboarding reward, costs no Paw Coins, and does not consume the daily earning allowance.
+5. Add the small daily participation bonus, three-days-per-week goal, collection-completion celebrations, and a compact recent-discoveries or favorites presentation.
+6. Simulate acquisition across the larger catalog before changing capsule cost, rarity weights, guarantee rules, or building the direct-purchase shop.
+7. Resume math-mode development in this order: untimed Practice with retries and optional hints, Time Rush, Endless, a daily mixed challenge, and finally Improvement Duel after enough comparable history exists.
+
+The one-time welcome capsule is intentionally different from lowering the regular capsule price. It improves the first session without returning to the earlier capsule-after-every-round economy.
+
 ## Content-update workflow
 
 When adding a companion or Special Guest:
@@ -390,6 +404,6 @@ A feature is complete only when:
 - Phone and tablet layouts are inspected.
 - Documentation is updated when the feature changes a durable decision.
 
-## First implementation decision point
+## Current development decision point
 
-The next authorized build task should be Milestone 0 followed by Milestone 1. The first application UI should not be built until deterministic randomness, clocks, storage contracts, test runners, and the content schema exist.
+Nookside Pups is complete in catalog 2.4 with ten approved Classic SVG and optimized Sticker WebP pairs. The next collectible milestone is a third ordinary collection, selected only after the finished pups have been exercised in gallery, capsule, equipped-companion, and family playtesting contexts.

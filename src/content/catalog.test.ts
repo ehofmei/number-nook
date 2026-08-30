@@ -43,14 +43,34 @@ describe('collectible catalog', () => {
     expect(neighbors.every(({ art }) => Boolean(art.classic && art.sticker))).toBe(true);
   });
 
+  it('contains the complete dual-art Nookside Pups rarity distribution', () => {
+    const pups = catalog.collectibles.filter(
+      ({ collectionId }) => collectionId === 'nookside-pups',
+    );
+    const rarityCounts = pups.reduce<Record<string, number>>((counts, collectible) => {
+      counts[collectible.rarity] = (counts[collectible.rarity] ?? 0) + 1;
+      return counts;
+    }, {});
+
+    expect(pups).toHaveLength(10);
+    expect(rarityCounts).toEqual({ common: 4, uncommon: 3, rare: 2, legendary: 1 });
+    expect(pups.every(({ species, specialGuest }) => species === 'dog' && !specialGuest)).toBe(
+      true,
+    );
+    expect(pups.every(({ art }) => Boolean(art.classic && art.sticker))).toBe(true);
+    expect(getCollectibleImage(getCollectible('nookside-pups:poppy')!, 'sticker')).toBe(
+      'collectibles/poppy-sticker.webp',
+    );
+  });
+
   it('separates species from Special Guest status and rarity', () => {
     const cat = catalog.collectibles[0]!;
     const guest = catalog.collectibles.find(({ specialGuest }) => specialGuest)!;
     expect(
       collectibleSchema.safeParse({
         ...cat,
-        id: 'neighborhood-dogs:poppy',
-        collectionId: 'neighborhood-dogs',
+        id: 'nookside-pups:poppy',
+        collectionId: 'nookside-pups',
         species: 'dog',
       }).success,
     ).toBe(true);

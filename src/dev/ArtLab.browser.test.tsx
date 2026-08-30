@@ -26,17 +26,21 @@ describe('ArtLab in a real browser', () => {
       .toHaveAttribute('aria-pressed', 'true');
     await expect.element(page.getByText('Soft storybook').last()).toBeVisible();
     await expect.element(page.getByText('You found Moonbeam!')).toBeVisible();
-    await expect.element(page.getByText('The Classic roster is a production draft,')).toBeVisible();
+    await expect
+      .element(page.getByText('Both ordinary collections now have production Classic'))
+      .toBeVisible();
   });
 
-  it('shows the complete Classic collection at full and compact sizes', async () => {
+  it('shows both complete Classic collections at full and compact sizes', async () => {
     await render(<ArtLab />);
 
     const roster = page.getByTestId('classic-roster');
-    await expect.element(page.getByText('10 / 10 drafted')).toBeVisible();
-    await expect.element(roster.getByRole('img')).toHaveLength(10);
+    await expect.element(page.getByText('20 / 20 drafted')).toBeVisible();
+    await expect.element(roster.getByRole('img')).toHaveLength(20);
     await expect.element(roster.getByRole('img', { name: /biscuit-beige/ })).toBeVisible();
     await expect.element(roster.getByRole('img', { name: /pearly cat/ })).toBeVisible();
+    await expect.element(roster.getByRole('img', { name: /messenger satchel/ })).toBeVisible();
+    await expect.element(roster.getByRole('img', { name: /glowing lantern/ })).toBeVisible();
     await expect.element(page.getByLabelText('Classic 96 pixel comparison')).toBeVisible();
 
     const lockedToggle = page.getByRole('button', { name: 'Preview locked' });
@@ -53,6 +57,7 @@ describe('ArtLab in a real browser', () => {
       .element(page.getByRole('heading', { name: 'Companion Sticker contact sheet' }))
       .toBeVisible();
     await expect.element(page.getByRole('img', { name: /Sticker version 1/ })).toHaveLength(11);
+    await expect.element(page.getByText('21 companions')).toBeVisible();
     await expect
       .element(page.getByRole('img', { name: 'Biscuit in the Classic style' }))
       .toBeVisible();
@@ -77,5 +82,9 @@ describe('ArtLab in a real browser', () => {
     await expect
       .element(page.getByRole('img', { name: /Button Bunny Sticker version 1/ }))
       .toBeVisible();
+    await expect.element(page.getByRole('img', { name: /Poppy Sticker version 2/ })).toBeVisible();
+    await expect.element(page.getByRole('img', { name: /Mochi Sticker version 4/ })).toBeVisible();
+    await expect.element(page.getByRole('img', { name: /Rollo Sticker version 3/ })).toBeVisible();
+    await expect.element(page.getByRole('img', { name: /Velvet Sticker version 2/ })).toBeVisible();
   });
 });

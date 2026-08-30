@@ -200,6 +200,7 @@ test('game settings and home capsule access remain available after reload', asyn
   await expect(page.getByRole('heading', { name: 'Companion Capsule' })).toBeVisible();
   const unavailableCapsule = page.getByRole('button', { name: 'Need 60 more coins' });
   await expect(unavailableCapsule).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByRole('button', { name: /Add \d+ Paw Coins/ })).toHaveCount(0);
   await unavailableCapsule.click({ force: true });
   await expect(page.getByRole('heading', { name: 'A new friend is waiting' })).toBeVisible();
   await page.getByRole('button', { name: 'Back', exact: true }).click();
@@ -220,17 +221,18 @@ test('the complete collection shares one remembered art-style preference', async
   await page.getByRole('button', { name: /^Collection/ }).click();
 
   await expect.poll(() => page.evaluate<number>('window.scrollY')).toBe(0);
-  await expect(page.locator('.collection-grid .collectible-card')).toHaveCount(11);
+  await expect(page.locator('.collection-grid .collectible-card')).toHaveCount(21);
   await expect(page.getByRole('button', { name: 'Polished Sticker' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
   await expect(page.getByRole('region', { name: 'Equipped companion' })).toContainText('Moonbeam');
-  await expect(page.getByRole('progressbar', { name: '1 of 11 companions found' })).toHaveAttribute(
+  await expect(page.getByRole('progressbar', { name: '1 of 21 companions found' })).toHaveAttribute(
     'aria-valuenow',
     '1',
   );
   await expect(page.getByRole('button', { name: 'The Nook Neighbors 1/10' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Nookside Pups 0/10' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Moonbeam' }).locator('img')).toHaveAttribute(
     'src',
     /moonbeam-sticker\.webp$/,
@@ -240,6 +242,8 @@ test('the complete collection shares one remembered art-style preference', async
     .last()
     .locator('img');
   await expect(buttonBunnyPortrait).toHaveAttribute('src', /button-bunny-sticker\.webp$/);
+  const poppyPortrait = page.locator('.collection-grid .collectible-card').nth(10).locator('img');
+  await expect(poppyPortrait).toHaveAttribute('src', /poppy-sticker\.webp$/);
 
   await page.getByRole('button', { name: 'Simple SVG' }).click();
   await expect(page.getByRole('button', { name: 'Moonbeam' }).locator('img')).toHaveAttribute(
@@ -247,6 +251,7 @@ test('the complete collection shares one remembered art-style preference', async
     /moonbeam\.svg$/,
   );
   await expect(buttonBunnyPortrait).toHaveAttribute('src', /button-bunny\.svg$/);
+  await expect(poppyPortrait).toHaveAttribute('src', /poppy\.svg$/);
   await page.reload();
   await page.getByRole('button', { name: /^Collection/ }).click();
   await expect(page.getByRole('button', { name: 'Simple SVG' })).toHaveAttribute(

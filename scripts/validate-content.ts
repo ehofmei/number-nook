@@ -73,6 +73,25 @@ const expectedRarities = { common: 4, uncommon: 3, rare: 2, legendary: 1 } as co
 if (nookNeighbors.length !== 10) {
   throw new Error(`Expected 10 Nook Neighbors, found ${nookNeighbors.length}.`);
 }
+
+const nooksidePups = catalog.collectibles.filter(
+  ({ collectionId }) => collectionId === 'nookside-pups',
+);
+if (nooksidePups.length !== 10) {
+  throw new Error(`Expected 10 Nookside Pups, found ${nooksidePups.length}.`);
+}
+for (const [rarity, expected] of Object.entries(expectedRarities)) {
+  const actual = nooksidePups.filter((collectible) => collectible.rarity === rarity).length;
+  if (actual !== expected) {
+    throw new Error(`Expected ${expected} ${rarity} Nookside Pups, found ${actual}.`);
+  }
+}
+if (nooksidePups.some(({ species, specialGuest }) => species !== 'dog' || specialGuest)) {
+  throw new Error('Nookside Pups must be ordinary dog companions.');
+}
+if (nooksidePups.some(({ art }) => !art.classic || !art.sticker)) {
+  throw new Error('Every Nookside Pup must ship with both Classic and Sticker art.');
+}
 for (const [rarity, expected] of Object.entries(expectedRarities)) {
   const actual = nookNeighbors.filter((collectible) => collectible.rarity === rarity).length;
   if (actual !== expected) {

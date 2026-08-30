@@ -128,6 +128,96 @@ const CLASSIC_CATS: readonly ClassicCat[] = [
     signature: 'Comet trail',
     status: 'Refined existing',
   },
+  {
+    id: 'poppy',
+    name: 'Poppy',
+    rarity: 'common',
+    image: classicAsset('poppy.svg'),
+    alt: 'A cheerful red-and-cream pup with upright ears and a messenger satchel',
+    signature: 'Messenger satchel',
+    status: 'New draft',
+  },
+  {
+    id: 'waffles',
+    name: 'Waffles',
+    rarity: 'common',
+    image: classicAsset('waffles.svg'),
+    alt: 'A fluffy golden pup wearing a purple checked game-night bandana',
+    signature: 'Checked bandana',
+    status: 'New draft',
+  },
+  {
+    id: 'scout',
+    name: 'Scout',
+    rarity: 'common',
+    image: classicAsset('scout.svg'),
+    alt: 'A thoughtful tricolor pup with long ears and a leafy trail marker',
+    signature: 'Long ears and trail',
+    status: 'New draft',
+  },
+  {
+    id: 'dot',
+    name: 'Dot',
+    rarity: 'common',
+    image: classicAsset('dot.svg'),
+    alt: 'A lively white-and-charcoal spotted pup beside colorful chalk circles',
+    signature: 'Spots and chalk',
+    status: 'New draft',
+  },
+  {
+    id: 'clover',
+    name: 'Clover',
+    rarity: 'uncommon',
+    image: classicAsset('clover.svg'),
+    alt: 'A shaggy gray-and-cream pup with a green bow and clover garland',
+    signature: 'Shaggy fringe',
+    status: 'New draft',
+  },
+  {
+    id: 'mochi',
+    name: 'Mochi',
+    rarity: 'uncommon',
+    image: classicAsset('mochi.svg'),
+    alt: 'A calm russet-and-cream pup with a curled tail and teal steam charm',
+    signature: 'Curled tail and steam',
+    status: 'New draft',
+  },
+  {
+    id: 'rollo',
+    name: 'Rollo',
+    rarity: 'uncommon',
+    image: classicAsset('rollo.svg'),
+    alt: 'A long chocolate-and-tan pup with a golden bookmark scarf and open book',
+    signature: 'Bookmark and book',
+    status: 'New draft',
+  },
+  {
+    id: 'echo',
+    name: 'Echo',
+    rarity: 'rare',
+    image: classicAsset('echo.svg'),
+    alt: 'A silver-and-blue husky-like pup with bright eyes and glowing sound ribbons',
+    signature: 'Mask and sound ribbons',
+    status: 'New draft',
+  },
+  {
+    id: 'velvet',
+    name: 'Velvet',
+    rarity: 'rare',
+    image: classicAsset('velvet.svg'),
+    alt: 'A graceful cocoa poodle-like pup with a plum rosette and colorful ribbon',
+    signature: 'Tall curls and ribbon',
+    status: 'New draft',
+  },
+  {
+    id: 'beacon',
+    name: 'Beacon',
+    rarity: 'legendary',
+    image: classicAsset('beacon.svg'),
+    alt: 'A large tricolor pup wearing a glowing lantern charm on an evening path',
+    signature: 'Lantern glow',
+    status: 'New draft',
+  },
 ];
 
 const STICKER_ANCHORS = [
@@ -292,6 +382,156 @@ const STICKER_ANCHORS = [
     ],
   },
   {
+    id: 'poppy',
+    name: 'Poppy',
+    rarity: 'common',
+    classic: classicAsset('poppy.svg'),
+    purpose: 'Friendly motion',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('poppy-sticker.webp'),
+        alt: 'Poppy Sticker version 2 carrying an envelope beside a blue garden gate',
+      },
+    ],
+  },
+  {
+    id: 'waffles',
+    name: 'Waffles',
+    rarity: 'common',
+    classic: classicAsset('waffles.svg'),
+    purpose: 'Cozy activity',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('waffles-sticker.webp'),
+        alt: 'Waffles Sticker version 2 hosting game night beside two blank tiles',
+      },
+    ],
+  },
+  {
+    id: 'scout',
+    name: 'Scout',
+    rarity: 'common',
+    classic: classicAsset('scout.svg'),
+    purpose: 'Grounded curiosity',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('scout-sticker.webp'),
+        alt: 'Scout Sticker version 2 inspecting a leaf along a sunlit park trail',
+      },
+    ],
+  },
+  {
+    id: 'dot',
+    name: 'Dot',
+    rarity: 'common',
+    classic: classicAsset('dot.svg'),
+    purpose: 'Energetic silhouette',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('dot-sticker.webp'),
+        alt: 'Dot Sticker version 2 hopping through colorful chalk circles',
+      },
+    ],
+  },
+  {
+    id: 'clover',
+    name: 'Clover',
+    rarity: 'uncommon',
+    classic: classicAsset('clover.svg'),
+    purpose: 'Shaggy texture',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('clover-sticker.webp'),
+        alt: 'Clover Sticker version 2 decorating a porch with a clover garland',
+      },
+    ],
+  },
+  {
+    id: 'mochi',
+    name: 'Mochi',
+    rarity: 'uncommon',
+    classic: classicAsset('mochi.svg'),
+    purpose: 'Quiet warmth',
+    preferredVersion: 'Sticker v4',
+    stickers: [
+      {
+        version: 'Sticker v4',
+        image: classicAsset('mochi-sticker.webp'),
+        alt: 'Mochi Sticker version 4 cuddling a curled tail on a warm window seat',
+      },
+    ],
+  },
+  {
+    id: 'rollo',
+    name: 'Rollo',
+    rarity: 'uncommon',
+    classic: classicAsset('rollo.svg'),
+    purpose: 'Horizontal story',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('rollo-sticker.webp'),
+        alt: 'Rollo Sticker version 3 reading on a cushioned rolling library cart',
+      },
+    ],
+  },
+  {
+    id: 'echo',
+    name: 'Echo',
+    rarity: 'rare',
+    classic: classicAsset('echo.svg'),
+    purpose: 'Rare sound motion',
+    preferredVersion: 'Sticker v3',
+    stickers: [
+      {
+        version: 'Sticker v3',
+        image: classicAsset('echo-sticker.webp'),
+        alt: 'Echo Sticker version 3 singing among two spacious sound ribbons',
+      },
+    ],
+  },
+  {
+    id: 'velvet',
+    name: 'Velvet',
+    rarity: 'rare',
+    classic: classicAsset('velvet.svg'),
+    purpose: 'Tall parade motion',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('velvet-sticker.webp'),
+        alt: 'Velvet Sticker version 2 taking a graceful parade step with a flowing ribbon',
+      },
+    ],
+  },
+  {
+    id: 'beacon',
+    name: 'Beacon',
+    rarity: 'legendary',
+    classic: classicAsset('beacon.svg'),
+    purpose: 'Legendary guidance',
+    preferredVersion: 'Sticker v2',
+    stickers: [
+      {
+        version: 'Sticker v2',
+        image: classicAsset('beacon-sticker.webp'),
+        alt: 'Beacon Sticker version 2 guiding an evening path with a brass lantern charm',
+      },
+    ],
+  },
+  {
     id: 'button-bunny',
     name: 'Button Bunny',
     rarity: 'special',
@@ -372,8 +612,8 @@ export function ArtLab() {
           <span className="eyebrow">Development only</span>
           <h1>Number Nook Art Lab</h1>
           <p>
-            Review companion identities across Classic and Sticker art, from the complete Nook
-            Neighbors collection to its first Special Guest.
+            Review companion identities across Classic and Sticker art, including both complete
+            ordinary collections and the first Special Guest.
           </p>
           <nav className="lab-links" aria-label="Development labs">
             <a href="?dev=states">State gallery</a>
@@ -424,7 +664,7 @@ export function ArtLab() {
               Compare identity across styles and inspect approved source portraits at compact size.
             </p>
           </div>
-          <span className="mode-pill">11 companions</span>
+          <span className="mode-pill">21 companions</span>
         </div>
 
         <div className="sticker-anchor-grid">
@@ -471,12 +711,13 @@ export function ArtLab() {
         <div className="art-section-heading">
           <div>
             <span className="eyebrow">Classic draft</span>
-            <h2 id="classic-collection-heading">The Nook Neighbors</h2>
+            <h2 id="classic-collection-heading">Classic collection contact sheets</h2>
             <p>
-              Check silhouette, palette, signature motif, and rarity balance across all ten cats.
+              Check silhouette, palette, signature motif, and rarity balance across the Nook
+              Neighbors and Nookside Pups.
             </p>
           </div>
-          <span className="mode-pill">10 / 10 drafted</span>
+          <span className="mode-pill">20 / 20 drafted</span>
         </div>
 
         <div className="classic-collection-actions">
@@ -614,9 +855,8 @@ export function ArtLab() {
           <li>Could the treatment plausibly stay consistent across one hundred cats and Guests?</li>
         </ul>
         <p>
-          The Classic roster is a production draft, while the additional Moonbeam treatments remain
-          studies. Review all ten cats together before adding the five newcomers to the live
-          catalog.
+          Both ordinary collections now have production Classic and Sticker art. The additional
+          Moonbeam treatments remain studies for future refinements and alternate art experiments.
         </p>
       </section>
     </main>

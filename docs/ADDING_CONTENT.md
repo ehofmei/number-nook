@@ -4,16 +4,24 @@ Collectibles are data-driven. Adding a companion of any supported species or a S
 
 Catalog version 2 separates collection, species, rarity, and Special Guest status. See [Companion Identity, Themes, and Presence](./COMPANION_SYSTEM.md) for the model and rollout plan.
 
+## Collection packs
+
+Before the second ordinary collection enters the catalog, move catalog definitions and personality definitions into collection-specific modules. Each module owns one collection's metadata and companion entries; a small index exports the same aggregated catalog and registries used by the application today. Stable IDs, save data, validation, and UI lookup behavior do not change.
+
+Design a full ten-member roster before producing assets. Review names, silhouettes, palettes, motifs, rarities, descriptions, voices, themes, and both art briefs as one set so the result reads as a collection rather than ten unrelated characters. Ordinary ten-member collections initially use four Common, three Uncommon, two Rare, and one Legendary companion.
+
+The first expansion pack using this workflow is [The Nookside Pups Collection](./NOOKSIDE_PUPS.md). Its catalog, Classic SVG, Sticker WebP, theme, personality, dialogue, and motif layers form the first complete non-cat dual-art pack.
+
 ## Add a collectible
 
 1. Add the Classic SVG to `public/collectibles/` and the approved Sticker PNG source to `src/dev/assets/`.
 2. Add the approved source/output pair to `scripts/optimize-sticker-assets.ts` and run `npm run art:optimize` to create the production WebP.
-3. Add one entry to `src/content/catalog.ts`.
+3. Add one entry to the appropriate collection module and expose it through the aggregated catalog.
 4. Increase the catalog version when the published set changes.
 5. Run `npm run content:check`, `npm test`, and the browser tests.
 6. Inspect the new companion in `/?dev=art`, `/?dev=themes`, `/?dev=companions`, and the playable gallery at phone and tablet sizes.
 
-Use a permanent, namespaced ID such as `cozy-cats:new-cat`, `neighborhood-dogs:new-dog`, or `special-guests:new-friend`. An ID becomes part of local save data after release and must not later be reused for different content.
+Use a permanent, namespaced ID such as `cozy-cats:new-cat`, `nookside-pups:new-dog`, or `special-guests:new-friend`. An ID becomes part of local save data after release and must not later be reused for different content.
 
 ## Catalog fields
 
@@ -45,7 +53,7 @@ Capsules currently prevent duplicates completely. Lower weights make rare items 
 
 Use the bake-off, style-bible, raster export, and final-art acceptance process in [Collectible Art Direction and Production](./COLLECTIBLE_ART.md) before replacing placeholder art or producing a larger pack.
 
-The catalog supports Classic and Polished Sticker references while preserving one stable collectible ID and ownership record. The complete Nook Neighbors roster and Button Bunny have both styles. Safe fallback remains part of the asset contract and automated tests, so a staged content update can temporarily provide only one style without affecting ownership. The remembered master setting lives in the progress backup and never changes ownership, rarity, economy, or equipped state. The first complete dual-style production brief is [The Nook Neighbors Collection](./NOOK_NEIGHBORS.md), and the Special Guest extension is recorded in [Button Bunny Sticker Record](./BUTTON_BUNNY_STICKER.md).
+The catalog supports Classic and Polished Sticker references while preserving one stable collectible ID and ownership record. The complete Nook Neighbors and Nookside Pups rosters plus Button Bunny have both styles. Safe fallback remains part of the asset contract and automated tests, so a staged content update can temporarily provide only one style without affecting ownership. The remembered master setting lives in the progress backup and never changes ownership, rarity, economy, or equipped state. The first complete dual-style production brief is [The Nook Neighbors Collection](./NOOK_NEIGHBORS.md), the first non-cat pack is [The Nookside Pups Collection](./NOOKSIDE_PUPS.md), and the Special Guest extension is recorded in [Button Bunny Sticker Record](./BUTTON_BUNNY_STICKER.md).
 
 Each companion has a small theme palette. Themes use semantic tokens, retain fixed correct/incorrect meanings, pass contrast checks, and fall back to the default Number Nook palette when unresolved.
 

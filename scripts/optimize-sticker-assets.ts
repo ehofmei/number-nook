@@ -16,11 +16,22 @@ const APPROVED_STICKERS = [
   ['aurora-sticker-v1-preview.png', 'aurora-sticker.webp'],
   ['comet-sticker-v1-preview.png', 'comet-sticker.webp'],
   ['button-bunny-sticker-v1-preview.png', 'button-bunny-sticker.webp'],
+  ['poppy-sticker-v2.png', 'poppy-sticker.webp'],
+  ['waffles-sticker-v2.png', 'waffles-sticker.webp'],
+  ['scout-sticker-v2.png', 'scout-sticker.webp'],
+  ['dot-sticker-v2.png', 'dot-sticker.webp'],
+  ['clover-sticker-v2.png', 'clover-sticker.webp'],
+  ['mochi-sticker-v4.png', 'mochi-sticker.webp'],
+  ['rollo-sticker-v3.png', 'rollo-sticker.webp'],
+  ['echo-sticker-v3.png', 'echo-sticker.webp'],
+  ['velvet-sticker-v2.png', 'velvet-sticker.webp'],
+  ['beacon-sticker-v2.png', 'beacon-sticker.webp'],
 ] as const;
 
 const SOURCE_DIRECTORY = resolve('src/dev/assets');
 const OUTPUT_DIRECTORY = resolve('public/collectibles');
 const WEBP_QUALITY = 0.86;
+const MAX_OUTPUT_DIMENSION = 768;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -32,16 +43,21 @@ try {
     const source = await readFile(sourcePath);
     const sourceUrl = `data:image/png;base64,${source.toString('base64')}`;
     const encoded = await page.evaluate(
-      async ({ sourceUrl: url, quality }) => {
+      async ({ sourceUrl: url, quality, maxOutputDimension }) => {
         const image = new Image();
         image.src = url;
         await image.decode();
         const canvas = document.createElement('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
+        const scale = Math.min(
+          1,
+          maxOutputDimension / image.naturalWidth,
+          maxOutputDimension / image.naturalHeight,
+        );
+        canvas.width = Math.round(image.naturalWidth * scale);
+        canvas.height = Math.round(image.naturalHeight * scale);
         const context = canvas.getContext('2d');
         if (!context) throw new Error('Canvas 2D context is unavailable.');
-        context.drawImage(image, 0, 0);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
         const blob = await new Promise<Blob>((resolveBlob, reject) => {
           canvas.toBlob(
             (value) => (value ? resolveBlob(value) : reject(new Error('WebP encoding failed.'))),
@@ -54,7 +70,7 @@ try {
         for (const byte of bytes) binary += String.fromCharCode(byte);
         return btoa(binary);
       },
-      { sourceUrl, quality: WEBP_QUALITY },
+      { sourceUrl, quality: WEBP_QUALITY, maxOutputDimension: MAX_OUTPUT_DIMENSION },
     );
     await writeFile(outputPath, Buffer.from(encoded, 'base64'));
     const output = await stat(outputPath);

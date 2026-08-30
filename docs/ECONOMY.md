@@ -28,6 +28,18 @@ When the daily cap is reached, practice, scores, accuracy, and saved progress co
 
 These are initial play-test values, not permanent balance claims. The relevant constants are `CAPSULE_COST` and `DAILY_COIN_CAP` in `src/domain/rewards.ts`; the session formula is in `src/domain/session.ts`.
 
+## Kid-ready expansion checkpoint
+
+The regular economy remains at 60 coins per duplicate-protected capsule and a 30-coin daily earning cap while the catalog expands. Before regular family play, add one free welcome capsule after the first completed round. It should:
+
+- award one unowned eligible companion through the normal weighted selector;
+- cost no Paw Coins and leave the daily earning allowance unchanged;
+- occur only once per save, including after reload and backup restore;
+- use the normal reveal, ownership, history, sound, and accessibility behavior;
+- remain separate from daily and weekly bonuses.
+
+After the catalog reaches twenty-one and again at thirty-one companions, run deterministic acquisition simulations covering different starter choices, rarity orderings, and established saves. Measure time to early variety, first Rare, first Legendary, collection completion, and complete-catalog ownership. Use those results and family play data before considering pity guarantees, featured capsules, price changes, or the direct-purchase shop.
+
 ## Save behavior
 
 Save schema version 2 added the local date and number of coins earned on that date. Version 3 added reproducible question snapshots and capsule transaction history for balance analysis. Version 4 keeps the newest 30 rounds in detail and rolls older rounds into compact lifetime statistics. Version-1, version-2, and version-3 saves migrate automatically and keep their prior balance, settings, collection, and meaningful progress. Previously accumulated coins are intentionally not reduced retroactively.

@@ -1,6 +1,6 @@
 # Collectible Art Direction and Production
 
-This document defines how Number Nook explores, selects, produces, and verifies collectible artwork. The SVG companions established the simple Classic treatment, and the completed Nook Neighbors pilot adds an interchangeable Polished Sticker set. Both remain supported production styles and can receive focused refinements through the Art Lab workflow.
+This document defines how Number Nook explores, selects, produces, and verifies collectible artwork. The SVG companions established the simple Classic treatment, while the completed Nook Neighbors and Nookside Pups packs provide interchangeable Polished Sticker sets. Both remain supported production styles and can receive focused refinements through the Art Lab workflow.
 
 ## Goals
 
@@ -164,7 +164,7 @@ After selecting a direction:
 
 New art should normally arrive in small repository packs. This keeps review manageable and lets ordinary companions accompany a Special Guest when the capsule economy needs a broader unowned pool.
 
-Production portraits load and cache on demand. Only the three starter Stickers join the initial PWA precache so first-run onboarding remains complete offline; opening the gallery warms the other portraits. The current eleven 768-pixel WebPs are each below 150 KiB and total less than 750 KiB. Content validation enforces the per-file limit, and the repeatable browser encoder makes the same policy practical for later collections.
+Production portraits load and cache on demand. Only the three starter Stickers join the initial PWA precache so first-run onboarding remains complete offline; opening the gallery warms the other portraits. The current twenty-one 768-pixel WebPs are each below 150 KiB. Content validation enforces the per-file limit, and the repeatable browser encoder normalizes larger source masters to the same 768-pixel production size for later collections.
 
 ## Animation options
 

@@ -35,4 +35,12 @@ describe('CollectibleCard in a real browser', () => {
       .element(portrait)
       .toHaveAttribute('src', '/collectibles/button-bunny-sticker.webp');
   });
+
+  it('renders a Nookside Pup Sticker portrait', async () => {
+    const pup = getCollectible('nookside-pups:poppy')!;
+    await render(<CollectibleCard collectible={pup} owned artStyle="sticker" />);
+
+    const portrait = page.getByRole('img', { name: pup.altText });
+    await expect.element(portrait).toHaveAttribute('src', '/collectibles/poppy-sticker.webp');
+  });
 });
