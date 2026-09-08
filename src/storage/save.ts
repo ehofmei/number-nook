@@ -2,7 +2,13 @@ import { z } from 'zod';
 import { artStyleSchema, type ArtStyle } from '../content/schema';
 import { DEFAULT_SETTINGS, DIFFICULTY_IDS, OPERATION_IDS, type GameSettings } from '../domain/math';
 import { archiveSessions, createEmptyArchivedProgress } from '../domain/progress';
-import { DAILY_COIN_CAP } from '../domain/rewards';
+import {
+  DAILY_COIN_MILESTONE,
+  DAILY_PARTICIPATION_BONUS,
+  LEGACY_DAILY_COIN_CAP,
+  QUALIFYING_ROUND_CORRECT_ANSWERS,
+  WEEKLY_PARTICIPATION_BONUS,
+} from '../domain/rewards';
 import type { AnswerRecord, SessionSummary } from '../domain/session';
 
 const settingsSchema = z.object({
@@ -51,19 +57,48 @@ const legacySessionSchema = z.object({
   answers: z.array(legacyAnswerSchema).min(1),
 });
 
-const sessionSchema = z.object({
+const legacyDetailedSessionSchema = z.object({
   ...legacySessionFields,
   rulesetVersion: z.number().int().positive(),
   coinsPotential: z.number().int().nonnegative(),
   answers: z.array(answerSchema).min(1),
 });
 
-const economyEventSchema = z.object({
+const roundCoinBreakdownSchema = z.object({
+  correctAnswerCoins: z.number().int().nonnegative(),
+  difficultyMultiplier: z.number().positive(),
+  difficultyAdjustedCoins: z.number().int().nonnegative(),
+  difficultyBonusCoins: z.number().int().nonnegative(),
+  accuracyBonusCoins: z.number().int().nonnegative(),
+  perfectBonusCoins: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+});
+
+const sessionSchema = legacyDetailedSessionSchema.extend({
+  coinBreakdown: roundCoinBreakdownSchema,
+  dailyBonusCoins: z.number().int().nonnegative(),
+  weeklyBonusCoins: z.number().int().nonnegative(),
+  dailyMilestoneReached: z.boolean(),
+});
+
+const legacyEconomyEventSchema = z.object({
   id: z.string(),
   occurredAt: z.string(),
   type: z.literal('capsule_opened'),
   coinsSpent: z.number().int().positive(),
   collectibleId: z.string(),
+});
+
+const economyEventSchema = z.object({
+  id: z.string(),
+  occurredAt: z.string(),
+  type: z.literal('capsule_opened'),
+  capsuleKind: z.enum(['welcome', 'surprise', 'collection']),
+  collectionId: z.string().nullable(),
+  coinsSpent: z.number().int().nonnegative(),
+  collectibleId: z.string(),
+  ownedCountBefore: z.number().int().nonnegative(),
+  eligiblePoolSize: z.number().int().positive(),
 });
 
 export const DETAILED_SESSION_LIMIT = 30;
@@ -122,39 +157,62 @@ const legacySaveV2Schema = z.object({
   ...commonSaveFields(legacySessionSchema),
   dailyCoins: z.object({
     date: z.string(),
-    earned: z.number().int().min(0).max(DAILY_COIN_CAP),
+    earned: z.number().int().min(0).max(LEGACY_DAILY_COIN_CAP),
   }),
 });
 
 const legacySaveV3Schema = z.object({
   schemaVersion: z.literal(3),
-  ...commonSaveFields(sessionSchema),
+  ...commonSaveFields(legacyDetailedSessionSchema),
   dailyCoins: z.object({
     date: z.string(),
-    earned: z.number().int().min(0).max(DAILY_COIN_CAP),
+    earned: z.number().int().min(0).max(LEGACY_DAILY_COIN_CAP),
   }),
-  economyEvents: z.array(economyEventSchema).max(500),
+  economyEvents: z.array(legacyEconomyEventSchema).max(500),
 });
 
 const legacySaveV4Schema = z.object({
   schemaVersion: z.literal(4),
-  ...commonSaveFields(sessionSchema, DETAILED_SESSION_LIMIT),
+  ...commonSaveFields(legacyDetailedSessionSchema, DETAILED_SESSION_LIMIT),
   dailyCoins: z.object({
     date: z.string(),
-    earned: z.number().int().min(0).max(DAILY_COIN_CAP),
+    earned: z.number().int().min(0).max(LEGACY_DAILY_COIN_CAP),
   }),
-  economyEvents: z.array(economyEventSchema).max(500),
+  economyEvents: z.array(legacyEconomyEventSchema).max(500),
   archivedProgress: archivedProgressSchema,
 });
 
-export const saveSchema = z.object({
+const legacySaveV5Schema = z.object({
   schemaVersion: z.literal(5),
+  ...commonSaveFields(legacyDetailedSessionSchema, DETAILED_SESSION_LIMIT),
+  artStyle: artStyleSchema,
+  dailyCoins: z.object({
+    date: z.string(),
+    earned: z.number().int().min(0).max(LEGACY_DAILY_COIN_CAP),
+  }),
+  economyEvents: z.array(legacyEconomyEventSchema).max(500),
+  archivedProgress: archivedProgressSchema,
+});
+
+const rewardProgressSchema = z.object({
+  welcomeCapsuleStatus: z.enum(['locked', 'available', 'opened']),
+  dailyBonusDate: z.string(),
+  weekly: z.object({
+    weekId: z.string(),
+    qualifyingDates: z.array(z.string()).max(7),
+    bonusAwarded: z.boolean(),
+  }),
+});
+
+export const saveSchema = z.object({
+  schemaVersion: z.literal(6),
   ...commonSaveFields(sessionSchema, DETAILED_SESSION_LIMIT),
   artStyle: artStyleSchema,
   dailyCoins: z.object({
     date: z.string(),
-    earned: z.number().int().min(0).max(DAILY_COIN_CAP),
+    earned: z.number().int().nonnegative(),
   }),
+  rewardProgress: rewardProgressSchema,
   economyEvents: z.array(economyEventSchema).max(500),
   archivedProgress: archivedProgressSchema,
 });
@@ -182,22 +240,94 @@ function enrichLegacyAnswer(answer: z.infer<typeof legacyAnswerSchema>): AnswerR
 }
 
 function enrichLegacySession(session: z.infer<typeof legacySessionSchema>): SessionSummary {
+  const accuracyBonusCoins = session.accuracy >= 0.8 ? 2 : 0;
+  const perfectBonusCoins = session.accuracy === 1 ? 3 : 0;
   return {
     ...session,
     rulesetVersion: 1,
+    coinBreakdown: {
+      correctAnswerCoins: session.correctCount,
+      difficultyMultiplier: 1,
+      difficultyAdjustedCoins: session.correctCount,
+      difficultyBonusCoins: 0,
+      accuracyBonusCoins,
+      perfectBonusCoins,
+      total: session.coinsEarned,
+    },
+    dailyBonusCoins: 0,
+    weeklyBonusCoins: 0,
+    dailyMilestoneReached: false,
     coinsPotential: session.coinsEarned,
     answers: session.answers.map(enrichLegacyAnswer),
   };
 }
 
+function enrichDetailedSession(
+  session: z.infer<typeof legacyDetailedSessionSchema>,
+): SessionSummary {
+  const accuracyBonusCoins = session.accuracy >= 0.8 ? 2 : 0;
+  const perfectBonusCoins = session.accuracy === 1 ? 3 : 0;
+  const correctAnswerCoins = Math.max(
+    0,
+    session.coinsPotential - accuracyBonusCoins - perfectBonusCoins,
+  );
+  return {
+    ...session,
+    coinBreakdown: {
+      correctAnswerCoins,
+      difficultyMultiplier: 1,
+      difficultyAdjustedCoins: correctAnswerCoins,
+      difficultyBonusCoins: 0,
+      accuracyBonusCoins,
+      perfectBonusCoins,
+      total: session.coinsPotential,
+    },
+    dailyBonusCoins: 0,
+    weeklyBonusCoins: 0,
+    dailyMilestoneReached: false,
+  };
+}
+
+function weekIdForDate(date: string): string {
+  const parsed = new Date(`${date}T00:00:00Z`);
+  if (Number.isNaN(parsed.valueOf())) return date;
+  const day = parsed.getUTCDay();
+  const daysSinceMonday = day === 0 ? 6 : day - 1;
+  parsed.setUTCDate(parsed.getUTCDate() - daysSinceMonday);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function migratedRewardProgress(hasPriorPractice: boolean) {
+  return {
+    welcomeCapsuleStatus: hasPriorPractice ? ('opened' as const) : ('locked' as const),
+    dailyBonusDate: '',
+    weekly: { weekId: '', qualifyingDates: [], bonusAwarded: false },
+  };
+}
+
+function migrateEconomyEvents(events: readonly z.infer<typeof legacyEconomyEventSchema>[]) {
+  return events.map((event) => ({
+    ...event,
+    capsuleKind: 'surprise' as const,
+    collectionId: null,
+    ownedCountBefore: 0,
+    eligiblePoolSize: 1,
+  }));
+}
+
 export function createInitialSave(name: string, starterId: string): SaveData {
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     player: { name: name.trim() },
     settings: DEFAULT_SETTINGS,
     artStyle: DEFAULT_ART_STYLE,
     coins: 0,
     dailyCoins: { date: '', earned: 0 },
+    rewardProgress: {
+      welcomeCapsuleStatus: 'locked',
+      dailyBonusDate: '',
+      weekly: { weekId: '', qualifyingDates: [], bonusAwarded: false },
+    },
     economyEvents: [],
     archivedProgress: createEmptyArchivedProgress(),
     ownedCollectibleIds: [starterId],
@@ -206,9 +336,8 @@ export function createInitialSave(name: string, starterId: string): SaveData {
   };
 }
 
-export function dailyCoinsRemaining(save: SaveData, date: string): number {
-  const earned = save.dailyCoins.date === date ? save.dailyCoins.earned : 0;
-  return Math.max(0, DAILY_COIN_CAP - earned);
+export function dailyCoinsEarned(save: SaveData, date: string): number {
+  return save.dailyCoins.date === date ? save.dailyCoins.earned : 0;
 }
 
 export function applyCompletedSession(
@@ -218,8 +347,31 @@ export function applyCompletedSession(
 ): SaveData {
   if (save.sessions.some((session) => session.id === summary.id)) return save;
   const earnedBeforeSession = save.dailyCoins.date === date ? save.dailyCoins.earned : 0;
-  const coinsEarned = Math.min(summary.coinsPotential, DAILY_COIN_CAP - earnedBeforeSession);
-  const storedSummary = { ...summary, coinsEarned };
+  const qualifies = summary.correctCount >= QUALIFYING_ROUND_CORRECT_ANSWERS;
+  const dailyBonusCoins =
+    qualifies && save.rewardProgress.dailyBonusDate !== date ? DAILY_PARTICIPATION_BONUS : 0;
+  const weekId = weekIdForDate(date);
+  const currentWeekly =
+    save.rewardProgress.weekly.weekId === weekId
+      ? save.rewardProgress.weekly
+      : { weekId, qualifyingDates: [], bonusAwarded: false };
+  const qualifyingDates =
+    qualifies && !currentWeekly.qualifyingDates.includes(date)
+      ? [...currentWeekly.qualifyingDates, date]
+      : currentWeekly.qualifyingDates;
+  const weeklyBonusCoins =
+    qualifyingDates.length >= 3 && !currentWeekly.bonusAwarded ? WEEKLY_PARTICIPATION_BONUS : 0;
+  const coinsEarned = summary.coinBreakdown.total + dailyBonusCoins + weeklyBonusCoins;
+  const earnedAfterSession = earnedBeforeSession + coinsEarned;
+  const storedSummary = {
+    ...summary,
+    dailyBonusCoins,
+    weeklyBonusCoins,
+    dailyMilestoneReached:
+      earnedBeforeSession < DAILY_COIN_MILESTONE && earnedAfterSession >= DAILY_COIN_MILESTONE,
+    coinsPotential: coinsEarned,
+    coinsEarned,
+  };
   const detailedSessions = [...save.sessions, storedSummary];
   const archivedSessions = detailedSessions.slice(
     0,
@@ -228,7 +380,19 @@ export function applyCompletedSession(
   return {
     ...save,
     coins: save.coins + coinsEarned,
-    dailyCoins: { date, earned: earnedBeforeSession + coinsEarned },
+    dailyCoins: { date, earned: earnedAfterSession },
+    rewardProgress: {
+      welcomeCapsuleStatus:
+        save.rewardProgress.welcomeCapsuleStatus === 'locked'
+          ? 'available'
+          : save.rewardProgress.welcomeCapsuleStatus,
+      dailyBonusDate: dailyBonusCoins > 0 ? date : save.rewardProgress.dailyBonusDate,
+      weekly: {
+        weekId,
+        qualifyingDates,
+        bonusAwarded: currentWeekly.bonusAwarded || weeklyBonusCoins > 0,
+      },
+    },
     archivedProgress: archiveSessions(save.archivedProgress, archivedSessions),
     sessions: detailedSessions.slice(-DETAILED_SESSION_LIMIT),
   };
@@ -288,44 +452,71 @@ export class LocalStorageSaveRepository implements SaveRepository {
       };
     };
 
+    const legacyV5 = legacySaveV5Schema.safeParse(input);
+    if (legacyV5.success) {
+      const sessions = legacyV5.data.sessions.map(enrichDetailedSession);
+      return saveSchema.parse({
+        ...legacyV5.data,
+        schemaVersion: 6,
+        sessions,
+        rewardProgress: migratedRewardProgress(
+          sessions.length > 0 || legacyV5.data.archivedProgress.overall.rounds > 0,
+        ),
+        economyEvents: migrateEconomyEvents(legacyV5.data.economyEvents),
+      });
+    }
+
     const legacyV4 = legacySaveV4Schema.safeParse(input);
     if (legacyV4.success) {
-      return {
+      const sessions = legacyV4.data.sessions.map(enrichDetailedSession);
+      return saveSchema.parse({
         ...legacyV4.data,
-        schemaVersion: 5,
+        schemaVersion: 6,
         artStyle: DEFAULT_ART_STYLE,
-      };
+        sessions,
+        rewardProgress: migratedRewardProgress(
+          sessions.length > 0 || legacyV4.data.archivedProgress.overall.rounds > 0,
+        ),
+        economyEvents: migrateEconomyEvents(legacyV4.data.economyEvents),
+      });
     }
 
     const legacyV3 = legacySaveV3Schema.safeParse(input);
     if (legacyV3.success) {
+      const sessions = legacyV3.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV3.data,
-        schemaVersion: 5,
+        schemaVersion: 6,
         artStyle: DEFAULT_ART_STYLE,
-        ...retain(legacyV3.data.sessions),
+        rewardProgress: migratedRewardProgress(sessions.length > 0),
+        economyEvents: migrateEconomyEvents(legacyV3.data.economyEvents),
+        ...retain(sessions),
       });
     }
 
     const legacyV2 = legacySaveV2Schema.safeParse(input);
     if (legacyV2.success) {
-      return {
+      const sessions = legacyV2.data.sessions.map(enrichLegacySession);
+      return saveSchema.parse({
         ...legacyV2.data,
-        schemaVersion: 5,
+        schemaVersion: 6,
         artStyle: DEFAULT_ART_STYLE,
+        rewardProgress: migratedRewardProgress(sessions.length > 0),
         economyEvents: [],
-        ...retain(legacyV2.data.sessions.map(enrichLegacySession)),
-      };
+        ...retain(sessions),
+      });
     }
 
     const legacyV1 = legacySaveV1Schema.parse(input);
-    return {
+    const sessions = legacyV1.sessions.map(enrichLegacySession);
+    return saveSchema.parse({
       ...legacyV1,
-      schemaVersion: 5,
+      schemaVersion: 6,
       artStyle: DEFAULT_ART_STYLE,
       dailyCoins: { date: '', earned: 0 },
+      rewardProgress: migratedRewardProgress(sessions.length > 0),
       economyEvents: [],
-      ...retain(legacyV1.sessions.map(enrichLegacySession)),
-    };
+      ...retain(sessions),
+    });
   }
 }

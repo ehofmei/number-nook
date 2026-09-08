@@ -1,7 +1,8 @@
 import type { Clock } from './clock';
 import type { GameSettings, OperationId, Problem } from './math';
+import { calculateRoundCoins, type RoundCoinBreakdown } from './rewards';
 
-export const RULESET_VERSION = 7;
+export const RULESET_VERSION = 8;
 
 export interface AnswerRecord {
   problemId: string;
@@ -28,6 +29,10 @@ export interface SessionSummary {
   accuracy: number;
   elapsedMs: number;
   score: number;
+  coinBreakdown: RoundCoinBreakdown;
+  dailyBonusCoins: number;
+  weeklyBonusCoins: number;
+  dailyMilestoneReached: boolean;
   coinsPotential: number;
   coinsEarned: number;
 }
@@ -55,9 +60,7 @@ export function summarizeSession(
     (sum, answer) => sum + scoreAnswer(answer.correct, answer.responseMs),
     0,
   );
-  const accuracyBonus = correctCount / problems.length >= 0.8 ? 2 : 0;
-  const perfectBonus = correctCount === problems.length ? 3 : 0;
-  const coinsEarned = correctCount + accuracyBonus + perfectBonus;
+  const coinBreakdown = calculateRoundCoins(correctCount, problems.length, settings.difficulty);
 
   return {
     rulesetVersion: RULESET_VERSION,
@@ -70,7 +73,11 @@ export function summarizeSession(
     accuracy: correctCount / problems.length,
     elapsedMs,
     score,
-    coinsPotential: coinsEarned,
-    coinsEarned,
+    coinBreakdown,
+    dailyBonusCoins: 0,
+    weeklyBonusCoins: 0,
+    dailyMilestoneReached: false,
+    coinsPotential: coinBreakdown.total,
+    coinsEarned: coinBreakdown.total,
   };
 }

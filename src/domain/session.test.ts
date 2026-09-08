@@ -40,7 +40,14 @@ describe('session scoring', () => {
     expect(summary.correctCount).toBe(9);
     expect(summary.accuracy).toBe(0.9);
     expect(summary.elapsedMs).toBe(10_000);
-    expect(summary.coinsEarned).toBe(11);
+    expect(summary.coinsEarned).toBe(23);
+    expect(summary.coinBreakdown).toMatchObject({
+      correctAnswerCoins: 18,
+      difficultyMultiplier: 1.15,
+      accuracyBonusCoins: 2,
+      difficultyAdjustedCoins: 21,
+      total: 23,
+    });
     expect(summary.rulesetVersion).toBe(RULESET_VERSION);
     expect(summary.id).toContain(String(clock.now()));
   });
@@ -62,7 +69,7 @@ describe('session scoring', () => {
     }));
     expect(
       summarizeSession(problems, answers, DEFAULT_SETTINGS, 2, new FakeClock(1)).coinsEarned,
-    ).toBe(15);
+    ).toBe(28);
     expect(() =>
       summarizeSession(problems, answers.slice(1), DEFAULT_SETTINGS, 2, new FakeClock(1)),
     ).toThrow(/one answer per problem/);

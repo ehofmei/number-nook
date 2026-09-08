@@ -8,11 +8,16 @@ import {
   type ArchivedProgress,
   type ProgressTotals,
 } from '../domain/progress';
-import { CAPSULE_COST, DAILY_COIN_CAP } from '../domain/rewards';
+import {
+  COLLECTION_CAPSULE_COST,
+  DAILY_COIN_MILESTONE,
+  DIFFICULTY_COIN_MULTIPLIERS,
+  SURPRISE_CAPSULE_COST,
+} from '../domain/rewards';
 import { scoreAnswer, type SessionSummary } from '../domain/session';
 import { DETAILED_SESSION_LIMIT, type SaveData } from '../storage/save';
 
-export const PLAY_HISTORY_EXPORT_VERSION = 3;
+export const PLAY_HISTORY_EXPORT_VERSION = 4;
 
 function round(value: number, decimals = 2): number {
   const scale = 10 ** decimals;
@@ -80,9 +85,12 @@ export interface PlayHistoryExport {
     collectibleCount: number;
   };
   currentEconomy: {
-    dailyCoinCap: number;
-    capsuleCost: number;
+    dailyCoinCap: null;
+    dailyCoinMilestone: number;
+    surpriseCapsuleCost: number;
+    collectionCapsuleCost: number;
     correctAnswerCoins: number;
+    difficultyMultipliers: Record<DifficultyId, number>;
     accuracyBonusThresholdPercent: number;
     accuracyBonusCoins: number;
     perfectBonusCoins: number;
@@ -111,10 +119,14 @@ export interface PlayHistoryExport {
   economyEvents: Array<{
     occurredAt: string;
     type: 'capsule_opened';
+    capsuleKind: 'welcome' | 'surprise' | 'collection';
+    collectionId: string | null;
     coinsSpent: number;
     collectibleId: string;
     collectibleKind: string | null;
     rarity: string | null;
+    ownedCountBefore: number;
+    eligiblePoolSize: number;
   }>;
   sessions: Array<{
     sessionId: string;
@@ -135,6 +147,10 @@ export interface PlayHistoryExport {
       slowestResponseMs: number;
       coinsPotential: number;
       coinsAwarded: number;
+      coinBreakdown: SessionSummary['coinBreakdown'];
+      dailyBonusCoins: number;
+      weeklyBonusCoins: number;
+      dailyMilestoneReached: boolean;
     };
     questions: Array<{
       problemId: string;
@@ -239,9 +255,12 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
       collectibleCount: catalog.collectibles.length,
     },
     currentEconomy: {
-      dailyCoinCap: DAILY_COIN_CAP,
-      capsuleCost: CAPSULE_COST,
-      correctAnswerCoins: 1,
+      dailyCoinCap: null,
+      dailyCoinMilestone: DAILY_COIN_MILESTONE,
+      surpriseCapsuleCost: SURPRISE_CAPSULE_COST,
+      collectionCapsuleCost: COLLECTION_CAPSULE_COST,
+      correctAnswerCoins: 2,
+      difficultyMultipliers: { ...DIFFICULTY_COIN_MULTIPLIERS },
       accuracyBonusThresholdPercent: 80,
       accuracyBonusCoins: 2,
       perfectBonusCoins: 3,
@@ -288,6 +307,8 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
       return {
         occurredAt: event.occurredAt,
         type: event.type,
+        capsuleKind: event.capsuleKind,
+        collectionId: event.collectionId,
         coinsSpent: event.coinsSpent,
         collectibleId: event.collectibleId,
         collectibleKind: collectible
@@ -296,6 +317,8 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
             : collectible.species
           : null,
         rarity: collectible?.rarity ?? null,
+        ownedCountBefore: event.ownedCountBefore,
+        eligiblePoolSize: event.eligiblePoolSize,
       };
     }),
     sessions: save.sessions.map((session) => {
@@ -319,6 +342,10 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
           slowestResponseMs: Math.max(...responseTimes),
           coinsPotential: session.coinsPotential,
           coinsAwarded: session.coinsEarned,
+          coinBreakdown: { ...session.coinBreakdown },
+          dailyBonusCoins: session.dailyBonusCoins,
+          weeklyBonusCoins: session.weeklyBonusCoins,
+          dailyMilestoneReached: session.dailyMilestoneReached,
         },
         questions: session.answers.map((answer) => ({
           problemId: answer.problemId,

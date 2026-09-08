@@ -102,6 +102,11 @@ test('first launch, game, capsule, gallery, equip, and reload', async ({ page })
     page.getByRole('heading', { name: /First score|personal best|practice round/i }),
   ).toBeVisible();
   await expect(page.getByText('100%')).toBeVisible();
+  const rewardBreakdown = page.getByText('How you earned 30 Paw Coins');
+  await expect(rewardBreakdown).toBeVisible();
+  await rewardBreakdown.click();
+  await expect(page.locator('.coin-breakdown')).toContainText('Perfect round bonus');
+  await expect(page.locator('.coin-breakdown')).toContainText('First practice today');
   await expect(page.locator('.player-companion-dialogue--results')).toBeVisible();
   await expect(page.locator('.player-companion-dialogue--results')).toHaveAttribute(
     'data-dialogue-id',
@@ -134,22 +139,23 @@ test('first launch, game, capsule, gallery, equip, and reload', async ({ page })
   await page.waitForTimeout(800);
   await expect(coinTally).toHaveText(awardedCoinText);
   await page.getByRole('button', { name: 'Open a capsule' }).click();
-  await page.getByRole('button', { name: 'Open capsule' }).click();
-  await expect(page.getByRole('heading', { name: 'Opening your capsule…' })).toBeVisible();
+  await page.getByRole('button', { name: 'Open free capsule' }).click();
+  await expect(page.getByRole('heading', { name: 'Opening your Welcome Capsule…' })).toBeVisible();
   await expect(page.locator('.player-companion-dialogue--capsule')).toBeHidden();
   await expect(page.getByRole('heading', { name: /You found/ })).toBeVisible();
   const foundName = ((await page.getByRole('heading', { name: /You found/ }).textContent()) ?? '')
     .replace('You found ', '')
     .replace('!', '');
+  await page.getByRole('button', { name: `Equip ${foundName}` }).click();
+  await expect(page.getByRole('status')).toContainText('Equipped');
   await page.getByRole('button', { name: 'View collection' }).click();
   await expect(page.getByRole('heading', { name: 'Companion Collection' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'The Nook Neighbors' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Special Guests' })).toBeVisible();
-  await page.getByRole('button', { name: foundName }).click();
-  const equipDialogue = page.locator('.player-companion-dialogue--equip');
-  await expect(equipDialogue).toHaveAttribute('data-dialogue-context', 'equip');
-  await expect(equipDialogue).toContainText(foundName);
-  await expect(equipDialogue.locator('[aria-live="polite"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: `${foundName}, equipped` })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   const equippedId = await page.evaluate<string>(() => {
     const save = JSON.parse(localStorage.getItem('first-math-game:save') ?? '{}') as {
       equippedCollectibleId: string;
@@ -168,6 +174,58 @@ test('first launch, game, capsule, gallery, equip, and reload', async ({ page })
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.reload();
   await expect(page.locator('.home-companion')).toContainText(foundName);
+});
+
+test('the Capsule Shelf opens a selected collection and records the transaction', async ({
+  page,
+}) => {
+  await onboard(page);
+  await page.evaluate(() => {
+    const key = 'first-math-game:save';
+    const save = JSON.parse(localStorage.getItem(key) ?? '{}') as { coins: number };
+    save.coins = 140;
+    localStorage.setItem(key, JSON.stringify(save));
+  });
+  await page.reload();
+  await page.getByRole('button', { name: 'Capsule Shelf' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Surprise Capsule' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nookside Pups' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Lantern Lane Cats' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Special Guests' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Open Nookside Pups Capsule' }).click();
+  await expect(
+    page.getByRole('heading', { name: 'Opening your Nookside Pups Capsule…' }),
+  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: /You found/ })).toBeVisible();
+
+  const transaction = await page.evaluate(() => {
+    const save = JSON.parse(localStorage.getItem('first-math-game:save') ?? '{}') as {
+      coins: number;
+      ownedCollectibleIds: string[];
+      economyEvents: Array<{
+        capsuleKind: string;
+        collectionId: string | null;
+        coinsSpent: number;
+        eligiblePoolSize: number;
+      }>;
+    };
+    return {
+      coins: save.coins,
+      newestId: save.ownedCollectibleIds.at(-1),
+      event: save.economyEvents.at(-1),
+    };
+  });
+  expect(transaction).toMatchObject({
+    coins: 60,
+    newestId: expect.stringMatching(/^nookside-pups:/),
+    event: {
+      capsuleKind: 'collection',
+      collectionId: 'nookside-pups',
+      coinsSpent: 80,
+      eligiblePoolSize: 10,
+    },
+  });
 });
 
 test('companion dialogue remains stable through unrelated rerenders', async ({ page }) => {
@@ -196,13 +254,11 @@ test('companion dialogue remains stable through unrelated rerenders', async ({ p
 
 test('game settings and home capsule access remain available after reload', async ({ page }) => {
   await onboard(page);
-  await page.getByRole('button', { name: 'Companion Capsule' }).click();
-  await expect(page.getByRole('heading', { name: 'Companion Capsule' })).toBeVisible();
+  await page.getByRole('button', { name: 'Capsule Shelf' }).click();
+  await expect(page.getByRole('heading', { name: 'Capsule Shelf' })).toBeVisible();
   const unavailableCapsule = page.getByRole('button', { name: 'Need 60 more coins' });
-  await expect(unavailableCapsule).toHaveAttribute('aria-disabled', 'true');
+  await expect(unavailableCapsule).toBeDisabled();
   await expect(page.getByRole('button', { name: /Add \d+ Paw Coins/ })).toHaveCount(0);
-  await unavailableCapsule.click({ force: true });
-  await expect(page.getByRole('heading', { name: 'A new friend is waiting' })).toBeVisible();
   await page.getByRole('button', { name: 'Back', exact: true }).click();
 
   await page.getByRole('button', { name: 'Change game' }).click();
@@ -411,7 +467,7 @@ test('history copies a name-free, versioned analysis export', async ({
     'data-dialogue-context',
     'progress',
   );
-  await expect(page.getByText('Ruleset 7').first()).toBeVisible();
+  await expect(page.getByText('Ruleset 8').first()).toBeVisible();
   await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
   await expect.poll(() => page.evaluate<number>('window.scrollY')).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Review round' }).click();
@@ -431,7 +487,7 @@ test('history copies a name-free, versioned analysis export', async ({
   };
   expect(analysis).toMatchObject({
     format: 'number-nook-play-history',
-    exportVersion: 3,
+    exportVersion: 4,
     privacy: { playerNameIncluded: false },
   });
   expect(analysis.sessions).toHaveLength(1);
@@ -471,13 +527,25 @@ test('history keeps large setup collections compact until expanded', async ({
       completedAt: new Date(Date.UTC(2026, 7, index + 1)).toISOString(),
       settings: gameSettings,
       seed: index + 1,
-      rulesetVersion: 6,
+      rulesetVersion: 8,
       correctCount: 1,
       accuracy: 1,
       elapsedMs: 1_000,
       score: 1_000,
       coinsPotential: 1,
       coinsEarned: 1,
+      coinBreakdown: {
+        correctAnswerCoins: 1,
+        difficultyMultiplier: 1,
+        difficultyAdjustedCoins: 1,
+        difficultyBonusCoins: 0,
+        accuracyBonusCoins: 0,
+        perfectBonusCoins: 0,
+        total: 1,
+      },
+      dailyBonusCoins: 0,
+      weeklyBonusCoins: 0,
+      dailyMilestoneReached: false,
       answers: [
         {
           problemId: `setup-preview-question-${index}`,
@@ -618,6 +686,11 @@ test('onboarding and primary menu screens have no detectable accessibility viola
   expect(results.violations).toEqual([]);
   await page.getByRole('button', { name: 'Back', exact: true }).click();
 
+  await page.getByRole('button', { name: 'Capsule Shelf' }).click();
+  results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+
   await page.getByRole('button', { name: 'Change game' }).click();
   results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
@@ -668,7 +741,7 @@ test('@visual empty history phone layout', async ({ page }, testInfo) => {
 test('@visual capsule companion phone layout', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'phone', 'This baseline targets the phone viewport.');
   await onboard(page);
-  await page.getByRole('button', { name: 'Companion Capsule' }).click();
+  await page.getByRole('button', { name: 'Capsule Shelf' }).click();
   await expect(page).toHaveScreenshot('capsule-companion.png', {
     fullPage: true,
     maxDiffPixels: 150,

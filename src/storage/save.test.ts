@@ -7,7 +7,7 @@ import {
   applyCompletedSession,
   clearPlayHistory,
   createInitialSave,
-  dailyCoinsRemaining,
+  dailyCoinsEarned,
   DETAILED_SESSION_LIMIT,
   LocalStorageSaveRepository,
   updateArtStyle,
@@ -32,7 +32,7 @@ describe('save data', () => {
     const repository = new LocalStorageSaveRepository();
     const save = createInitialSave(' Ada ', 'cozy-cats:sunny');
     expect(save.player.name).toBe('Ada');
-    expect(save.schemaVersion).toBe(5);
+    expect(save.schemaVersion).toBe(6);
     expect(save.artStyle).toBe('sticker');
     await repository.save(save);
     await expect(repository.load()).resolves.toEqual(save);
@@ -48,7 +48,7 @@ describe('save data', () => {
     void _dailyCoins;
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 1 }));
     expect(migrated).toMatchObject({
-      schemaVersion: 5,
+      schemaVersion: 6,
       player: { name: 'Ada' },
       coins: 0,
       artStyle: 'sticker',
@@ -92,11 +92,13 @@ describe('save data', () => {
       accuracy: session.accuracy,
       elapsedMs: session.elapsedMs,
       score: session.score,
-      coinsEarned: session.coinsEarned,
+      coinsEarned:
+        session.correctCount + (session.accuracy >= 0.8 ? 2 : 0) + (session.accuracy === 1 ? 3 : 0),
     }));
     const legacyV2 = {
       ...current,
       schemaVersion: 2,
+      dailyCoins: { date: '2026-01-02', earned: 15 },
       sessions: [
         ...legacySessions,
         {
@@ -116,7 +118,7 @@ describe('save data', () => {
     };
 
     const migrated = repository.parseImport(JSON.stringify(legacyV2));
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
     expect(migrated.sessions[0]).toMatchObject({
       rulesetVersion: 1,
       coinsPotential: 15,
@@ -157,12 +159,17 @@ describe('save data', () => {
     const summary = summarizeSession(problems, answers, DEFAULT_SETTINGS, 3, new FakeClock(1));
     const once = applyCompletedSession(save, summary, '2026-01-02');
     const twice = applyCompletedSession(once, summary, '2026-01-02');
-    expect(once.coins).toBe(15);
+    expect(once.coins).toBe(33);
+    expect(once.sessions.at(-1)).toMatchObject({
+      coinsEarned: 33,
+      dailyBonusCoins: 5,
+      weeklyBonusCoins: 0,
+    });
     expect(twice).toEqual(once);
     expect(updateSettings(once, DEFAULT_SETTINGS).settings).toEqual(DEFAULT_SETTINGS);
   });
 
-  it('caps earnings per calendar day and resets availability on a new day', () => {
+  it('keeps earning after the daily milestone and awards bounded participation bonuses', () => {
     const initial = createInitialSave('Ada', 'cozy-cats:sunny');
     const problems = generateSession(DEFAULT_SETTINGS, new SeededRandom(3));
     const answers = problems.map((problem) => ({
@@ -183,15 +190,28 @@ describe('save data', () => {
 
     const first = applyCompletedSession(initial, makeSummary(1), '2026-01-02');
     const second = applyCompletedSession(first, makeSummary(2), '2026-01-02');
-    const capped = applyCompletedSession(second, makeSummary(3), '2026-01-02');
-    expect(capped.coins).toBe(30);
-    expect(capped.sessions.at(-1)?.coinsEarned).toBe(0);
-    expect(dailyCoinsRemaining(capped, '2026-01-02')).toBe(0);
-    expect(dailyCoinsRemaining(capped, '2026-01-03')).toBe(30);
+    const third = applyCompletedSession(second, makeSummary(3), '2026-01-02');
+    const fourth = applyCompletedSession(third, makeSummary(4), '2026-01-02');
+    expect(fourth.coins).toBe(117);
+    expect(fourth.sessions.at(-1)).toMatchObject({
+      coinsEarned: 28,
+      dailyBonusCoins: 0,
+      dailyMilestoneReached: true,
+    });
+    expect(dailyCoinsEarned(fourth, '2026-01-02')).toBe(117);
+    expect(dailyCoinsEarned(fourth, '2026-01-03')).toBe(0);
 
-    const nextDay = applyCompletedSession(capped, makeSummary(4), '2026-01-03');
-    expect(nextDay.coins).toBe(45);
-    expect(nextDay.dailyCoins).toEqual({ date: '2026-01-03', earned: 15 });
+    const nextDay = applyCompletedSession(fourth, makeSummary(5), '2026-01-03');
+    const thirdPracticeDay = applyCompletedSession(nextDay, makeSummary(6), '2026-01-04');
+    expect(nextDay.sessions.at(-1)).toMatchObject({ dailyBonusCoins: 5, weeklyBonusCoins: 0 });
+    expect(thirdPracticeDay.sessions.at(-1)).toMatchObject({
+      dailyBonusCoins: 5,
+      weeklyBonusCoins: 15,
+    });
+    expect(thirdPracticeDay.rewardProgress.weekly).toMatchObject({
+      qualifyingDates: ['2026-01-02', '2026-01-03', '2026-01-04'],
+      bonusAwarded: true,
+    });
   });
 
   it('retains thirty detailed rounds and rolls older sessions into lifetime progress', () => {
@@ -263,7 +283,7 @@ describe('save data', () => {
       JSON.stringify({ ...withoutArchive, schemaVersion: 3, sessions }),
     );
 
-    expect(migrated.schemaVersion).toBe(5);
+    expect(migrated.schemaVersion).toBe(6);
     expect(migrated.artStyle).toBe('sticker');
     expect(migrated.sessions).toHaveLength(DETAILED_SESSION_LIMIT);
     expect(migrated.archivedProgress.overall).toMatchObject({ rounds: 5, questions: 50 });
@@ -277,7 +297,64 @@ describe('save data', () => {
 
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 4 }));
 
-    expect(migrated).toMatchObject({ schemaVersion: 5, artStyle: 'sticker' });
+    expect(migrated).toMatchObject({ schemaVersion: 6, artStyle: 'sticker' });
+  });
+
+  it('migrates an established version 5 save without changing its balance', () => {
+    const repository = new LocalStorageSaveRepository();
+    const current = createInitialSave('Ada', 'cozy-cats:sunny');
+    const {
+      rewardProgress: _rewardProgress,
+      schemaVersion: _schemaVersion,
+      ...legacyFields
+    } = current;
+    void _rewardProgress;
+    void _schemaVersion;
+    const migrated = repository.parseImport(
+      JSON.stringify({
+        ...legacyFields,
+        schemaVersion: 5,
+        coins: 42,
+        dailyCoins: { date: '2026-08-30', earned: 30 },
+      }),
+    );
+
+    expect(migrated).toMatchObject({
+      schemaVersion: 6,
+      coins: 42,
+      dailyCoins: { date: '2026-08-30', earned: 30 },
+      rewardProgress: { welcomeCapsuleStatus: 'locked' },
+    });
+  });
+
+  it('does not grant participation bonuses for a round with fewer than five correct answers', () => {
+    const initial = createInitialSave('Ada', 'cozy-cats:sunny');
+    const problems = generateSession(DEFAULT_SETTINGS, new SeededRandom(12));
+    const answers = problems.map((problem, index) => ({
+      problemId: problem.id,
+      skillKey: problem.skillKey,
+      operation: problem.operation,
+      left: problem.left,
+      right: problem.right,
+      choices: problem.choices,
+      correctChoiceIndex: problem.correctChoiceIndex,
+      selectedAnswer: index < 4 ? problem.correctAnswer : Number.MIN_SAFE_INTEGER,
+      correctAnswer: problem.correctAnswer,
+      correct: index < 4,
+      responseMs: 400,
+    }));
+    const completed = applyCompletedSession(
+      initial,
+      summarizeSession(problems, answers, DEFAULT_SETTINGS, 12, new FakeClock(12)),
+      '2026-08-31',
+    );
+
+    expect(completed.sessions.at(-1)).toMatchObject({
+      dailyBonusCoins: 0,
+      weeklyBonusCoins: 0,
+    });
+    expect(completed.rewardProgress.dailyBonusDate).toBe('');
+    expect(completed.rewardProgress.weekly.qualifyingDates).toEqual([]);
   });
 
   it('updates the master art style without changing collection progress', () => {

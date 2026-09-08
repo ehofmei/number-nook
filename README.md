@@ -2,11 +2,12 @@
 
 An offline-first, multiple-choice arithmetic PWA designed for short, engaging practice sessions on phones and tablets.
 
-The first playable vertical slice is implemented. It includes onboarding, a starter companion, configurable mixed-operation rounds, four difficulty levels, scoring and Paw Coins, a duplicate-protected capsule, a collection gallery, equipping companions, local persistence, and offline PWA support.
+The playable local-first game includes onboarding, starter and collectible companions, configurable mixed-operation rounds, four difficulty levels, scoring, Paw Coins, a duplicate-protected Capsule Shelf, a collection gallery, companion themes, local persistence, backup/restore, audio, and offline PWA support.
 
 ## Project documents
 
 - [Current next steps](./docs/NEXT_STEPS.md) — the short, authoritative list of active priorities, later work, and explicitly deferred decisions.
+- [How Number Nook works](./docs/GAME_GUIDE.md) — a plain-language guide to practice rounds, difficulty, score, Paw Coins, companions, progress, settings, and offline play.
 - [Research and product design](./DESIGN_RESEARCH.md) — learning research, product principles, game modes, difficulty, scoring, progress, collectible economy, technical options, and confirmed design decisions.
 - [Implementation plan](./docs/IMPLEMENTATION_PLAN.md) — delivery sequence, first vertical slice, acceptance criteria, architecture boundaries, and milestone definitions.
 - [Testing strategy](./docs/TEST_STRATEGY.md) — testability requirements, automated test layers, visual inspection, accessibility, PWA/device verification, coverage policy, and CI design.
@@ -19,7 +20,7 @@ The first playable vertical slice is implemented. It includes onboarding, a star
 - [Nook Neighbors Sticker anchors](./docs/NOOK_NEIGHBORS_STICKER_ANCHORS.md) — the first Biscuit and Aurora raster candidates, exact prompts, and approval notes.
 - [Nook Neighbors Sticker batch](./docs/NOOK_NEIGHBORS_STICKER_BATCH.md) — the remaining seven first-pass portraits, exact prompts, and collection review notes.
 - [Button Bunny Sticker](./docs/BUTTON_BUNNY_STICKER.md) — the first Special Guest raster portrait, exact prompt, reference lineage, and production decision.
-- [Economy tuning](./docs/ECONOMY.md) — current Paw Coin earnings, daily limits, capsule pricing, rationale, and safe tuning points.
+- [Economy tuning](./docs/ECONOMY.md) — current Paw Coin earnings, participation rewards, capsule pricing, rationale, and safe tuning points.
 - [Balance analysis](./docs/BALANCE_ANALYSIS.md) — play-history export fields, comparison workflow, simulation strategy, and controls for stable tuning.
 - [Round review and history retention](./docs/PLAY_HISTORY.md) — question review, bounded detailed history, lifetime aggregates, migration, exports, and clearing test data.
 - [Save backup and restore](./docs/SAVE_BACKUP.md) — complete local backup contents, safe import confirmation, schema migration, and analysis-export separation.

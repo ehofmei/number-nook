@@ -12,18 +12,18 @@ For each of the newest 30 completed rounds:
 - Completion timestamp.
 - Selected operations, difficulty, and question count.
 - Total score, score per question, accuracy, elapsed time, and response-time summaries.
-- Potential Paw Coins and coins actually awarded after the daily cap.
+- Base, difficulty-adjusted, accuracy, perfect, daily, and weekly Paw Coin components and the total awarded.
 - Every equation's operation, operands, answer choices and their order, selected answer, correct answer, correctness, response time, and awarded score.
 
 For economy pacing:
 
 - Current coin balance and owned collectible count.
-- Capsule cost and daily-cap rules in effect when exporting.
-- Capsule-opening timestamp, cost, reward ID, kind, and rarity.
+- Capsule prices, difficulty multipliers, participation bonuses, and daily milestone in effect when exporting.
+- Capsule-opening timestamp, kind, selected collection, cost, reward ID, rarity, eligible-pool size, and owned count before opening.
 
 The export also groups comparable rounds by operation set, difficulty, question count, and ruleset version. Lifetime additive totals remain available after an older round's question detail is retired. This prevents a 50-question mixed round from being directly averaged with a 10-question addition round while keeping local storage bounded. See [Round review and play-history retention](./PLAY_HISTORY.md).
 
-Analysis export version 3 reports its retention window explicitly. Overall, ruleset, configuration, difficulty, and operation averages use lifetime weighted totals; configuration median response time uses only the retained detailed window and is labeled with that scope.
+Analysis export version 4 reports its retention window and current economy rules explicitly. Overall, ruleset, configuration, difficulty, and operation averages use lifetime weighted totals; configuration median response time uses only the retained detailed window and is labeled with that scope.
 
 ## How to share a useful sample
 
@@ -107,6 +107,10 @@ Repeated ten-question, four-operation Advanced play tests exposed rounds contain
 
 Ruleset version 7 calculates a single low-challenge budget from the complete session length and allocates it across operations without weakening their focus minimums. A ten-question Advanced round may now contain zero or one identity. Ordinary review facts remain unchanged so the first comparison can isolate the effect of identity clustering; near-equal negative subtraction remains a documented follow-up observation rather than part of this correction.
 
+### Version 8 reward baseline
+
+Ruleset version 8 keeps the version 7 question generator and changes the Paw Coin calculation. Correct answers now begin at two coins, receive the 1.00x/1.15x/1.30x/1.50x difficulty multiplier, and may receive accuracy, perfect, daily, and weekly bonuses. The former 30-coin cap is replaced by a non-blocking 100-coin daily milestone. Score and question-difficulty comparisons with version 7 remain meaningful, but coin totals must be compared within version 8.
+
 ## Primary comparisons
 
 Use these in order:
@@ -116,7 +120,7 @@ Use these in order:
 3. Score per question, not only raw score.
 4. Wrong-answer patterns and whether a distractor repeatedly attracts careful players.
 5. Variation within one player across repeated comparable rounds.
-6. Coin potential versus coins awarded, capsules opened, and days required per collectible.
+6. Coins by reward component, questions per capsule, Surprise-versus-Collection choices, and acquisition pacing.
 7. Qualitative notes: “too easy,” “frustrating,” “fun,” unclear controls, or guessing.
 
 Accuracy and response time are useful empirical difficulty signals, but neither alone measures enjoyment or comprehension. Objective play data should be paired with short observations and player comments.

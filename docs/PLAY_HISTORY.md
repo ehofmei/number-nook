@@ -22,7 +22,7 @@ Review is intentionally reflective rather than punitive. It does not change the 
 
 ## Bounded detailed history
 
-Save schema version 4 introduced the newest-30 detailed window, and current schema version 5 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
+Save schema version 4 introduced the newest-30 detailed window, and current schema version 6 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
 
 Archived totals preserve:
 
@@ -42,20 +42,21 @@ This design gives balance analysis a useful recent window while keeping browser 
 
 Recent detailed rounds appear before the per-setup analytics grid. The page shows the newest five detailed rounds and six setup configurations initially; each section can be expanded independently. This prevents either a long play history or a large variety of play-test setups from making the page difficult to scan.
 
-## Analysis export version 3
+## Analysis export version 4
 
 The Play History analysis export includes:
 
 - Lifetime overall, ruleset, configuration, difficulty, and operation summaries.
 - A `retention` object stating the detailed limit, retained count, and archived count.
-- Full settings, equations, choice order, selections, timing, scoring, and coin effects for the newest 30 rounds.
-- Capsule economy events retained by the save.
+- Full settings, equations, choice order, selections, timing, scoring, and reward breakdowns for the newest 30 rounds.
+- Capsule kind, collection, cost, eligible-pool size, and ownership context for retained economy events.
+- Current reward multipliers, participation bonuses, milestone, and capsule prices.
 
 The analysis export excludes the player name, account identifiers, installation identifiers, and device identifiers. It remains formatted for human inspection and sharing. The app's internal `localStorage` representation is compact JSON to avoid spending space on indentation.
 
 ## Migration and clearing
 
-Version 1–4 saves migrate automatically to current schema version 5. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 5 adds only the art-style preference and does not change history retention.
+Versions 1–5 migrate automatically to current schema version 6. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 adds reward progress and richer economy history without changing the detailed-history limit.
 
 **Clear play history** uses a confirmation step and removes:
 
@@ -63,7 +64,7 @@ Version 1–4 saves migrate automatically to current schema version 5. If an old
 - Archived lifetime progress.
 - Scores and configuration performance summaries derived from those records.
 
-It preserves Paw Coins, the daily coin allowance state, companions, equipped companion, capsule events, player name, and game settings. This makes it useful for removing development play-test results without resetting collection progress.
+It preserves Paw Coins, daily and weekly reward progress, companions, equipped companion, capsule events, player name, and game settings. This makes it useful for removing development play-test results without resetting collection progress.
 
 The separate [Save backup and restore](./SAVE_BACKUP.md) screen is the recovery mechanism for moving all progress to another device. The Play History analysis JSON is an analysis artifact and cannot be imported as a save file.
 
@@ -73,7 +74,7 @@ Automated tests cover:
 
 - Archiving the oldest round at the 30-round boundary.
 - Lifetime totals across retained and archived rounds.
-- Schema version 3 migration with more than 30 sessions.
+- Legacy migration with more than 30 sessions.
 - Compact internal saves and readable full-save exports.
 - Clearing history while preserving collection, currency, and settings.
 - Entering review from results and history.

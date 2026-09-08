@@ -7,7 +7,7 @@ Number Nook can move complete local progress between devices without an account 
 A save backup includes:
 
 - Player name and remembered game settings.
-- Paw Coin balance and current daily earning allowance.
+- Paw Coin balance, earned-today total, and daily and weekly participation progress.
 - Owned and equipped companions.
 - Remembered Classic or Polished Sticker art preference.
 - Capsule economy events.
@@ -34,7 +34,7 @@ Invalid files show an error and leave the current save untouched. After a succes
 
 The success message appears only after browser storage accepts the complete restored save. A storage failure leaves the current in-memory progress unchanged and reports that the restore could not be completed.
 
-Current schema version 5 and legacy schema versions 1–4 are supported. Version 5 adds the master art-style preference; older saves migrate to the Polished Sticker default without changing collection progress. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
+Current schema version 6 and legacy schema versions 1–5 are supported. Version 6 adds Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. Established saves migrate with the Welcome Capsule already resolved so an update cannot grant a second starter-style reward. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
 
 ## Different export types
 
@@ -50,7 +50,7 @@ This separation keeps analysis sharing privacy-conscious and prevents a partial 
 Automated tests cover:
 
 - Current-save export and import round trips.
-- Schema version 1–4 migration.
+- Schema version 1–5 migration.
 - Download naming.
 - Invalid-file rejection without changing the current save.
 - Preview-before-replacement behavior.

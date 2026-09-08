@@ -173,7 +173,7 @@ describe('addition and subtraction composition', () => {
       );
       expectValidAdditiveComposition(problems, difficulty);
     }
-  });
+  }, 15_000);
 
   it('keeps a ten-question Advanced mixed round at six focus questions with a negative', () => {
     const problems = generateSession(

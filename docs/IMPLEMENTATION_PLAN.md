@@ -369,9 +369,9 @@ The concise authoritative priority list now lives in [Number Nook Next Steps](./
 1. ~~Split the catalog and personality registries into collection-specific modules while preserving one aggregated public catalog and every permanent ID.~~ Completed in catalog 2.3.
 2. **Nookside Pups is complete**, with ten ordinary dog companions distributed across four Common, three Uncommon, two Rare, and one Legendary. Catalog entries, themes, personalities, phrases, CSS motifs, Classic SVGs, optimized Sticker WebPs, and art-style switching are implemented without species-specific application logic. The roster and dual-art record live in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md).
 3. ~~Design and ship a second ten-member cat collection using the same content, theme, dialogue, economy, and testing contracts.~~ Lantern Lane Cats completed its Classic SVG phase in catalog 2.5 and its ten optimized Sticker portraits in catalog 2.6, raising the dual-art catalog to thirty-one while keeping cats at the center.
-4. Simulate the approved 60-coin Surprise Capsule, 80-coin Collection Capsule, and 100-coin daily practice cap before implementing final constants.
+4. Validate and simulate the implemented 60-coin Surprise Capsule, 80-coin Collection Capsule, unlimited daily earnings, and non-blocking 100-coin daily milestone before treating the constants as final.
 5. Replace the subtle equipped-companion treatment with a visual badge, themed outline or glow, and direct `Equipped` label; allow a newly revealed companion to be equipped in place.
-6. Build a data-driven Capsule Shelf with collection progress and themed banners, then add the welcome capsule, 5-coin daily bonus, 15-coin three-day weekly reward, and collection-completion celebrations.
+6. ~~Build a data-driven Capsule Shelf with collection progress and themed banners, then add the welcome capsule, 5-coin daily bonus, and 15-coin three-day weekly reward.~~ Completed in save schema 6 and ruleset 8. Collection-completion celebrations remain optional polish.
 7. Family-test acquisition pacing before changing rarity weights or adding another reward system. Direct companion purchases are no longer planned unless collection targeting proves insufficient.
 8. Resume math-mode development in this order: untimed Practice with retries and optional hints, Time Rush, Endless, a daily mixed challenge, and finally Improvement Duel after enough comparable history exists.
 
@@ -407,4 +407,4 @@ A feature is complete only when:
 
 ## Current development decision point
 
-Lantern Lane Cats is fully implemented in catalog 2.6 with ten Classic SVGs, ten optimized Sticker portraits, themes, personalities, signature dialogue, economy data, fallback behavior, and collection documentation. The immediate milestone is the collection-directed reward system recorded in [Number Nook Next Steps](./NEXT_STEPS.md). The next full collection should probably be non-cat; current candidates are maintained in [Future Companion Collection Ideas](./FUTURE_COMPANION_COLLECTIONS.md).
+Lantern Lane Cats is fully implemented in catalog 2.6 with ten Classic SVGs, ten optimized Sticker portraits, themes, personalities, signature dialogue, economy data, fallback behavior, and collection documentation. The collection-directed reward system is implemented; its active validation work is recorded in [Number Nook Next Steps](./NEXT_STEPS.md). The next full collection should probably be non-cat; current candidates are maintained in [Future Companion Collection Ideas](./FUTURE_COMPANION_COLLECTIONS.md).

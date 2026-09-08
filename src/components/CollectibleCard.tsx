@@ -32,6 +32,11 @@ export function CollectibleCard({
             ?
           </span>
         )}
+        {equipped && (
+          <span className="equipped-check" aria-hidden="true">
+            ✓
+          </span>
+        )}
       </div>
       <div className="collectible-copy">
         <div className="collectible-heading">
@@ -40,7 +45,7 @@ export function CollectibleCard({
         </div>
         <span className={`rarity rarity--${collectible.rarity}`}>{collectible.rarity}</span>
         {!compact && owned && <p>{collectible.description}</p>}
-        {equipped && <span className="equipped-label">By your side</span>}
+        {equipped && <span className="equipped-label">Equipped</span>}
       </div>
     </>
   );
@@ -48,10 +53,10 @@ export function CollectibleCard({
   if (onSelect) {
     return (
       <button
-        className={`collectible-card ${compact ? 'collectible-card--compact' : ''} ${selected ? 'collectible-card--selected' : ''}`}
+        className={`collectible-card ${compact ? 'collectible-card--compact' : ''} ${selected || equipped ? 'collectible-card--selected' : ''}`}
         type="button"
         onClick={onSelect}
-        aria-pressed={selected}
+        aria-pressed={selected || equipped}
         aria-label={`${collectible.name}${equipped ? ', equipped' : ''}`}
       >
         {content}

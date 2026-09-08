@@ -52,7 +52,12 @@ import {
   type Problem,
 } from './domain/math';
 import { createRandomSeed, SeededRandom } from './domain/random';
-import { CAPSULE_COST, chooseCapsuleReward, DAILY_COIN_CAP } from './domain/rewards';
+import {
+  COLLECTION_CAPSULE_COST,
+  DAILY_COIN_MILESTONE,
+  eligibleCapsuleRewards,
+  SURPRISE_CAPSULE_COST,
+} from './domain/rewards';
 import {
   scoreAnswer,
   summarizeSession,
@@ -63,13 +68,14 @@ import {
   applyCompletedSession,
   clearPlayHistory,
   createInitialSave,
-  dailyCoinsRemaining,
+  dailyCoinsEarned,
   DEFAULT_ART_STYLE,
   LocalStorageSaveRepository,
   type SaveData,
   updateArtStyle,
   updateSettings,
 } from './storage/save';
+import { openCapsule, type CapsuleChoice } from './storage/economy';
 
 type Screen =
   | 'onboarding'
@@ -506,11 +512,13 @@ function Home({
             🐾
           </span>
           <span>
-            <strong>Companion Capsule</strong>
+            <strong>Capsule Shelf</strong>
             <small>
-              {save.coins >= CAPSULE_COST
-                ? 'A new companion is waiting!'
-                : `${CAPSULE_COST - save.coins} more coins to open one`}
+              {save.rewardProgress.welcomeCapsuleStatus === 'available'
+                ? 'Your free welcome capsule is ready!'
+                : save.coins >= SURPRISE_CAPSULE_COST
+                  ? 'A new companion is waiting!'
+                  : `${SURPRISE_CAPSULE_COST - save.coins} more coins to open one`}
             </small>
           </span>
           <span aria-hidden="true">→</span>
@@ -527,7 +535,8 @@ function Home({
                 : 'Your first game is waiting'}
             </small>
             <small>
-              {dailyCoinsRemaining(save, clock.today())} of {DAILY_COIN_CAP} coins available today
+              {dailyCoinsEarned(save, clock.today())} earned today · {DAILY_COIN_MILESTONE}-coin
+              goal
             </small>
           </span>
           <span aria-hidden="true">→</span>
@@ -979,7 +988,7 @@ function Results({
   onHome,
   onCapsule,
   onReview,
-  dailyRemaining,
+  dailyEarned,
   presentCoinReward,
   onCoinsPresented,
 }: {
@@ -992,7 +1001,7 @@ function Results({
   onHome: () => void;
   onCapsule: () => void;
   onReview: () => void;
-  dailyRemaining: number;
+  dailyEarned: number;
   presentCoinReward: boolean;
   onCoinsPresented: (summaryId: string) => void;
 }) {
@@ -1086,13 +1095,64 @@ function Results({
           <strong key={visibleCoins} className="coin-tally">
             +{visibleCoins}
           </strong>
-          <small>
-            {dailyRemaining > 0
-              ? `${dailyRemaining} available today`
-              : "Today's Paw Coin pouch is full"}
-          </small>
+          <small>{dailyEarned} earned today · keep going if you want!</small>
         </article>
       </section>
+      {summary.dailyMilestoneReached && (
+        <section className="daily-milestone" role="status">
+          <span aria-hidden="true">✦</span>
+          <div>
+            <strong>Daily Paw Coin goal complete!</strong>
+            <p>You reached {DAILY_COIN_MILESTONE} today. Every correct answer still earns coins.</p>
+          </div>
+        </section>
+      )}
+      <details className="coin-breakdown">
+        <summary>How you earned {summary.coinsEarned} Paw Coins</summary>
+        <dl>
+          <div>
+            <dt>{summary.correctCount} correct × 2</dt>
+            <dd>{summary.coinBreakdown.correctAnswerCoins}</dd>
+          </div>
+          {summary.coinBreakdown.difficultyBonusCoins > 0 && (
+            <div>
+              <dt>
+                {DIFFICULTY_LABELS[summary.settings.difficulty]} challenge ×
+                {summary.coinBreakdown.difficultyMultiplier}
+              </dt>
+              <dd>+{summary.coinBreakdown.difficultyBonusCoins}</dd>
+            </div>
+          )}
+          {summary.coinBreakdown.accuracyBonusCoins > 0 && (
+            <div>
+              <dt>Careful work bonus</dt>
+              <dd>+{summary.coinBreakdown.accuracyBonusCoins}</dd>
+            </div>
+          )}
+          {summary.coinBreakdown.perfectBonusCoins > 0 && (
+            <div>
+              <dt>Perfect round bonus</dt>
+              <dd>+{summary.coinBreakdown.perfectBonusCoins}</dd>
+            </div>
+          )}
+          {summary.dailyBonusCoins > 0 && (
+            <div>
+              <dt>First practice today</dt>
+              <dd>+{summary.dailyBonusCoins}</dd>
+            </div>
+          )}
+          {summary.weeklyBonusCoins > 0 && (
+            <div>
+              <dt>Three practice days this week</dt>
+              <dd>+{summary.weeklyBonusCoins}</dd>
+            </div>
+          )}
+          <div className="coin-breakdown__total">
+            <dt>Total</dt>
+            <dd>{summary.coinsEarned}</dd>
+          </div>
+        </dl>
+      </details>
       <div className="result-actions">
         <button className="primary-button" type="button" onClick={onReplay}>
           Play again
@@ -1328,7 +1388,7 @@ function History({
           <h2>Share for balance analysis</h2>
           <p>
             Copy the versioned JSON and paste it into our chat. It includes exact settings,
-            questions, choices, scores, timing, and coin-cap effects.
+            questions, choices, scores, timing, reward breakdowns, and capsule details.
           </p>
         </div>
         <div className="history-actions">
@@ -1706,8 +1766,10 @@ function Capsule({
   dialogue,
   reward,
   opening,
+  activeChoice,
   onOpen,
   onGrantDevelopmentCoins,
+  onEquip,
   onGallery,
   onBack,
 }: {
@@ -1716,14 +1778,42 @@ function Capsule({
   dialogue?: SelectedDialogue;
   reward: CollectibleDefinition | null | undefined;
   opening: boolean;
-  onOpen: () => void;
+  activeChoice?: CapsuleChoice;
+  onOpen: (choice: CapsuleChoice) => void;
   onGrantDevelopmentCoins?: () => void;
-  onGallery: () => void;
+  onEquip: (id: string) => void;
+  onGallery: (collectionId?: string) => void;
   onBack: () => void;
 }) {
-  const complete = save.ownedCollectibleIds.length === catalog.collectibles.length;
+  const surprisePool = eligibleCapsuleRewards(catalog.collectibles, save.ownedCollectibleIds);
+  const ordinaryCollections = catalog.collections
+    .map((collection) => {
+      const collectibles = catalog.collectibles.filter(
+        (collectible) =>
+          collectible.collectionId === collection.id &&
+          collectible.capsuleEligible &&
+          !collectible.specialGuest,
+      );
+      const eligible = eligibleCapsuleRewards(
+        collectibles,
+        save.ownedCollectibleIds,
+        collection.id,
+      );
+      return { collection, collectibles, eligible };
+    })
+    .filter(({ collectibles }) => collectibles.length > 0);
+  const welcomeAvailable = save.rewardProgress.welcomeCapsuleStatus === 'available';
+  const selectedCollection = activeChoice?.collectionId
+    ? getCollection(activeChoice.collectionId)
+    : undefined;
+  const openingName =
+    activeChoice?.kind === 'welcome'
+      ? 'Welcome Capsule'
+      : activeChoice?.kind === 'collection'
+        ? `${selectedCollection?.name ?? 'Collection'} Capsule`
+        : 'Surprise Capsule';
   return (
-    <main className="page-shell narrow-page capsule-page">
+    <main className="page-shell capsule-page">
       <header className="page-header">
         <button
           className="icon-button"
@@ -1736,7 +1826,8 @@ function Capsule({
         </button>
         <div>
           <span className="eyebrow">Companion corner</span>
-          <h1>Companion Capsule</h1>
+          <h1>Capsule Shelf</h1>
+          <p>Choose a broad surprise or explore one collection.</p>
         </div>
         <div className="coin-pill">
           <span>🐾</span>
@@ -1753,68 +1844,185 @@ function Capsule({
           />
         </section>
       )}
-      <section
-        className={`capsule-machine ${reward ? 'capsule-machine--open' : ''} ${opening ? 'capsule-machine--opening' : ''}`}
-      >
-        {reward ? (
-          <div className="reveal-card" aria-live="polite">
-            <span className="reveal-burst" aria-hidden="true">
-              ✦
-            </span>
-            <img
-              src={`${import.meta.env.BASE_URL}${getCollectibleImage(reward, save.artStyle)}`}
-              alt={reward.altText}
-            />
-            <span className={`rarity rarity--${reward.rarity}`}>{reward.rarity}</span>
-            <h2>You found {reward.name}!</h2>
-            {reward.specialGuest && <span className="guest-badge">Special Guest</span>}
-            <p>{reward.description}</p>
-            <button className="primary-button" type="button" onClick={onGallery}>
-              View collection
-            </button>
-          </div>
-        ) : opening ? (
-          <div className="capsule-opening" aria-live="polite">
-            <div className="capsule-orb" aria-hidden="true">
-              <span>✦</span>
-            </div>
-            <h2>Opening your capsule…</h2>
-            <p>Something new is about to appear!</p>
-          </div>
-        ) : (
-          <>
-            <div className="capsule-orb" aria-hidden="true">
-              <span>?</span>
-            </div>
-            <h2>{complete ? 'Collection complete!' : 'A new friend is waiting'}</h2>
-            <p>
-              {complete
-                ? 'You have discovered every companion in this collection.'
-                : `Every capsule contains someone new. One capsule costs ${CAPSULE_COST} Paw Coins.`}
-            </p>
-            <button
-              className="primary-button"
-              type="button"
-              onClick={onOpen}
-              disabled={complete}
-              aria-disabled={save.coins < CAPSULE_COST || complete}
-            >
-              {save.coins < CAPSULE_COST && !complete
-                ? `Need ${CAPSULE_COST - save.coins} more coins`
-                : 'Open capsule'}
-            </button>
-            {onGrantDevelopmentCoins && !complete && (
-              <aside className="developer-cheat" aria-label="Developer testing tools">
-                <span>Development tool</span>
-                <button className="text-button" type="button" onClick={onGrantDevelopmentCoins}>
-                  Add {DEVELOPMENT_COIN_GRANT} Paw Coins
+      {reward || opening ? (
+        <section
+          className={`capsule-machine ${reward ? 'capsule-machine--open' : ''} ${opening ? 'capsule-machine--opening' : ''}`}
+          style={reward ? companionThemeCssVariables(reward.theme) : undefined}
+        >
+          {reward ? (
+            <div className="reveal-card" aria-live="polite">
+              <span className="reveal-burst" aria-hidden="true">
+                ✦
+              </span>
+              <img
+                src={`${import.meta.env.BASE_URL}${getCollectibleImage(reward, save.artStyle)}`}
+                alt={reward.altText}
+              />
+              <span className={`rarity rarity--${reward.rarity}`}>{reward.rarity}</span>
+              <h2>You found {reward.name}!</h2>
+              {reward.specialGuest && <span className="guest-badge">Special Guest</span>}
+              <p>{reward.description}</p>
+              <div className="reveal-actions">
+                {save.equippedCollectibleId === reward.id ? (
+                  <span className="reveal-equipped" role="status">
+                    <span aria-hidden="true">✓</span> Equipped
+                  </span>
+                ) : (
+                  <button
+                    className="primary-button"
+                    type="button"
+                    onClick={() => onEquip(reward.id)}
+                  >
+                    Equip {reward.name}
+                  </button>
+                )}
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => onGallery(reward.collectionId)}
+                >
+                  View collection
                 </button>
-                <small>Testing coins do not count toward today’s practice limit.</small>
-              </aside>
-            )}
-          </>
-        )}
-      </section>
+              </div>
+            </div>
+          ) : (
+            <div className="capsule-opening" aria-live="polite">
+              <div className="capsule-orb" aria-hidden="true">
+                <span>✦</span>
+              </div>
+              <h2>Opening your {openingName}…</h2>
+              <p>Something new is about to appear!</p>
+            </div>
+          )}
+        </section>
+      ) : (
+        <>
+          {welcomeAvailable && surprisePool.length > 0 && (
+            <section className="welcome-capsule-card" aria-labelledby="welcome-capsule-heading">
+              <div className="capsule-orb capsule-orb--small" aria-hidden="true">
+                <span>✦</span>
+              </div>
+              <div>
+                <span className="eyebrow">First-round gift</span>
+                <h2 id="welcome-capsule-heading">Your Welcome Capsule is ready!</h2>
+                <p>Open it free. It contains one new companion from anywhere in the Nook.</p>
+              </div>
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => onOpen({ kind: 'welcome', collectionId: null })}
+              >
+                Open free capsule
+              </button>
+            </section>
+          )}
+
+          <section className="capsule-shelf" aria-label="Capsule choices">
+            <article className="capsule-choice capsule-choice--surprise">
+              <div className="capsule-choice__banner">
+                <div className="capsule-orb capsule-orb--shelf" aria-hidden="true">
+                  <span>?</span>
+                </div>
+                <div>
+                  <span className="eyebrow">Best value</span>
+                  <h2>Surprise Capsule</h2>
+                  <p>Discover anyone still waiting across every collection.</p>
+                </div>
+              </div>
+              <div className="capsule-choice__details">
+                <span>{surprisePool.length} possible companions</span>
+                <strong>🐾 {SURPRISE_CAPSULE_COST}</strong>
+              </div>
+              <button
+                className="primary-button"
+                type="button"
+                disabled={surprisePool.length === 0 || save.coins < SURPRISE_CAPSULE_COST}
+                onClick={() => onOpen({ kind: 'surprise', collectionId: null })}
+              >
+                {surprisePool.length === 0
+                  ? 'Everything discovered!'
+                  : save.coins < SURPRISE_CAPSULE_COST
+                    ? `Need ${SURPRISE_CAPSULE_COST - save.coins} more coins`
+                    : 'Open Surprise Capsule'}
+              </button>
+            </article>
+
+            {ordinaryCollections.map(({ collection, collectibles, eligible }) => {
+              const owned = collectibles.length - eligible.length;
+              const anchor = collectibles[0];
+              return (
+                <article
+                  className={`capsule-choice ${eligible.length === 0 ? 'capsule-choice--complete' : ''}`}
+                  key={collection.id}
+                  style={anchor ? companionThemeCssVariables(anchor.theme) : undefined}
+                >
+                  <div className="capsule-choice__banner capsule-choice__banner--collection">
+                    <div className="capsule-choice__portraits" aria-hidden="true">
+                      {collectibles.slice(0, 3).map((collectible) => (
+                        <img
+                          key={collectible.id}
+                          src={`${import.meta.env.BASE_URL}${getCollectibleImage(collectible, save.artStyle)}`}
+                          alt=""
+                        />
+                      ))}
+                    </div>
+                    <div>
+                      <span className="eyebrow">Themed collection</span>
+                      <h2>{collection.name}</h2>
+                      <p>{collection.description}</p>
+                    </div>
+                  </div>
+                  <div className="capsule-choice__details">
+                    <span>
+                      {owned}/{collectibles.length} found
+                    </span>
+                    <strong>
+                      {eligible.length === 0 ? 'Complete ✓' : `🐾 ${COLLECTION_CAPSULE_COST}`}
+                    </strong>
+                  </div>
+                  <span
+                    className="collection-progress-track"
+                    role="progressbar"
+                    aria-label={`${owned} of ${collectibles.length} ${collection.name} companions found`}
+                    aria-valuemin={0}
+                    aria-valuemax={collectibles.length}
+                    aria-valuenow={owned}
+                  >
+                    <span style={{ width: `${(owned / collectibles.length) * 100}%` }} />
+                  </span>
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    disabled={eligible.length === 0 || save.coins < COLLECTION_CAPSULE_COST}
+                    onClick={() =>
+                      onOpen({
+                        kind: 'collection',
+                        collectionId: collection.id,
+                      })
+                    }
+                  >
+                    {eligible.length === 0
+                      ? 'Collection complete'
+                      : save.coins < COLLECTION_CAPSULE_COST
+                        ? `Need ${COLLECTION_CAPSULE_COST - save.coins} more coins`
+                        : `Open ${collection.name} Capsule`}
+                  </button>
+                </article>
+              );
+            })}
+          </section>
+
+          {onGrantDevelopmentCoins && surprisePool.length > 0 && (
+            <aside className="developer-cheat" aria-label="Developer testing tools">
+              <span>Development tool</span>
+              <button className="text-button" type="button" onClick={onGrantDevelopmentCoins}>
+                Add {DEVELOPMENT_COIN_GRANT} Paw Coins
+              </button>
+              <small>Testing coins do not change today’s practice total.</small>
+            </aside>
+          )}
+        </>
+      )}
     </main>
   );
 }
@@ -1822,17 +2030,21 @@ function Capsule({
 function Gallery({
   save,
   dialogue,
+  initialFilter,
   onEquip,
   onArtStyleChange,
   onBack,
 }: {
   save: SaveData;
   dialogue?: SelectedDialogue;
+  initialFilter?: string;
   onEquip: (id: string) => void;
   onArtStyleChange: (artStyle: ArtStyle) => void;
   onBack: () => void;
 }) {
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState(
+    initialFilter && getCollection(initialFilter) ? initialFilter : 'all',
+  );
   const equippedCompanion = getCollectible(save.equippedCollectibleId);
   const selectedCollection = filter === 'all' ? undefined : getCollection(filter);
   const visible = catalog.collectibles
@@ -1880,7 +2092,9 @@ function Gallery({
                 alt={equippedCompanion.altText}
               />
               <div className="collection-spotlight__identity">
-                <span className="eyebrow">By your side</span>
+                <span className="equipped-spotlight-badge">
+                  <span aria-hidden="true">✓</span> Equipped companion
+                </span>
                 <h2>{equippedCompanion.name}</h2>
                 <p>{equippedCompanion.description}</p>
                 <div className="collection-spotlight__meta">
@@ -2004,6 +2218,8 @@ export default function App() {
     undefined,
   );
   const [capsuleOpening, setCapsuleOpening] = useState(false);
+  const [activeCapsuleChoice, setActiveCapsuleChoice] = useState<CapsuleChoice | undefined>();
+  const [galleryInitialFilter, setGalleryInitialFilter] = useState<string | undefined>();
   const [audioPreferences, setAudioPreferences] = useState(() => audioPreferencesRepository.load());
   const { playCue } = useAudioPlayer(audioPreferences);
   const musicActive = !developmentView && screen !== 'play';
@@ -2195,6 +2411,7 @@ export default function App() {
     setReview(null);
     setCapsuleReward(undefined);
     setCapsuleOpening(false);
+    setActiveCapsuleChoice(undefined);
     setScreen('play');
   }, [playCue, save, stopMusic]);
 
@@ -2335,6 +2552,7 @@ export default function App() {
           setReview(null);
           setCapsuleReward(undefined);
           setCapsuleOpening(false);
+          setActiveCapsuleChoice(undefined);
           clearCapsuleTimer();
         }}
       />
@@ -2404,13 +2622,14 @@ export default function App() {
           setReview({ summary, back: 'results' });
           setScreen('review');
         }}
-        dailyRemaining={dailyCoinsRemaining(save, clock.today())}
+        dailyEarned={dailyCoinsEarned(save, clock.today())}
         presentCoinReward={presentedCoinSummaryId !== summary.id}
         onCoinsPresented={presentCoins}
         onCapsule={() => {
           clearCapsuleTimer();
           setCapsuleReward(undefined);
           setCapsuleOpening(false);
+          setActiveCapsuleChoice(undefined);
           setScreen('capsule');
         }}
       />
@@ -2450,37 +2669,24 @@ export default function App() {
         dialogue={activeDialogue?.context === 'capsule' ? activeDialogue : undefined}
         reward={capsuleReward}
         opening={capsuleOpening}
-        onOpen={() => {
+        activeChoice={activeCapsuleChoice}
+        onOpen={(choice) => {
           if (capsuleOpening) return;
-          if (save.coins < CAPSULE_COST) {
-            void playCue(GAME_AUDIO_CUES.unavailableAction);
-            return;
-          }
-          const reward = chooseCapsuleReward(
+          const result = openCapsule(
+            save,
             catalog.collectibles,
-            save.ownedCollectibleIds,
+            choice,
             new SeededRandom(createRandomSeed()),
+            clock.now(),
           );
-          if (!reward) {
-            setCapsuleReward(null);
+          if (result.status !== 'opened') {
+            if (result.status === 'complete') setCapsuleReward(null);
+            else void playCue(GAME_AUDIO_CUES.unavailableAction);
             return;
           }
-          const next = {
-            ...save,
-            coins: save.coins - CAPSULE_COST,
-            ownedCollectibleIds: [...save.ownedCollectibleIds, reward.id],
-            economyEvents: [
-              ...save.economyEvents,
-              {
-                id: `capsule:${clock.now()}:${reward.id}`,
-                occurredAt: new Date(clock.now()).toISOString(),
-                type: 'capsule_opened' as const,
-                coinsSpent: CAPSULE_COST,
-                collectibleId: reward.id,
-              },
-            ].slice(-500),
-          };
-          commitSave(next);
+          const { reward } = result;
+          commitSave(result.save);
+          setActiveCapsuleChoice(choice);
           setCapsuleReward(undefined);
           setCapsuleOpening(true);
           void playCue(GAME_AUDIO_CUES.capsuleReveal);
@@ -2494,7 +2700,15 @@ export default function App() {
         onGrantDevelopmentCoins={
           import.meta.env.DEV ? () => commitSave(grantDevelopmentCoins(save)) : undefined
         }
-        onGallery={() => setScreen('gallery')}
+        onEquip={(id) => {
+          if (id === save.equippedCollectibleId) return;
+          void playCue(GAME_AUDIO_CUES.companionEquipped);
+          commitSave({ ...save, equippedCollectibleId: id });
+        }}
+        onGallery={(collectionId) => {
+          setGalleryInitialFilter(collectionId);
+          setScreen('gallery');
+        }}
         onBack={() => setScreen(summary ? 'results' : 'home')}
       />
     );
@@ -2503,6 +2717,7 @@ export default function App() {
       <Gallery
         save={save}
         dialogue={activeDialogue?.context === 'equip' ? activeDialogue : undefined}
+        initialFilter={galleryInitialFilter}
         onArtStyleChange={(artStyle) => commitSave(updateArtStyle(save, artStyle))}
         onEquip={(id) => {
           if (id === save.equippedCollectibleId) return;
@@ -2515,6 +2730,7 @@ export default function App() {
         }}
         onBack={() => {
           setEquipDialogueEvent(null);
+          setGalleryInitialFilter(undefined);
           setScreen('home');
         }}
       />
@@ -2537,6 +2753,7 @@ export default function App() {
         setSummary(null);
         setCapsuleReward(undefined);
         setCapsuleOpening(false);
+        setActiveCapsuleChoice(undefined);
         setScreen('capsule');
       }}
     />

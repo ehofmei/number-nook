@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyArchivedProgress, archiveSession } from '../domain/progress';
 import { DEFAULT_SETTINGS } from '../domain/math';
+import { calculateRoundCoins } from '../domain/rewards';
 import type { AnswerRecord, SessionSummary } from '../domain/session';
 import {
   deriveResultDialogueFacts,
@@ -34,6 +35,7 @@ function summary({
     correct: index < correct,
     responseMs: elapsedMs / 10,
   })) satisfies AnswerRecord[];
+  const coinBreakdown = calculateRoundCoins(correct, 10, DEFAULT_SETTINGS.difficulty);
   return {
     rulesetVersion: 6,
     id,
@@ -45,8 +47,12 @@ function summary({
     accuracy: correct / 10,
     elapsedMs,
     score,
-    coinsPotential: 0,
-    coinsEarned: 0,
+    coinBreakdown,
+    dailyBonusCoins: 0,
+    weeklyBonusCoins: 0,
+    dailyMilestoneReached: false,
+    coinsPotential: coinBreakdown.total,
+    coinsEarned: coinBreakdown.total,
   };
 }
 
