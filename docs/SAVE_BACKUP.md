@@ -34,7 +34,7 @@ Invalid files show an error and leave the current save untouched. After a succes
 
 The success message appears only after browser storage accepts the complete restored save. A storage failure leaves the current in-memory progress unchanged and reports that the restore could not be completed.
 
-Current schema version 6 and legacy schema versions 1–5 are supported. Version 6 adds Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. Established saves migrate with the Welcome Capsule already resolved so an update cannot grant a second starter-style reward. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
+Current schema version 7 and legacy schema versions 1–6 are supported. Version 7 adds the remembered game mode and Practice attempts, hints, and recap records. Version 6 added Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. Migration preserves these rewards. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
 
 ## Different export types
 

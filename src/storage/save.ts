@@ -12,6 +12,7 @@ import {
 import type { AnswerRecord, SessionSummary } from '../domain/session';
 
 const settingsSchema = z.object({
+  mode: z.enum(['quick', 'practice']).optional(),
   operations: z
     .array(z.enum(OPERATION_IDS))
     .min(1)
@@ -33,6 +34,15 @@ const legacyAnswerSchema = z.object({
 });
 
 const answerSchema = legacyAnswerSchema.extend({
+  practice: z
+    .object({
+      attempts: z.array(z.number().int()).min(1).max(4),
+      hintUsed: z.boolean(),
+      completionMs: z.number().nonnegative(),
+      recapAttempts: z.array(z.number().int()).max(4),
+      recapHintUsed: z.boolean(),
+    })
+    .optional(),
   operation: z.enum(OPERATION_IDS),
   left: z.number().int(),
   right: z.number().int(),
@@ -204,7 +214,7 @@ const rewardProgressSchema = z.object({
   }),
 });
 
-export const saveSchema = z.object({
+const legacySaveV6Schema = z.object({
   schemaVersion: z.literal(6),
   ...commonSaveFields(sessionSchema, DETAILED_SESSION_LIMIT),
   artStyle: artStyleSchema,
@@ -216,6 +226,8 @@ export const saveSchema = z.object({
   economyEvents: z.array(economyEventSchema).max(500),
   archivedProgress: archivedProgressSchema,
 });
+
+export const saveSchema = legacySaveV6Schema.extend({ schemaVersion: z.literal(7) });
 
 export type SaveData = z.infer<typeof saveSchema>;
 export const DEFAULT_ART_STYLE: ArtStyle = 'sticker';
@@ -317,7 +329,7 @@ function migrateEconomyEvents(events: readonly z.infer<typeof legacyEconomyEvent
 
 export function createInitialSave(name: string, starterId: string): SaveData {
   return {
-    schemaVersion: 6,
+    schemaVersion: 7,
     player: { name: name.trim() },
     settings: DEFAULT_SETTINGS,
     artStyle: DEFAULT_ART_STYLE,
@@ -443,6 +455,8 @@ export class LocalStorageSaveRepository implements SaveRepository {
     const input = JSON.parse(serialized) as unknown;
     const current = saveSchema.safeParse(input);
     if (current.success) return current.data;
+    const legacyV6 = legacySaveV6Schema.safeParse(input);
+    if (legacyV6.success) return saveSchema.parse({ ...legacyV6.data, schemaVersion: 7 });
 
     const retain = (sessions: readonly SessionSummary[]) => {
       const archived = sessions.slice(0, Math.max(0, sessions.length - DETAILED_SESSION_LIMIT));
@@ -457,7 +471,7 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV5.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV5.data,
-        schemaVersion: 6,
+        schemaVersion: 7,
         sessions,
         rewardProgress: migratedRewardProgress(
           sessions.length > 0 || legacyV5.data.archivedProgress.overall.rounds > 0,
@@ -471,7 +485,7 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV4.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV4.data,
-        schemaVersion: 6,
+        schemaVersion: 7,
         artStyle: DEFAULT_ART_STYLE,
         sessions,
         rewardProgress: migratedRewardProgress(
@@ -486,7 +500,7 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV3.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV3.data,
-        schemaVersion: 6,
+        schemaVersion: 7,
         artStyle: DEFAULT_ART_STYLE,
         rewardProgress: migratedRewardProgress(sessions.length > 0),
         economyEvents: migrateEconomyEvents(legacyV3.data.economyEvents),
@@ -499,7 +513,7 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV2.data.sessions.map(enrichLegacySession);
       return saveSchema.parse({
         ...legacyV2.data,
-        schemaVersion: 6,
+        schemaVersion: 7,
         artStyle: DEFAULT_ART_STYLE,
         rewardProgress: migratedRewardProgress(sessions.length > 0),
         economyEvents: [],
@@ -511,7 +525,7 @@ export class LocalStorageSaveRepository implements SaveRepository {
     const sessions = legacyV1.sessions.map(enrichLegacySession);
     return saveSchema.parse({
       ...legacyV1,
-      schemaVersion: 6,
+      schemaVersion: 7,
       artStyle: DEFAULT_ART_STYLE,
       dailyCoins: { date: '', earned: 0 },
       rewardProgress: migratedRewardProgress(sessions.length > 0),

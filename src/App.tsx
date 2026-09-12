@@ -51,6 +51,7 @@ import {
   type OperationId,
   type Problem,
 } from './domain/math';
+import { practiceHint, PRACTICE_ENCOURAGEMENT } from './domain/practice';
 import { createRandomSeed, SeededRandom } from './domain/random';
 import {
   COLLECTION_CAPSULE_COST,
@@ -101,6 +102,11 @@ interface EquipDialogueEvent {
 }
 
 interface ActiveGame {
+  practice: boolean;
+  attempts: number[];
+  firstResponseMs: number | null;
+  hintUsed: boolean;
+  recap: number[] | null;
   seed: number;
   problems: Problem[];
   index: number;
@@ -175,7 +181,7 @@ function formatTime(milliseconds: number): string {
 
 function settingsSummary(settings: GameSettings): string {
   const operations = settings.operations.map((operation) => OPERATION_SYMBOLS[operation]).join(' ');
-  return `${DIFFICULTY_LABELS[settings.difficulty]} · ${operations} · ${settings.questionCount} questions`;
+  return `${settings.mode === 'practice' ? 'Practice · ' : ''}${DIFFICULTY_LABELS[settings.difficulty]} · ${operations} · ${settings.questionCount} questions`;
 }
 
 function difficultyDescription(difficulty: DifficultyId): string {
@@ -397,6 +403,7 @@ function Home({
   const companion = getCollectible(save.equippedCollectibleId);
   const lastSession = save.sessions.at(-1);
   const isFirstRound = !lastSession;
+  const isPractice = save.settings.mode === 'practice';
   const collectionPercent = Math.round(
     (save.ownedCollectibleIds.length / catalog.collectibles.length) * 100,
   );
@@ -427,11 +434,19 @@ function Home({
       <section className="play-card">
         <div className="play-card__copy">
           <span className="mode-pill">{settingsSummary(save.settings)}</span>
-          <h2>{isFirstRound ? 'Your first round is ready!' : 'Ready for a quick game?'}</h2>
+          <h2>
+            {isFirstRound
+              ? 'Your first round is ready!'
+              : isPractice
+                ? 'Ready to practice?'
+                : 'Ready for a quick game?'}
+          </h2>
           <p>
             {isFirstRound
               ? `Try ${save.settings.questionCount} questions, earn your first Paw Coins, and see how the Nook feels.`
-              : 'Take your time, aim carefully, and see what you can improve.'}
+              : isPractice
+                ? 'Take your time, use a hint when you need one, and learn from every try.'
+                : 'Aim carefully, find your rhythm, and see what you can improve.'}
           </p>
           <div className="play-actions">
             <button className="primary-button" type="button" onClick={onPlay}>
@@ -791,6 +806,27 @@ function Setup({
           </div>
         )}
         <div className="setting-block">
+          <h2>Mode</h2>
+          <div className="choice-row">
+            {(['quick', 'practice'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={`choice-chip ${(settings.mode ?? 'quick') === mode ? 'choice-chip--selected' : ''}`}
+                aria-pressed={(settings.mode ?? 'quick') === mode}
+                onClick={() => onChange({ ...settings, mode })}
+              >
+                {mode === 'quick' ? 'Quick Game' : 'Practice'}
+              </button>
+            ))}
+          </div>
+          <p>
+            {settings.mode === 'practice'
+              ? 'Take your time, try again, and get a little help. First answers earn your score and coins.'
+              : 'Answer once per question and see your accuracy and pace.'}
+          </p>
+        </div>
+        <div className="setting-block">
           <h2>Operation</h2>
           <div className="choice-row">
             {OPERATION_IDS.map((operation) => {
@@ -861,6 +897,7 @@ function Play({
   companion,
   artStyle,
   onAnswer,
+  onHint,
   onExit,
   audioPreferences,
   onToggleAudio,
@@ -870,6 +907,7 @@ function Play({
   companion?: CollectibleDefinition;
   artStyle: ArtStyle;
   onAnswer: (answer: number) => void;
+  onHint: () => void;
   onExit: () => void;
   audioPreferences: AudioPreferences;
   onToggleAudio: () => void;
@@ -886,14 +924,18 @@ function Play({
   if (!problem) return null;
 
   return (
-    <main className="game-page page-shell">
+    <main className={`game-page page-shell${game.practice ? ' game-page--practice' : ''}`}>
       <header className="game-header">
         <button className="icon-button" type="button" onClick={onExit} aria-label="Exit game">
           ×
         </button>
         <div
           className="game-progress"
-          aria-label={`Question ${game.index + 1} of ${game.problems.length}`}
+          aria-label={
+            game.recap
+              ? `Practice recap, ${game.recap.length} left`
+              : `Question ${game.index + 1} of ${game.problems.length}`
+          }
         >
           <div className="game-progress__label">
             {companion && (
@@ -905,11 +947,17 @@ function Play({
               />
             )}
             <span>
-              Question {game.index + 1} of {game.problems.length}
+              {game.recap
+                ? `Practice recap · ${game.recap.length} left`
+                : `Question ${game.index + 1} of ${game.problems.length}`}
             </span>
           </div>
           <div className="progress-track">
-            <span style={{ width: `${((game.index + 1) / game.problems.length) * 100}%` }} />
+            <span
+              style={{
+                width: `${game.recap ? ((game.answers.filter((answer) => !answer.correct).length - game.recap.length) / game.answers.filter((answer) => !answer.correct).length) * 100 : ((game.index + 1) / game.problems.length) * 100}%`,
+              }}
+            />
           </div>
         </div>
         <div className="game-tools">
@@ -917,14 +965,16 @@ function Play({
             enabled={audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0}
             onToggle={onToggleAudio}
           />
-          <div className="timer-pill" aria-label={`Elapsed time ${formatTime(elapsed)}`}>
-            ◷ {formatTime(elapsed)}
-          </div>
+          {!game.practice && (
+            <div className="timer-pill" aria-label={`Elapsed time ${formatTime(elapsed)}`}>
+              ◷ {formatTime(elapsed)}
+            </div>
+          )}
         </div>
       </header>
 
       <div className="feedback-slot" aria-live="polite">
-        {game.previous && (
+        {game.previous && !game.recap && (
           <div
             className={`feedback-ribbon feedback-ribbon--${game.previous.answer.correct ? 'correct' : 'incorrect'}`}
           >
@@ -936,7 +986,14 @@ function Play({
 
       <section className="question-panel" aria-labelledby="equation">
         <span className="eyebrow">What is the answer?</span>
-        <h1 id="equation" ref={equationRef} tabIndex={-1}>
+        <h1
+          id="equation"
+          ref={equationRef}
+          tabIndex={-1}
+          className={
+            String(problem.left).length + String(problem.right).length > 5 ? 'equation--long' : ''
+          }
+        >
           <span>{problem.left}</span>
           <span className="operator">{OPERATION_SYMBOLS[problem.operation]}</span>
           <span>{problem.right}</span>
@@ -957,22 +1014,52 @@ function Play({
         {problem.choices.map((choice, index) => {
           let state: 'idle' | 'correct' | 'incorrect' | 'muted' = 'idle';
           if (game.feedback) {
-            if (choice === problem.correctAnswer) state = 'correct';
+            if (choice === problem.correctAnswer && (!game.practice || game.feedback.correct))
+              state = 'correct';
             else if (choice === game.feedback.selected) state = 'incorrect';
             else state = 'muted';
           }
+          if (game.practice && game.attempts.includes(choice) && choice !== problem.correctAnswer)
+            state = 'incorrect';
           return (
             <AnswerCard
               key={choice}
               answer={choice}
               index={index}
-              disabled={Boolean(game.feedback)}
+              disabled={Boolean(game.feedback) || (game.practice && game.attempts.includes(choice))}
               state={state}
               onChoose={() => onAnswer(choice)}
             />
           );
         })}
       </div>
+      {game.practice && (
+        <section className="practice-help" aria-label="Practice help">
+          <p role="status">
+            {game.feedback?.correct
+              ? 'There it is! Nicely untangled.'
+              : game.attempts.length > 0
+                ? `${companion?.name ?? 'Your companion'}: ${PRACTICE_ENCOURAGEMENT[(game.index + game.attempts.length - 1) % PRACTICE_ENCOURAGEMENT.length]}`
+                : game.recap
+                  ? 'A little second look. Recap helps the idea stick; it adds no extra coins.'
+                  : 'Take your time. There is no race here.'}
+          </p>
+          {game.hintUsed ? (
+            <p className="practice-hint">{practiceHint(problem)}</p>
+          ) : (
+            game.attempts.length > 0 && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={onHint}
+                disabled={Boolean(game.feedback)}
+              >
+                Show a hint
+              </button>
+            )
+          )}
+        </section>
+      )}
       <p className="keyboard-hint">Tip: use keys 1–4 to choose an answer.</p>
     </main>
   );
@@ -1046,9 +1133,15 @@ function Results({
             ✦ ★ ✦
           </span>
           <span className="eyebrow">Round complete</span>
-          <h1>{resultHeadline(resultFacts)}</h1>
+          <h1>
+            {summary.settings.mode === 'practice'
+              ? 'A little wiser, a little brighter!'
+              : resultHeadline(resultFacts)}
+          </h1>
           <p>
-            You completed all {summary.answers.length} questions and added another practice round.
+            {summary.settings.mode === 'practice'
+              ? `You worked through all ${summary.answers.length} questions. Every little rethink counts.`
+              : `You completed all ${summary.answers.length} questions and added another practice round.`}
           </p>
         </div>
         {companion && (
@@ -1074,21 +1167,31 @@ function Results({
       </section>
       <section className="results-grid" aria-label="Game results">
         <article>
-          <span>Accuracy</span>
+          <span>{summary.settings.mode === 'practice' ? 'First-try accuracy' : 'Accuracy'}</span>
           <strong>{Math.round(summary.accuracy * 100)}%</strong>
           <small>
             {summary.correctCount} of {summary.answers.length} correct
           </small>
         </article>
         <article>
-          <span>Time</span>
-          <strong>{formatTime(summary.elapsedMs)}</strong>
-          <small>thinking time</small>
+          <span>{summary.settings.mode === 'practice' ? 'Worked out' : 'Time'}</span>
+          <strong>
+            {summary.settings.mode === 'practice'
+              ? summary.answers.filter((answer) => !answer.correct).length
+              : formatTime(summary.elapsedMs)}
+          </strong>
+          <small>
+            {summary.settings.mode === 'practice' ? 'with another try' : 'thinking time'}
+          </small>
         </article>
         <article>
           <span>Score</span>
           <strong>{summary.score.toLocaleString()}</strong>
-          <small>accuracy first</small>
+          <small>
+            {summary.settings.mode === 'practice'
+              ? 'first answers · no speed bonus'
+              : 'accuracy first'}
+          </small>
         </article>
         <article className="coin-result">
           <span>Paw Coins</span>
@@ -1109,6 +1212,12 @@ function Results({
       )}
       <details className="coin-breakdown">
         <summary>How you earned {summary.coinsEarned} Paw Coins</summary>
+        {summary.settings.mode === 'practice' && (
+          <p>
+            Coins come from your first answers. Retries, hints, and the recap help you learn without
+            adding extra rewards.
+          </p>
+        )}
         <dl>
           <div>
             <dt>{summary.correctCount} correct × 2</dt>
@@ -1271,8 +1380,36 @@ function RoundReview({ summary, onBack }: { summary: SessionSummary; onBack: () 
                 </div>
                 <div>
                   <dt>Score</dt>
-                  <dd>{scoreAnswer(answer.correct, answer.responseMs)}</dd>
+                  <dd>
+                    {scoreAnswer(
+                      answer.correct,
+                      answer.responseMs,
+                      summary.settings.mode === 'practice',
+                    )}
+                  </dd>
                 </div>
+                {answer.practice && (
+                  <>
+                    <div>
+                      <dt>Attempts</dt>
+                      <dd>{answer.practice.attempts.join(' → ')}</dd>
+                    </div>
+                    <div>
+                      <dt>Hint</dt>
+                      <dd>{answer.practice.hintUsed ? 'Used' : 'Not needed'}</dd>
+                    </div>
+                    <div>
+                      <dt>Time to work it out</dt>
+                      <dd>{formatTime(answer.practice.completionMs)}</dd>
+                    </div>
+                    {answer.practice.recapAttempts.length > 0 && (
+                      <div>
+                        <dt>Recap{answer.practice.recapHintUsed ? ' (with hint)' : ''}</dt>
+                        <dd>{answer.practice.recapAttempts.join(' → ')}</dd>
+                      </div>
+                    )}
+                  </>
+                )}
               </dl>
             </article>
           ))}
@@ -2396,6 +2533,11 @@ export default function App() {
     const seed = createRandomSeed();
     const now = performance.now();
     setGame({
+      practice: save.settings.mode === 'practice',
+      attempts: [],
+      firstResponseMs: null,
+      hintUsed: false,
+      recap: null,
       seed,
       problems: generateSession(save.settings, new SeededRandom(seed)),
       index: 0,
@@ -2420,6 +2562,30 @@ export default function App() {
       if (!game || !save || game.feedback) return;
       const problem = game.problems[game.index];
       if (!problem) return;
+      if (
+        !problem.choices.includes(selectedAnswer) ||
+        (game.practice && game.attempts.includes(selectedAnswer))
+      )
+        return;
+      const selectedCorrect = selectedAnswer === problem.correctAnswer;
+      const attempts = [...game.attempts, selectedAnswer];
+      const responseMs = Math.max(0, performance.now() - game.questionStartedAt);
+      const firstResponseMs = game.firstResponseMs ?? responseMs;
+      const hintUsed = game.hintUsed || (game.practice && !selectedCorrect && attempts.length >= 2);
+      if (game.practice && !selectedCorrect) {
+        void playCue(GAME_AUDIO_CUES.incorrectAnswer);
+        setGame({
+          ...game,
+          attempts,
+          firstResponseMs,
+          hintUsed,
+          feedback: { selected: selectedAnswer, correct: false },
+        });
+        transitionTimer.current = window.setTimeout(() => {
+          setGame({ ...game, attempts, firstResponseMs, hintUsed, feedback: null });
+        }, answerFeedbackDelay(false));
+        return;
+      }
       const answer: AnswerRecord = {
         problemId: problem.id,
         skillKey: problem.skillKey,
@@ -2428,22 +2594,54 @@ export default function App() {
         right: problem.right,
         choices: [...problem.choices],
         correctChoiceIndex: problem.correctChoiceIndex,
-        selectedAnswer,
+        selectedAnswer: game.practice ? (attempts[0] ?? selectedAnswer) : selectedAnswer,
         correctAnswer: problem.correctAnswer,
-        correct: selectedAnswer === problem.correctAnswer,
-        responseMs: Math.max(0, performance.now() - game.questionStartedAt),
+        correct: game.practice ? attempts[0] === problem.correctAnswer : selectedCorrect,
+        responseMs: game.practice ? firstResponseMs : responseMs,
+        ...(game.practice
+          ? {
+              practice: {
+                attempts,
+                hintUsed,
+                completionMs: responseMs,
+                recapAttempts: [],
+                recapHintUsed: false,
+              },
+            }
+          : {}),
       };
-      const nextAnswers = [...game.answers, answer];
+      const nextAnswers = game.recap
+        ? game.answers.map((original, index) =>
+            index === game.index && original.practice
+              ? {
+                  ...original,
+                  practice: {
+                    ...original.practice,
+                    recapAttempts: attempts,
+                    recapHintUsed: hintUsed,
+                  },
+                }
+              : original,
+          )
+        : [...game.answers, answer];
       void playCue(
-        answer.correct ? GAME_AUDIO_CUES.correctAnswer : GAME_AUDIO_CUES.incorrectAnswer,
+        selectedCorrect ? GAME_AUDIO_CUES.correctAnswer : GAME_AUDIO_CUES.incorrectAnswer,
       );
       setGame({
         ...game,
         answers: nextAnswers,
-        feedback: { selected: selectedAnswer, correct: answer.correct },
+        feedback: { selected: selectedAnswer, correct: selectedCorrect },
       });
       transitionTimer.current = window.setTimeout(() => {
-        if (game.index === game.problems.length - 1) {
+        const recap = game.recap
+          ? game.recap.slice(1)
+          : game.practice && game.index === game.problems.length - 1
+            ? nextAnswers.flatMap((record, index) => (record.correct ? [] : [index]))
+            : null;
+        const completed = game.recap
+          ? recap?.length === 0
+          : game.index === game.problems.length - 1 && (!recap || recap.length === 0);
+        if (completed) {
           const nextSummary = summarizeSession(
             game.problems,
             nextAnswers,
@@ -2467,14 +2665,18 @@ export default function App() {
         } else {
           setGame({
             ...game,
-            index: game.index + 1,
+            index: recap?.length ? (recap[0] ?? 0) : game.index + 1,
+            recap: recap?.length ? recap : null,
+            attempts: [],
+            firstResponseMs: null,
+            hintUsed: false,
             answers: nextAnswers,
             questionStartedAt: performance.now(),
             feedback: null,
             previous: { answer, prompt: formatProblem(problem) },
           });
         }
-      }, answerFeedbackDelay(answer.correct));
+      }, answerFeedbackDelay(selectedCorrect));
     },
     [commitSave, game, playCue, save],
   );
@@ -2482,6 +2684,7 @@ export default function App() {
   useEffect(() => {
     if (screen !== 'play' || !game || game.feedback) return;
     const handleKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
       const index = Number(event.key) - 1;
       const choice = game.problems[game.index]?.choices[index];
       if (choice !== undefined) chooseAnswer(choice);
@@ -2600,9 +2803,15 @@ export default function App() {
         companion={equippedCompanion}
         artStyle={save.artStyle}
         onAnswer={chooseAnswer}
+        onHint={() =>
+          setGame((current) =>
+            current && !current.feedback ? { ...current, hintUsed: true } : current,
+          )
+        }
         audioPreferences={audioPreferences}
         onToggleAudio={toggleAudio}
         onExit={() => {
+          if (transitionTimer.current !== null) window.clearTimeout(transitionTimer.current);
           setGame(null);
           setScreen('home');
         }}

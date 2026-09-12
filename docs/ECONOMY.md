@@ -145,6 +145,6 @@ This preserves the data needed to compare acquisition strategies and migrate old
 
 ## Save behavior
 
-Save schema version 6 stores the welcome-capsule state, daily and weekly participation progress, unlimited daily earnings, and richer capsule events. Versions 1-5 migrate automatically and keep their prior balance, settings, collection, and meaningful progress. Established saves do not receive a retroactive Welcome Capsule, and previously accumulated coins are never reduced.
+Save schema version 7 stores Practice Mode records in addition to the welcome-capsule state, daily and weekly participation progress, unlimited daily earnings, and richer capsule events. Versions 1-6 migrate automatically and keep their prior balance, settings, collection, and meaningful progress. Established saves do not receive a retroactive Welcome Capsule, and previously accumulated coins are never reduced.
 
 Direct companion purchasing is removed from the active roadmap. Collection Capsules provide targeting without eliminating surprise or adding a separate shop economy. Revisit direct purchase only if family playtesting exposes a problem that collection selection cannot solve. Continue revisiting the daily milestone, both capsule prices, rarity weights, and catalog size together rather than tuning one in isolation.

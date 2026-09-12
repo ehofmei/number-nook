@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import type { SaveData } from '../../src/storage/save';
 
 async function onboard(page: Page) {
   await page.getByLabel('What should we call you?').fill('Ada');
@@ -66,6 +67,97 @@ test('a first companion must be chosen deliberately before entering the Nook', a
   await expect(moonbeam).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByText('Moonbeam is ready to join you!')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Start with Moonbeam' })).toBeEnabled();
+});
+
+test('Practice retries, hints, recap, rewards, review, and remembered mode', async ({ page }) => {
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Practice', exact: true }).click();
+  await page.getByRole('button', { name: 'Quick Game', exact: true }).click();
+  await page.getByRole('button', { name: 'Practice', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+  await expect(page.locator('.timer-pill')).toHaveCount(0);
+  let firstAnswer = 0;
+  for (let index = 0; index < 10; index++) {
+    await expect(page.locator('.game-progress')).toHaveAttribute(
+      'aria-label',
+      `Question ${index + 1} of 10`,
+    );
+    const correct = solveEquation((await page.locator('#equation').textContent()) ?? '');
+    const correctButton = page.getByRole('button', { name: `Answer ${correct}`, exact: true });
+    if (index === 0 || index === 1) {
+      if (index === 0) firstAnswer = correct;
+      const wrong = page.locator('.answer-card').filter({ hasNotText: /^$/ });
+      const choices = await wrong.evaluateAll((buttons) =>
+        buttons.map((button) => Number(button.getAttribute('aria-label')?.replace('Answer ', ''))),
+      );
+      const misses = choices.filter((choice) => choice !== correct);
+      await page.getByRole('button', { name: `Answer ${misses[0]}`, exact: true }).click();
+      await expect(correctButton).not.toHaveClass(/answer-card--correct/);
+      await expect(correctButton).toBeEnabled();
+      await expect(
+        page.getByRole('button', { name: `Answer ${misses[0]}`, exact: true }),
+      ).toBeDisabled();
+      if (index === 0) await page.getByRole('button', { name: 'Show a hint' }).click();
+      else await page.getByRole('button', { name: `Answer ${misses[1]}`, exact: true }).click();
+      await expect(page.locator('.practice-hint')).toBeVisible();
+      await expect(correctButton).toBeEnabled();
+    }
+    await correctButton.click();
+  }
+  await expect(page.getByText('Practice recap · 2 left')).toBeVisible();
+  await expect(page.locator('.feedback-ribbon')).toHaveCount(0);
+  await page.getByRole('button', { name: `Answer ${firstAnswer}`, exact: true }).click();
+  await expect(page.getByText('Practice recap · 1 left')).toBeVisible();
+  const recapAnswer = solveEquation((await page.locator('#equation').textContent()) ?? '');
+  await page.getByRole('button', { name: `Answer ${recapAnswer}`, exact: true }).click();
+  await expect(
+    page.getByRole('heading', { name: 'A little wiser, a little brighter!' }),
+  ).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Game results' })).toContainText('80%');
+  await expect(page.getByRole('region', { name: 'Game results' })).toContainText('800');
+  await expect(page.getByText('How you earned 25 Paw Coins')).toBeVisible();
+  await page.getByRole('button', { name: 'Review questions' }).click();
+  await expect(page.getByText('Attempts', { exact: true })).toHaveCount(2);
+  await expect(page.getByText('Recap', { exact: true })).toHaveCount(2);
+  const record = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('first-math-game:save') ?? '{}') as SaveData,
+  );
+  expect(record.sessions[0]?.answers).toHaveLength(10);
+  expect(record.sessions[0]?.answers[0]?.practice?.recapAttempts).toEqual([firstAnswer]);
+  expect(record.sessions[0]?.answers[1]?.practice?.attempts).toHaveLength(3);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Ready to practice?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await expect(page.getByRole('button', { name: 'Practice', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.getByRole('button', { name: 'Reset defaults' }).click();
+  await expect(page.getByRole('button', { name: 'Quick Game', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+});
+
+test('exiting Practice during wrong-answer feedback cancels the pending transition', async ({
+  page,
+}) => {
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Practice', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+  const correct = solveEquation((await page.locator('#equation').textContent()) ?? '');
+  await page
+    .locator('.answer-card')
+    .filter({ hasNot: page.locator(`span:text-is("${correct}")`) })
+    .first()
+    .click();
+  await page.getByRole('button', { name: 'Exit game' }).click();
+  await expect(page.getByRole('heading', { name: "Ada's Number Nook" })).toBeVisible();
+  await page.getByRole('button', { name: 'Start first round' }).click();
+  await expect(page.getByText('Take your time. There is no race here.')).toBeVisible();
+  await expect(page.locator('.answer-card:disabled')).toHaveCount(0);
 });
 
 test('first launch, game, capsule, gallery, equip, and reload', async ({ page }) => {
@@ -487,7 +579,7 @@ test('history copies a name-free, versioned analysis export', async ({
   };
   expect(analysis).toMatchObject({
     format: 'number-nook-play-history',
-    exportVersion: 4,
+    exportVersion: 5,
     privacy: { playerNameIncluded: false },
   });
   expect(analysis.sessions).toHaveLength(1);
@@ -713,6 +805,36 @@ test('@visual setup phone layout', async ({ page }, testInfo) => {
   await onboard(page);
   await page.getByRole('button', { name: 'Change game' }).click();
   await expect(page).toHaveScreenshot('setup.png', { fullPage: true });
+});
+
+test('@visual Practice hint phone layout', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'This baseline targets the phone viewport.');
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Practice', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+  const correct = solveEquation((await page.locator('#equation').textContent()) ?? '');
+  const choices = await page
+    .locator('.answer-card')
+    .evaluateAll((buttons) =>
+      buttons.map((button) => Number(button.getAttribute('aria-label')?.replace('Answer ', ''))),
+    );
+  const wrong = choices.find((choice) => choice !== correct);
+  if (wrong === undefined) throw new Error('Practice visual needs one incorrect choice.');
+  await page.getByRole('button', { name: `Answer ${wrong}`, exact: true }).click();
+  await page.getByRole('button', { name: 'Show a hint' }).click();
+  const phoneLayout = await page.evaluate(() => ({
+    viewportWidth: window.innerWidth,
+    documentWidth: document.documentElement.scrollWidth,
+    answerHeights: [...document.querySelectorAll<HTMLElement>('.answer-card')].map(
+      (card) => card.getBoundingClientRect().height,
+    ),
+    hintWidth: document.querySelector<HTMLElement>('.practice-help')?.getBoundingClientRect().width,
+  }));
+  expect(phoneLayout.documentWidth).toBeLessThanOrEqual(phoneLayout.viewportWidth);
+  expect(Math.min(...phoneLayout.answerHeights)).toBeGreaterThanOrEqual(44);
+  expect(phoneLayout.hintWidth).toBeLessThanOrEqual(phoneLayout.viewportWidth);
+  await expect(page).toHaveScreenshot('practice-hint.png', { fullPage: true });
 });
 
 test('@visual home responsive layout', async ({ page }, testInfo) => {

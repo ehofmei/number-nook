@@ -8,6 +8,10 @@ Choose one or more operations, a difficulty, and a round length of 10, 20, 30, o
 
 Each question has four choices. Correct answers add to accuracy, score, Paw Coins, progress, and skill history. Incorrect answers never remove progress or currency. At the end of a round, the results screen shows accuracy, thinking time, score, and Paw Coins; **Review questions** shows every problem and the selected and correct answers.
 
+## Quick Game and Practice
+
+Quick Game accepts one answer per question and measures accuracy and pace. Practice lets you take your time: wrong choices become disabled, a hint is available after the first miss, and help appears automatically after the second. Missed questions return in a short recap at the end. Only first answers earn score and coins; Practice has no speed bonus. Review shows attempts and hints as well as the first answer. See [Practice Mode](./PRACTICE_MODE.md).
+
 ## Difficulty
 
 - **Easy:** small numbers and introductory facts.

@@ -42,6 +42,32 @@ export function StateGallery() {
       </section>
 
       <section className="panel">
+        <h2>Practice states</h2>
+        <div className="practice-state-grid">
+          <article className="practice-help">
+            <span className="eyebrow">Ready</span>
+            <p>Take your time. There is no race here.</p>
+          </article>
+          <article className="practice-help">
+            <span className="eyebrow">Try again</span>
+            <p>Sunny: That answer helped us narrow it down.</p>
+            <button type="button" className="secondary-button">
+              Show a hint
+            </button>
+          </article>
+          <article className="practice-help">
+            <span className="eyebrow">Hint visible</span>
+            <p>Sunny: Let’s look at it from another angle.</p>
+            <p className="practice-hint">Break 14 into 10 and 4. Add each part to 28.</p>
+          </article>
+          <article className="practice-help">
+            <span className="eyebrow">Recap</span>
+            <p>A little second look. Recap helps the idea stick; it adds no extra coins.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="panel">
         <h2>Collection states</h2>
         <div className="collection-grid">
           {catalog.collectibles.map((item, index) => (

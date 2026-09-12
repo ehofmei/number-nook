@@ -1,4 +1,5 @@
 import { catalog } from '../content/catalog';
+import type { PracticeRecord } from '../domain/practice';
 import type { DifficultyId, GameSettings, OperationId } from '../domain/math';
 import {
   configurationKey,
@@ -17,7 +18,7 @@ import {
 import { scoreAnswer, type SessionSummary } from '../domain/session';
 import { DETAILED_SESSION_LIMIT, type SaveData } from '../storage/save';
 
-export const PLAY_HISTORY_EXPORT_VERSION = 4;
+export const PLAY_HISTORY_EXPORT_VERSION = 5;
 
 function round(value: number, decimals = 2): number {
   const scale = 10 ** decimals;
@@ -166,6 +167,7 @@ export interface PlayHistoryExport {
       correct: boolean;
       responseMs: number;
       scoreAwarded: number;
+      practice?: PracticeRecord;
     }>;
   }>;
 }
@@ -360,7 +362,12 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
           correctAnswer: answer.correctAnswer,
           correct: answer.correct,
           responseMs: answer.responseMs,
-          scoreAwarded: scoreAnswer(answer.correct, answer.responseMs),
+          scoreAwarded: scoreAnswer(
+            answer.correct,
+            answer.responseMs,
+            session.settings.mode === 'practice',
+          ),
+          practice: answer.practice,
         })),
       };
     }),

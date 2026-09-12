@@ -22,7 +22,7 @@ Review is intentionally reflective rather than punitive. It does not change the 
 
 ## Bounded detailed history
 
-Save schema version 4 introduced the newest-30 detailed window, and current schema version 6 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
+Save schema version 4 introduced the newest-30 detailed window, and current schema version 7 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
 
 Archived totals preserve:
 
@@ -42,7 +42,9 @@ This design gives balance analysis a useful recent window while keeping browser 
 
 Recent detailed rounds appear before the per-setup analytics grid. The page shows the newest five detailed rounds and six setup configurations initially; each section can be expanded independently. This prevents either a long play history or a large variety of play-test setups from making the page difficult to scan.
 
-## Analysis export version 4
+## Analysis export version 5
+
+Version 5 includes game mode and per-question Practice attempts, hints, time to solve, and recap records. Exact configuration keys distinguish Practice from Quick Game; missing mode on older data means Quick Game.
 
 The Play History analysis export includes:
 
@@ -56,7 +58,7 @@ The analysis export excludes the player name, account identifiers, installation 
 
 ## Migration and clearing
 
-Versions 1–5 migrate automatically to current schema version 6. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 adds reward progress and richer economy history without changing the detailed-history limit.
+Versions 1–6 migrate automatically to current schema version 7. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 added reward progress and richer economy history without changing the detailed-history limit; version 7 adds Practice Mode attempts, hints, and recap details.
 
 **Clear play history** uses a confirmation step and removes:
 

@@ -1,10 +1,12 @@
 import type { Clock } from './clock';
+import type { PracticeRecord } from './practice';
 import type { GameSettings, OperationId, Problem } from './math';
 import { calculateRoundCoins, type RoundCoinBreakdown } from './rewards';
 
 export const RULESET_VERSION = 8;
 
 export interface AnswerRecord {
+  practice?: PracticeRecord;
   problemId: string;
   skillKey: string;
   operation: OperationId;
@@ -37,8 +39,9 @@ export interface SessionSummary {
   coinsEarned: number;
 }
 
-export function scoreAnswer(correct: boolean, responseMs: number): number {
+export function scoreAnswer(correct: boolean, responseMs: number, practice = false): number {
   if (!correct) return 0;
+  if (practice) return 100;
   const boundedResponse = Math.max(0, responseMs);
   const speedBonus = Math.max(0, Math.round(50 - boundedResponse / 200));
   return 100 + speedBonus;
@@ -57,7 +60,8 @@ export function summarizeSession(
   const correctCount = answers.filter((answer) => answer.correct).length;
   const elapsedMs = answers.reduce((sum, answer) => sum + Math.max(0, answer.responseMs), 0);
   const score = answers.reduce(
-    (sum, answer) => sum + scoreAnswer(answer.correct, answer.responseMs),
+    (sum, answer) =>
+      sum + scoreAnswer(answer.correct, answer.responseMs, settings.mode === 'practice'),
     0,
   );
   const coinBreakdown = calculateRoundCoins(correctCount, problems.length, settings.difficulty);

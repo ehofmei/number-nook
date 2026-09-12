@@ -6,6 +6,8 @@ The playable local-first game includes onboarding, starter and collectible compa
 
 ## Project documents
 
+- [Practice Mode](./docs/PRACTICE_MODE.md) — untimed retries, strategy hints, recap, first-attempt rewards, and saved learning detail.
+
 - [Current next steps](./docs/NEXT_STEPS.md) — the short, authoritative list of active priorities, later work, and explicitly deferred decisions.
 - [How Number Nook works](./docs/GAME_GUIDE.md) — a plain-language guide to practice rounds, difficulty, score, Paw Coins, companions, progress, settings, and offline play.
 - [Research and product design](./DESIGN_RESEARCH.md) — learning research, product principles, game modes, difficulty, scoring, progress, collectible economy, technical options, and confirmed design decisions.

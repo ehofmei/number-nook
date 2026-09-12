@@ -2,9 +2,9 @@
 
 This is the short, authoritative view of the current development priorities. Detailed product and architectural decisions remain in the topic documents linked below; this file should stay concise and be updated whenever priorities materially change.
 
-## Current milestone: validate collection-directed rewards
+## Current milestone: Practice and collection-directed rewards
 
-The collection-directed economy is implemented. The immediate goal is to validate its pacing and presentation before treating the values as settled.
+Practice Mode and the collection-directed economy are implemented. Practice includes retries, manual/automatic hints, a recap of missed questions, and first-attempt rewards. See [Practice Mode](./PRACTICE_MODE.md) for the contract. The immediate goal is to observe learning and reward pacing before treating the values as settled.
 
 1. **Family-test pacing.** Record how many questions it takes to open early capsules, whether the 60/80-coin choice feels meaningful, and whether difficulty bonuses feel fair rather than exploitable.
 2. **Validate calendar edges and backup behavior.** Exercise a new local day, a Monday-Sunday boundary, reloads, and export/import after daily, weekly, welcome, and milestone rewards.
@@ -16,7 +16,7 @@ The detailed acquisition and pricing contract is in [Economy Tuning](./ECONOMY.m
 ## After the reward milestone
 
 1. Add another complete themed companion collection, probably non-cat, using the established dual-art workflow.
-2. Resume math-mode development in this order: untimed Practice with retries and optional hints, Time Rush, Endless, a daily mixed challenge, and Improvement Duel after enough comparable history exists.
+2. Build on Practice with per-skill progress and guided suggestions, then Time Rush, Endless, a daily mixed challenge, and Improvement Duel after enough comparable history exists.
 3. Improve progress presentation with per-skill mastery, guided practice suggestions, and clearer long-term improvement views.
 4. Return to optional polish such as additional composed music, alternate companion expressions, speech, and collection-completion celebrations after observing family play.
 

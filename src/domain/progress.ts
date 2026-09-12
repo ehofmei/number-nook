@@ -61,16 +61,20 @@ export function normalizeSettings(settings: GameSettings): GameSettings {
 
 export function configurationKey(settings: GameSettings, rulesetVersion: number): string {
   const normalized = normalizeSettings(settings);
-  return `ruleset-${rulesetVersion}|${normalized.operations.join('+')}|${normalized.difficulty}|${normalized.questionCount}`;
+  return `ruleset-${rulesetVersion}|${normalized.operations.join('+')}|${normalized.difficulty}|${normalized.questionCount}${settings.mode === 'practice' ? '|practice' : ''}`;
 }
 
-function answerTotals(answers: readonly AnswerRecord[], rounds: number): ProgressTotals {
+function answerTotals(
+  answers: readonly AnswerRecord[],
+  rounds: number,
+  practice = false,
+): ProgressTotals {
   return {
     rounds,
     questions: answers.length,
     correct: answers.filter(({ correct }) => correct).length,
     score: answers.reduce(
-      (total, answer) => total + scoreAnswer(answer.correct, answer.responseMs),
+      (total, answer) => total + scoreAnswer(answer.correct, answer.responseMs, practice),
       0,
     ),
     responseMs: answers.reduce((total, answer) => total + answer.responseMs, 0),
@@ -161,7 +165,11 @@ export function archiveSession(
   for (const operation of OPERATION_IDS) {
     const answers = session.answers.filter((answer) => answer.operation === operation);
     if (answers.length === 0) continue;
-    operations = upsertOperation(operations, operation, answerTotals(answers, 1));
+    operations = upsertOperation(
+      operations,
+      operation,
+      answerTotals(answers, 1, session.settings.mode === 'practice'),
+    );
   }
   return {
     overall: mergeProgressTotals(progress.overall, totals),

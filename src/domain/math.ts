@@ -42,6 +42,7 @@ export const DIFFICULTY_LABELS: Record<DifficultyId, string> = {
 };
 
 export interface GameSettings {
+  mode?: 'quick' | 'practice';
   operations: OperationId[];
   difficulty: DifficultyId;
   questionCount: QuestionCount;

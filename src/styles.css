@@ -4180,3 +4180,49 @@ button.dashboard-card {
     animation: none !important;
   }
 }
+.practice-help {
+  width: min(100%, 760px);
+  margin: 0.75rem auto;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-color, #ded6e8);
+  border-radius: 20px;
+  background: #fffaf3;
+  color: #302846;
+  text-align: center;
+}
+
+.practice-state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+}
+
+.practice-state-grid .practice-help {
+  margin: 0;
+  align-content: start;
+}
+.practice-help p {
+  margin: 0.25rem 0 0.65rem;
+}
+.practice-hint {
+  font-weight: 600;
+}
+.practice-help .secondary-button {
+  min-height: 48px;
+}
+.game-page--practice .question-panel {
+  min-height: clamp(110px, 20vh, 180px);
+}
+.game-page--practice .question-panel h1 {
+  font-size: clamp(2.4rem, 12vw, 6rem);
+}
+.game-page--practice .question-panel h1.equation--long {
+  font-size: clamp(1.6rem, 6vw, 4rem);
+  gap: clamp(0.3rem, 1.5vw, 1rem);
+}
+.game-page--practice .answer-card {
+  min-height: clamp(76px, 12vh, 108px);
+}
+.game-page--practice .keyboard-hint {
+  margin: 0.25rem 0;
+}

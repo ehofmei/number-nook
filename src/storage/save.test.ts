@@ -32,7 +32,7 @@ describe('save data', () => {
     const repository = new LocalStorageSaveRepository();
     const save = createInitialSave(' Ada ', 'cozy-cats:sunny');
     expect(save.player.name).toBe('Ada');
-    expect(save.schemaVersion).toBe(6);
+    expect(save.schemaVersion).toBe(7);
     expect(save.artStyle).toBe('sticker');
     await repository.save(save);
     await expect(repository.load()).resolves.toEqual(save);
@@ -48,7 +48,7 @@ describe('save data', () => {
     void _dailyCoins;
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 1 }));
     expect(migrated).toMatchObject({
-      schemaVersion: 6,
+      schemaVersion: 7,
       player: { name: 'Ada' },
       coins: 0,
       artStyle: 'sticker',
@@ -118,7 +118,7 @@ describe('save data', () => {
     };
 
     const migrated = repository.parseImport(JSON.stringify(legacyV2));
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.sessions[0]).toMatchObject({
       rulesetVersion: 1,
       coinsPotential: 15,
@@ -283,7 +283,7 @@ describe('save data', () => {
       JSON.stringify({ ...withoutArchive, schemaVersion: 3, sessions }),
     );
 
-    expect(migrated.schemaVersion).toBe(6);
+    expect(migrated.schemaVersion).toBe(7);
     expect(migrated.artStyle).toBe('sticker');
     expect(migrated.sessions).toHaveLength(DETAILED_SESSION_LIMIT);
     expect(migrated.archivedProgress.overall).toMatchObject({ rounds: 5, questions: 50 });
@@ -297,7 +297,7 @@ describe('save data', () => {
 
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 4 }));
 
-    expect(migrated).toMatchObject({ schemaVersion: 6, artStyle: 'sticker' });
+    expect(migrated).toMatchObject({ schemaVersion: 7, artStyle: 'sticker' });
   });
 
   it('migrates an established version 5 save without changing its balance', () => {
@@ -320,7 +320,7 @@ describe('save data', () => {
     );
 
     expect(migrated).toMatchObject({
-      schemaVersion: 6,
+      schemaVersion: 7,
       coins: 42,
       dailyCoins: { date: '2026-08-30', earned: 30 },
       rewardProgress: { welcomeCapsuleStatus: 'locked' },

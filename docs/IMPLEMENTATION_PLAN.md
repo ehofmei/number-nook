@@ -349,7 +349,7 @@ Add one independently verified slice at a time:
 2. ~~Multiplication with curated table presets and constrained session composition.~~ Completed in ruleset version 3.
 3. ~~Division generated from divisor and quotient with explicit low-challenge limits.~~ Completed in ruleset version 3.
 4. ~~Mixed operations with balanced short-session coverage.~~ Completed.
-5. Practice mode retry and hint representations.
+5. ~~Practice mode retry and hint representations.~~ Completed with manual/automatic strategy hints, bounded recap, first-attempt scoring/rewards, and save/history support. See [Practice Mode](./PRACTICE_MODE.md).
 6. Time Rush and Endless.
 7. Per-skill mastery and guided-random weighting.
 8. ~~Question-level round review and bounded local play history.~~ Completed with a 30-round detailed window and lifetime aggregates. A richer progress dashboard remains future work.
