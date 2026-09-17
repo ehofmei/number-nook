@@ -1429,6 +1429,12 @@ button.dashboard-card {
   color: var(--theme-accent-strong);
   font-weight: 900;
 }
+.coin-breakdown > p {
+  margin: 0;
+  padding: 0 1.1rem 1rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
 .coin-breakdown dl {
   display: grid;
   gap: 0.55rem;

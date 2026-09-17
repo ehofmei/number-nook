@@ -17,9 +17,9 @@ The existing `first-math-game:*` local-storage keys are intentionally retained a
 
 ## Icon system
 
-`public/icon.svg` is the editable source for ordinary icons and the browser favicon. `public/icon-maskable.svg` is the full-bleed source used where an operating system may crop the icon into a circle, rounded square, or other shape.
+`src/assets/app-icon-source.png` is the approved high-resolution source for every installed-app icon and the browser favicon. The source uses the polished Sticker-art direction: a cheerful golden kitten peeking over large `+`, `×`, and `=` tiles on a full-bleed purple background.
 
-The mark uses a large golden cat face, a purple background, and one math sparkle. The silhouette and facial features stay readable at home-screen and browser-tab sizes. A cat remains appropriate for the Number Nook identity even as the collectible catalog expands to other species.
+The whole kitten-and-tiles group stays inside a conservative maskable safe area so circles and rounded-square crops retain both ears, paws, and all three math symbols. A cat remains appropriate for the Number Nook identity even as the collectible catalog expands to other species.
 
 Generated assets are:
 
@@ -30,13 +30,13 @@ Generated assets are:
 | `icon-maskable-512.png` | Android and other maskable-icon surfaces |
 | `apple-touch-icon.png` | iPhone and iPad Add to Home Screen icon |
 
-Regenerate every PNG after editing either SVG source:
+Regenerate every PNG after replacing the approved PNG source:
 
 ```sh
 npm run art:pwa-icons
 ```
 
-The generator uses the repository's Playwright Chromium dependency to render deterministic dimensions without adding an image-processing package.
+The generator uses the repository's Playwright Chromium dependency to render deterministic dimensions without adding an image-processing package. Keep exploratory candidates in `src/dev/assets`; only copy an approved design to `src/assets/app-icon-source.png`.
 
 ## Verification
 

@@ -9,8 +9,6 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'prompt',
       includeAssets: [
-        'icon.svg',
-        'icon-maskable.svg',
         'icon-192.png',
         'icon-512.png',
         'icon-maskable-512.png',
@@ -51,12 +49,6 @@ export default defineConfig(({ mode }) => ({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
-          },
-          {
-            src: 'icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any',
           },
         ],
       },

@@ -116,7 +116,22 @@ test('Practice retries, hints, recap, rewards, review, and remembered mode', asy
   ).toBeVisible();
   await expect(page.getByRole('region', { name: 'Game results' })).toContainText('80%');
   await expect(page.getByRole('region', { name: 'Game results' })).toContainText('800');
-  await expect(page.getByText('How you earned 25 Paw Coins')).toBeVisible();
+  const practiceRewardSummary = page.getByText('How you earned 25 Paw Coins');
+  await expect(practiceRewardSummary).toBeVisible();
+  await practiceRewardSummary.click();
+  const practiceRewardExplanation = page.getByText('Coins come from your first answers.');
+  await expect(practiceRewardExplanation).toBeVisible();
+  const practiceRewardSpacing = await page.locator('.coin-breakdown').evaluate((container) => {
+    const explanation = container.querySelector(':scope > p');
+    if (!(explanation instanceof HTMLElement)) throw new Error('Reward explanation is missing.');
+    const styles = getComputedStyle(explanation);
+    return {
+      left: Number.parseFloat(styles.paddingLeft),
+      right: Number.parseFloat(styles.paddingRight),
+    };
+  });
+  expect(practiceRewardSpacing.left).toBeGreaterThanOrEqual(16);
+  expect(practiceRewardSpacing.right).toBeGreaterThanOrEqual(16);
   await page.getByRole('button', { name: 'Review questions' }).click();
   await expect(page.getByText('Attempts', { exact: true })).toHaveCount(2);
   await expect(page.getByText('Recap', { exact: true })).toHaveCount(2);
@@ -916,7 +931,10 @@ test('@pwa production build works after the network goes offline', async ({
   const installMetadata = await page.evaluate(async () => {
     const manifestLink = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
     const appleTouchLink = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]');
-    if (!manifestLink || !appleTouchLink) throw new Error('Install metadata links are missing.');
+    const faviconLink = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!manifestLink || !appleTouchLink || !faviconLink) {
+      throw new Error('Install metadata links are missing.');
+    }
     const manifestResponse = await fetch(manifestLink.href);
     const manifest = (await manifestResponse.json()) as {
       name: string;
@@ -936,6 +954,7 @@ test('@pwa production build works after the network goes offline', async ({
       manifest,
       manifestPath: new URL(manifestLink.href).pathname,
       appleTouchPath: new URL(appleTouchLink.href).pathname,
+      faviconPath: new URL(faviconLink.href).pathname,
       htmlMetadata: {
         themeColor: document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content,
         applicationName: document.querySelector<HTMLMetaElement>('meta[name="application-name"]')
@@ -960,6 +979,7 @@ test('@pwa production build works after the network goes offline', async ({
   });
   expect(installMetadata.manifestPath).toBe('/number-nook/manifest.webmanifest');
   expect(installMetadata.appleTouchPath).toBe('/number-nook/apple-touch-icon.png');
+  expect(installMetadata.faviconPath).toBe('/number-nook/icon-192.png');
   expect(installMetadata.htmlMetadata).toEqual({
     themeColor: '#5433ed',
     applicationName: 'Number Nook',

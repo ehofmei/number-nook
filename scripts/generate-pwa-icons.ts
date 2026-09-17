@@ -3,18 +3,19 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 
 const publicDirectory = path.resolve('public');
+const sourcePath = path.resolve('src/assets/app-icon-source.png');
 const iconJobs = [
-  { source: 'icon.svg', output: 'icon-192.png', size: 192 },
-  { source: 'icon.svg', output: 'icon-512.png', size: 512 },
-  { source: 'icon-maskable.svg', output: 'icon-maskable-512.png', size: 512 },
-  { source: 'icon-maskable.svg', output: 'apple-touch-icon.png', size: 180 },
+  { output: 'icon-192.png', size: 192 },
+  { output: 'icon-512.png', size: 512 },
+  { output: 'icon-maskable-512.png', size: 512 },
+  { output: 'apple-touch-icon.png', size: 180 },
 ] as const;
 
+const sourceBuffer = await readFile(sourcePath);
+const source = `data:image/png;base64,${sourceBuffer.toString('base64')}`;
 const browser = await chromium.launch({ headless: true });
 try {
   for (const job of iconJobs) {
-    const svg = await readFile(path.join(publicDirectory, job.source), 'utf8');
-    const source = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
     const page = await browser.newPage({ viewport: { width: job.size, height: job.size } });
     await page.setContent(
       `<style>html,body{margin:0;width:100%;height:100%;background:transparent}img{display:block;width:100%;height:100%}</style><img alt="" src="${source}">`,

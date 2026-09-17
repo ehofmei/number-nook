@@ -334,6 +334,13 @@ Manual checks:
 
 PWA tests must run against a production build because service workers and caching behavior differ from the Vite development server.
 
+Keep visual iteration and PWA verification on separate browser paths:
+
+- Use `npm run dev` for current-source functional and visual QA. Its origin is not service-worker controlled, so screenshots and computed styles reflect the files being edited.
+- Use `npm run build` plus `npm run preview` for manifest, GitHub Pages base-path, service-worker, caching, update, and offline behavior.
+- Run production PWA checks in the isolated Playwright context supplied by the automated suite, or another fresh context. Reusing a browser profile that previously visited the preview origin can leave an older service worker in control.
+- When a production-preview screenshot disagrees with the current source or `dist` output, inspect the loaded asset and computed style before changing code. Confirm whether a prior service worker is serving stale assets; an ordinary reload is not sufficient evidence that the newest bundle is active.
+
 Automated scenarios:
 
 - Manifest, Number Nook install metadata, standard/maskable PNG dimensions, and the Apple touch icon resolve under the GitHub Pages base path.
