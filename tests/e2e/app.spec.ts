@@ -521,6 +521,68 @@ test('focus moves away from the selected answer when the next question appears',
   await expect(page.locator('.answer-card').nth(3)).not.toBeFocused();
 });
 
+test('long Advanced questions fit iPhone portrait and landscape without selectable game text', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'Responsive equation sizing is covered once in Chromium.');
+  await page.setViewportSize({ width: 402, height: 874 });
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Advanced', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+
+  const readEquationLayout = () =>
+    page.locator('#equation').evaluate((equation) => {
+      const bounds = equation.getBoundingClientRect();
+      const styles = getComputedStyle(equation);
+      return {
+        left: bounds.left,
+        right: bounds.right,
+        top: bounds.top,
+        bottom: bounds.bottom,
+        fontSize: Number.parseFloat(styles.fontSize),
+        userSelect: styles.userSelect,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+      };
+    });
+
+  let layout = await readEquationLayout();
+  expect(layout.left).toBeGreaterThanOrEqual(0);
+  expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.fontSize).toBeGreaterThanOrEqual(36);
+  expect(layout.userSelect).toBe('none');
+
+  await page.setViewportSize({ width: 874, height: 402 });
+  layout = await readEquationLayout();
+  expect(layout.left).toBeGreaterThanOrEqual(0);
+  expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.top).toBeGreaterThanOrEqual(0);
+  expect(layout.bottom).toBeLessThanOrEqual(layout.viewportHeight);
+  expect(layout.fontSize).toBeGreaterThanOrEqual(72);
+
+  const answerCards = await page.locator('.answer-card').evaluateAll((cards) =>
+    cards.map((card) => {
+      const bounds = card.getBoundingClientRect();
+      return { left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom };
+    }),
+  );
+  expect(answerCards).toHaveLength(4);
+  expect(answerCards.every(({ left, right }) => left >= 0 && right <= 874)).toBe(true);
+  expect(answerCards.every(({ top, bottom }) => top >= 0 && bottom <= 402)).toBe(true);
+
+  await page.setViewportSize({ width: 402, height: 874 });
+  await page.getByRole('button', { name: 'Exit game' }).click();
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Practice', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+  layout = await readEquationLayout();
+  expect(layout.left).toBeGreaterThanOrEqual(0);
+  expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.fontSize).toBeGreaterThanOrEqual(36);
+});
+
 test('a stationary pointer does not highlight the next answer after keyboard play', async ({
   page,
 }, testInfo) => {

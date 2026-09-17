@@ -39,10 +39,19 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 90% 5%, var(--theme-glow-primary) 0, transparent 32rem),
     radial-gradient(circle at 5% 85%, var(--theme-glow-secondary) 0, transparent 28rem),
     var(--cream);
   transition: background 220ms ease;
+}
+#root {
+  -webkit-user-select: none;
+  user-select: none;
+}
+input,
+textarea,
+select {
+  -webkit-user-select: text;
+  user-select: text;
 }
 button,
 input {
@@ -1227,9 +1236,15 @@ button.dashboard-card {
   align-items: center;
   justify-content: center;
   gap: clamp(0.55rem, 3vw, 1.4rem);
+  max-width: 100%;
   margin: 0.5rem 0 0;
   font-size: clamp(4.1rem, 16vw, 8.5rem);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.question-panel h1.equation--long {
+  gap: clamp(0.35rem, 1.6vw, 0.9rem);
+  font-size: clamp(2rem, 10vw, 5.5rem);
 }
 .question-panel h1:focus {
   outline: none;
@@ -4321,6 +4336,32 @@ button.dashboard-card {
   }
 }
 
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-page {
+    padding-top: max(0.65rem, env(safe-area-inset-top));
+    padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
+  }
+  .game-header {
+    margin-bottom: 0;
+  }
+  .feedback-slot {
+    min-height: 32px;
+    margin-bottom: 0;
+  }
+  .question-panel,
+  .game-page--practice .question-panel {
+    min-height: 120px;
+  }
+  .answer-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .answer-card,
+  .game-page--practice .answer-card {
+    min-height: 80px;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+}
+
 @media (max-width: 760px) {
   .capsule-shelf {
     grid-template-columns: 1fr;
@@ -4384,8 +4425,8 @@ button.dashboard-card {
   font-size: clamp(2.4rem, 12vw, 6rem);
 }
 .game-page--practice .question-panel h1.equation--long {
-  font-size: clamp(1.6rem, 6vw, 4rem);
-  gap: clamp(0.3rem, 1.5vw, 1rem);
+  font-size: clamp(2rem, 10vw, 5.5rem);
+  gap: clamp(0.35rem, 1.6vw, 0.9rem);
 }
 .game-page--practice .answer-card {
   min-height: clamp(76px, 12vh, 108px);
