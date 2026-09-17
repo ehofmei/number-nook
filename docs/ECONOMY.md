@@ -71,7 +71,7 @@ The main results card stays simple and celebratory, while the arithmetic lives i
 
 ## Capsule and participation model
 
-The catalog has reached thirty-one companions and supports complete themed collections. The Capsule Shelf offers two duplicate-protected choices:
+The catalog has reached fifty-one companions across five ordinary collections and one Special Guest collection. The Capsule Shelf offers two duplicate-protected choices:
 
 | Capsule | Eligible pool | Cost |
 | --- | --- | ---: |

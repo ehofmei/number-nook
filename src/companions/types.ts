@@ -52,6 +52,16 @@ export const COMPANION_MOTIFS = [
   'music',
   'ribbon',
   'lantern',
+  'seed',
+  'flower',
+  'feather',
+  'berry',
+  'water',
+  'lily-pad',
+  'shell',
+  'ripple',
+  'reed',
+  'bubbles',
 ] as const;
 export type CompanionMotif = (typeof COMPANION_MOTIFS)[number];
 

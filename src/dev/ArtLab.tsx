@@ -2,19 +2,39 @@ import { useMemo, useState } from 'react';
 import auroraSticker from './assets/aurora-sticker-v1-preview.png';
 import biscuitStickerV1 from './assets/biscuit-sticker-v1-preview.png';
 import biscuitStickerV2 from './assets/biscuit-sticker-v2-preview.png';
+import bluebellWingletSticker from './assets/bluebell-sticker-v3.png';
+import brambleWingletSticker from './assets/bramble-sticker-v1.png';
 import buttonBunnySticker from './assets/button-bunny-sticker-v1-preview.png';
 import cloudStickerV1 from './assets/cloud-sticker-v1-preview.png';
 import cloudStickerV2 from './assets/cloud-sticker-v2-preview.png';
 import cometSticker from './assets/comet-sticker-v1-preview.png';
+import fernWingletSticker from './assets/fern-sticker-v2.png';
 import gizmoSticker from './assets/gizmo-sticker-v1-preview.png';
 import juniperSticker from './assets/juniper-sticker-v1-preview.png';
+import marigoldWingletSticker from './assets/marigold-sticker-v3.png';
+import mossPondsideSticker from './assets/moss-sticker-v1.png';
 import moonbeamDetailed from './assets/moonbeam-detailed.svg';
 import moonbeamSticker from './assets/moonbeam-sticker.png';
 import moonbeamStickerPreview from './assets/moonbeam-sticker-v1-preview.png';
 import moonbeamStorybook from './assets/moonbeam-storybook.png';
 import patchesSticker from './assets/patches-sticker-v1-preview.png';
+import pebblePondsideSticker from './assets/pebble-sticker-v2.png';
 import pepperSticker from './assets/pepper-sticker-v1-preview.png';
+import dabblePondsideSticker from './assets/dabble-sticker-v2.png';
+import glintPondsideSticker from './assets/glint-sticker-v1.png';
+import lotusPondsideSticker from './assets/lotus-sticker-v3.png';
+import opalPondsideSticker from './assets/opal-sticker-v2.png';
+import ripplePondsideSticker from './assets/ripple-sticker-v3.png';
+import skimPondsideSticker from './assets/skim-sticker-v3.png';
+import spiralPondsideSticker from './assets/spiral-sticker-v3.png';
+import tuckWingletSticker from './assets/tuck-sticker-v3.png';
+import prismWingletSticker from './assets/prism-sticker-v1.png';
+import tempoWingletSticker from './assets/tempo-sticker-v3.png';
+import solsticeWingletSticker from './assets/solstice-sticker-v1.png';
 import sunnySticker from './assets/sunny-sticker-v1-preview.png';
+import tumbleWingletSticker from './assets/tumble-sticker-v3.png';
+import willowPondsideSticker from './assets/willow-sticker-v2.png';
+import zinniaWingletSticker from './assets/zinnia-sticker-v1.png';
 
 interface ArtTreatment {
   id: string;
@@ -25,7 +45,7 @@ interface ArtTreatment {
   alt: string;
 }
 
-interface ClassicCat {
+interface ClassicCompanion {
   id: string;
   name: string;
   rarity: 'common' | 'uncommon' | 'rare' | 'legendary';
@@ -37,7 +57,7 @@ interface ClassicCat {
 
 const classicAsset = (filename: string) => `${import.meta.env.BASE_URL}collectibles/${filename}`;
 
-const CLASSIC_CATS: readonly ClassicCat[] = [
+const CLASSIC_COMPANIONS: readonly ClassicCompanion[] = [
   {
     id: 'sunny',
     name: 'Sunny',
@@ -306,6 +326,186 @@ const CLASSIC_CATS: readonly ClassicCat[] = [
     image: classicAsset('lumina.svg'),
     alt: 'A regal white-and-gold longhair cat beneath an arch of glowing lanterns',
     signature: 'Lantern arch',
+    status: 'New draft',
+  },
+  {
+    id: 'tuck',
+    name: 'Tuck',
+    rarity: 'common',
+    image: classicAsset('tuck.svg'),
+    alt: 'A white-breasted nuthatch with a black cap climbing headfirst down a birch trunk',
+    signature: 'Headfirst tree climb',
+    status: 'New draft',
+  },
+  {
+    id: 'marigold',
+    name: 'Marigold',
+    rarity: 'common',
+    image: classicAsset('marigold.svg'),
+    alt: 'A bright yellow American goldfinch with black wings and a marigold',
+    signature: 'Black wings and flower',
+    status: 'New draft',
+  },
+  {
+    id: 'bluebell',
+    name: 'Bluebell',
+    rarity: 'common',
+    image: classicAsset('bluebell.svg'),
+    alt: 'A blue jay with a swept crest, black necklace, barred wings, and bluebell',
+    signature: 'Crest and barred wings',
+    status: 'New draft',
+  },
+  {
+    id: 'tumble',
+    name: 'Tumble',
+    rarity: 'common',
+    image: classicAsset('tumble.svg'),
+    alt: 'A plump northern bobwhite quail with a striped face and stepping stones',
+    signature: 'Round body and striped face',
+    status: 'New draft',
+  },
+  {
+    id: 'zinnia',
+    name: 'Zinnia',
+    rarity: 'uncommon',
+    image: classicAsset('zinnia.svg'),
+    alt: 'A tiny green ruby-throated hummingbird hovering beside a zinnia',
+    signature: 'Long beak and wide wings',
+    status: 'New draft',
+  },
+  {
+    id: 'bramble',
+    name: 'Bramble',
+    rarity: 'uncommon',
+    image: classicAsset('bramble.svg'),
+    alt: 'A red northern cardinal with a pointed crest, dark face, and berry vine',
+    signature: 'Cardinal crest and berries',
+    status: 'New draft',
+  },
+  {
+    id: 'fern',
+    name: 'Fern',
+    rarity: 'uncommon',
+    image: classicAsset('fern.svg'),
+    alt: 'A warm brown Carolina wren with a white eyebrow and upright tail',
+    signature: 'White eyebrow and tail',
+    status: 'New draft',
+  },
+  {
+    id: 'tempo',
+    name: 'Tempo',
+    rarity: 'rare',
+    image: classicAsset('tempo.svg'),
+    alt: 'A red-bellied woodpecker with a red crown drumming against a garden post',
+    signature: 'Red crown and barred wings',
+    status: 'New draft',
+  },
+  {
+    id: 'prism',
+    name: 'Prism',
+    rarity: 'rare',
+    image: classicAsset('prism.svg'),
+    alt: 'A belted kingfisher with a shaggy crest, long beak, and pond ripples',
+    signature: 'Long beak and water rings',
+    status: 'New draft',
+  },
+  {
+    id: 'solstice',
+    name: 'Solstice',
+    rarity: 'legendary',
+    image: classicAsset('solstice.svg'),
+    alt: 'A brilliant painted bunting with blue, green, red, and gold plumage',
+    signature: 'Four-color plumage and sun',
+    status: 'New draft',
+  },
+  {
+    id: 'moss',
+    name: 'Moss',
+    rarity: 'common',
+    image: classicAsset('moss.svg'),
+    alt: 'A bright green frog crouched on a lily pad beside a small yellow pond flower',
+    signature: 'Wide eyes and lily pad',
+    status: 'New draft',
+  },
+  {
+    id: 'pebble',
+    name: 'Pebble',
+    rarity: 'common',
+    image: classicAsset('pebble.svg'),
+    alt: 'An olive painted turtle with a patterned shell resting on a pond stone',
+    signature: 'Painted shell and stone',
+    status: 'New draft',
+  },
+  {
+    id: 'skim',
+    name: 'Skim',
+    rarity: 'common',
+    image: classicAsset('skim.svg'),
+    alt: 'A smiling brown pond skater balancing above circular ripples',
+    signature: 'Long legs and water dimples',
+    status: 'New draft',
+  },
+  {
+    id: 'spiral',
+    name: 'Spiral',
+    rarity: 'common',
+    image: classicAsset('spiral.svg'),
+    alt: 'A green pond snail with raised eye stalks and a large purple spiral shell',
+    signature: 'Purple spiral shell',
+    status: 'New draft',
+  },
+  {
+    id: 'dabble',
+    name: 'Dabble',
+    rarity: 'uncommon',
+    image: classicAsset('dabble.svg'),
+    alt: 'A colorful mallard duck dabbling tail-up in teal pond water',
+    signature: 'Tail-up dabbling pose',
+    status: 'New draft',
+  },
+  {
+    id: 'glint',
+    name: 'Glint',
+    rarity: 'uncommon',
+    image: classicAsset('glint.svg'),
+    alt: 'An iridescent blue and violet dragonfly hovering with four transparent wings',
+    signature: 'Four shimmering wings',
+    status: 'New draft',
+  },
+  {
+    id: 'willow',
+    name: 'Willow',
+    rarity: 'uncommon',
+    image: classicAsset('willow.svg'),
+    alt: 'A warm brown beaver building with sticks beside the pond',
+    signature: 'Paddle tail and stick bridge',
+    status: 'New draft',
+  },
+  {
+    id: 'ripple',
+    name: 'Ripple',
+    rarity: 'rare',
+    image: classicAsset('ripple.svg'),
+    alt: 'A playful brown river otter curling through blue water beside a skipping stone',
+    signature: 'Curved swim and wake',
+    status: 'New draft',
+  },
+  {
+    id: 'lotus',
+    name: 'Lotus',
+    rarity: 'rare',
+    image: classicAsset('lotus.svg'),
+    alt: 'A smiling pink axolotl floating underwater with coral feathery gills',
+    signature: 'Feathery gills and bubbles',
+    status: 'New draft',
+  },
+  {
+    id: 'opal',
+    name: 'Opal',
+    rarity: 'legendary',
+    image: classicAsset('opal.svg'),
+    alt: 'A radiant pearl, coral, and violet koi curving through opalescent pond light',
+    signature: 'Flowing fins and opal light',
     status: 'New draft',
   },
 ];
@@ -793,6 +993,67 @@ type StickerAnchor = (typeof STICKER_ANCHORS)[number];
 const preferredSticker = (cat: StickerAnchor) =>
   cat.stickers.find(({ version }) => version === cat.preferredVersion) ?? cat.stickers[0];
 
+const GARDEN_WINGLET_STICKERS = [
+  {
+    name: 'Tuck',
+    species: 'White-breasted nuthatch',
+    rarity: 'common',
+    image: tuckWingletSticker,
+  },
+  {
+    name: 'Marigold',
+    species: 'American goldfinch',
+    rarity: 'common',
+    image: marigoldWingletSticker,
+  },
+  { name: 'Bluebell', species: 'Blue jay', rarity: 'common', image: bluebellWingletSticker },
+  { name: 'Tumble', species: 'Northern bobwhite', rarity: 'common', image: tumbleWingletSticker },
+  {
+    name: 'Zinnia',
+    species: 'Ruby-throated hummingbird',
+    rarity: 'uncommon',
+    image: zinniaWingletSticker,
+  },
+  {
+    name: 'Bramble',
+    species: 'Northern cardinal',
+    rarity: 'uncommon',
+    image: brambleWingletSticker,
+  },
+  { name: 'Fern', species: 'Carolina wren', rarity: 'uncommon', image: fernWingletSticker },
+  {
+    name: 'Tempo',
+    species: 'Red-bellied woodpecker',
+    rarity: 'rare',
+    image: tempoWingletSticker,
+  },
+  { name: 'Prism', species: 'Belted kingfisher', rarity: 'rare', image: prismWingletSticker },
+  {
+    name: 'Solstice',
+    species: 'Painted bunting',
+    rarity: 'legendary',
+    image: solsticeWingletSticker,
+  },
+] as const;
+
+const PONDSIDE_PAL_STICKERS = [
+  { name: 'Moss', species: 'Green frog', rarity: 'common', image: mossPondsideSticker },
+  {
+    name: 'Pebble',
+    species: 'Painted turtle',
+    rarity: 'common',
+    image: pebblePondsideSticker,
+  },
+  { name: 'Skim', species: 'Pond skater', rarity: 'common', image: skimPondsideSticker },
+  { name: 'Spiral', species: 'Pond snail', rarity: 'common', image: spiralPondsideSticker },
+  { name: 'Dabble', species: 'Mallard', rarity: 'uncommon', image: dabblePondsideSticker },
+  { name: 'Glint', species: 'Dragonfly', rarity: 'uncommon', image: glintPondsideSticker },
+  { name: 'Willow', species: 'Beaver', rarity: 'uncommon', image: willowPondsideSticker },
+  { name: 'Ripple', species: 'River otter', rarity: 'rare', image: ripplePondsideSticker },
+  { name: 'Lotus', species: 'Axolotl', rarity: 'rare', image: lotusPondsideSticker },
+  { name: 'Opal', species: 'Koi', rarity: 'legendary', image: opalPondsideSticker },
+] as const;
+
 const ART_TREATMENTS: readonly ArtTreatment[] = [
   {
     id: 'simple-svg',
@@ -852,7 +1113,7 @@ export function ArtLab() {
           <span className="eyebrow">Development only</span>
           <h1>Number Nook Art Lab</h1>
           <p>
-            Review companion identities across Classic and Sticker art, including three ordinary
+            Review companion identities across Classic and Sticker art, including five ordinary
             collections and the first Special Guest.
           </p>
           <nav className="lab-links" aria-label="Development labs">
@@ -864,6 +1125,84 @@ export function ArtLab() {
           </nav>
         </div>
       </header>
+
+      <section className="panel winglet-review" aria-labelledby="pondside-review-heading">
+        <div className="art-section-heading">
+          <div>
+            <span className="eyebrow">Full collection review</span>
+            <h2 id="pondside-review-heading">Pondside Pals Sticker contact sheet</h2>
+            <p>Compare the ten production portraits together at gallery and compact sizes.</p>
+          </div>
+          <span className="mode-pill">10 / 10 selected</span>
+        </div>
+
+        <div className="winglet-review-grid" data-testid="pondside-sticker-roster">
+          {PONDSIDE_PAL_STICKERS.map((pal) => (
+            <figure className="winglet-review-card" key={pal.name}>
+              <img src={pal.image} alt={`${pal.name} the ${pal.species} Sticker portrait`} />
+              <figcaption>
+                <span>
+                  <strong>{pal.name}</strong>
+                  <span className={`rarity rarity--${pal.rarity}`}>{pal.rarity}</span>
+                </span>
+                <small>{pal.species}</small>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="winglet-compact-check" aria-label="Pondside Pals 96 pixel comparison">
+          <strong>Actual 96 px comparison</strong>
+          <span className="winglet-compact-hint">Swipe sideways to see all ten.</span>
+          <div>
+            {PONDSIDE_PAL_STICKERS.map((pal) => (
+              <figure key={pal.name}>
+                <img src={pal.image} alt="" width="96" height="96" loading="lazy" />
+                <figcaption>{pal.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="panel winglet-review" aria-labelledby="winglet-review-heading">
+        <div className="art-section-heading">
+          <div>
+            <span className="eyebrow">Full collection review</span>
+            <h2 id="winglet-review-heading">Garden Winglets Sticker contact sheet</h2>
+            <p>Compare the ten production portraits together at gallery and compact sizes.</p>
+          </div>
+          <span className="mode-pill">10 / 10 selected</span>
+        </div>
+
+        <div className="winglet-review-grid" data-testid="winglet-sticker-roster">
+          {GARDEN_WINGLET_STICKERS.map((bird) => (
+            <figure className="winglet-review-card" key={bird.name}>
+              <img src={bird.image} alt={`${bird.name} the ${bird.species} Sticker portrait`} />
+              <figcaption>
+                <span>
+                  <strong>{bird.name}</strong>
+                  <span className={`rarity rarity--${bird.rarity}`}>{bird.rarity}</span>
+                </span>
+                <small>{bird.species}</small>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="winglet-compact-check" aria-label="Garden Winglets 96 pixel comparison">
+          <strong>Actual 96 px comparison</strong>
+          <span className="winglet-compact-hint">Swipe sideways to see all ten.</span>
+          <div>
+            {GARDEN_WINGLET_STICKERS.map((bird) => (
+              <figure key={bird.name}>
+                <img src={bird.image} alt="" width="96" height="96" loading="lazy" />
+                <figcaption>{bird.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="panel art-comparison" aria-labelledby="art-comparison-heading">
         <div className="art-section-heading">
@@ -904,7 +1243,7 @@ export function ArtLab() {
               Compare identity across styles and inspect approved source portraits at compact size.
             </p>
           </div>
-          <span className="mode-pill">31 companions</span>
+          <span className="mode-pill">31 established companions</span>
         </div>
 
         <div className="sticker-anchor-grid">
@@ -953,11 +1292,11 @@ export function ArtLab() {
             <span className="eyebrow">Classic draft</span>
             <h2 id="classic-collection-heading">Classic collection contact sheets</h2>
             <p>
-              Check silhouette, palette, signature motif, and rarity balance across the Nook
-              Neighbors, Nookside Pups, and Lantern Lane Cats.
+              Check silhouette, palette, signature motif, and rarity balance across all five
+              ordinary collections.
             </p>
           </div>
-          <span className="mode-pill">30 / 30 drafted</span>
+          <span className="mode-pill">50 / 50 drafted</span>
         </div>
 
         <div className="classic-collection-actions">
@@ -978,7 +1317,7 @@ export function ArtLab() {
           className={`classic-roster ${showClassicLocked ? 'classic-roster--locked' : ''}`}
           data-testid="classic-roster"
         >
-          {CLASSIC_CATS.map((cat) => (
+          {CLASSIC_COMPANIONS.map((cat) => (
             <article className="classic-cat-card" key={cat.id}>
               <div className="classic-cat-art">
                 <img src={cat.image} alt={cat.alt} />
@@ -999,7 +1338,7 @@ export function ArtLab() {
         <div className="classic-compact-check" aria-label="Classic 96 pixel comparison">
           <strong>Actual 96 px comparison</strong>
           <div>
-            {CLASSIC_CATS.map((cat) => (
+            {CLASSIC_COMPANIONS.map((cat) => (
               <figure key={cat.id}>
                 <img
                   className={showClassicLocked ? 'classic-compact-locked' : undefined}
@@ -1092,13 +1431,11 @@ export function ArtLab() {
           <li>Can you still read the expression and crescent identity at 96 pixels?</li>
           <li>Does the art belong beside the existing cream-and-purple interface?</li>
           <li>Does the locked image remain recognizable without revealing too much?</li>
-          <li>Could the treatment plausibly stay consistent across one hundred cats and Guests?</li>
+          <li>Could the treatment plausibly stay consistent across one hundred companions?</li>
         </ul>
         <p>
-          The first two ordinary collections have production Classic and Sticker art. Lantern Lane
-          Cats currently use their Classic portraits as the safe Sticker fallback while the next
-          polished batch is designed. The additional Moonbeam treatments remain studies for future
-          refinements and alternate art experiments.
+          All five ordinary collections have production Classic and Sticker art. The additional
+          Moonbeam treatments remain studies for future refinements and alternate art experiments.
         </p>
       </section>
     </main>

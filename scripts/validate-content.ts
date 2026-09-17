@@ -111,6 +111,42 @@ if (lanternLaneCats.some(({ species, specialGuest }) => species !== 'cat' || spe
 if (lanternLaneCats.some(({ art }) => !art.classic || !art.sticker)) {
   throw new Error('Every Lantern Lane Cat must ship with both Classic and Sticker art.');
 }
+const gardenWinglets = catalog.collectibles.filter(
+  ({ collectionId }) => collectionId === 'garden-winglets',
+);
+if (gardenWinglets.length !== 10) {
+  throw new Error(`Expected 10 Garden Winglets, found ${gardenWinglets.length}.`);
+}
+for (const [rarity, expected] of Object.entries(expectedRarities)) {
+  const actual = gardenWinglets.filter((collectible) => collectible.rarity === rarity).length;
+  if (actual !== expected) {
+    throw new Error(`Expected ${expected} ${rarity} Garden Winglets, found ${actual}.`);
+  }
+}
+if (gardenWinglets.some(({ species, specialGuest }) => species !== 'bird' || specialGuest)) {
+  throw new Error('Garden Winglets must be ordinary bird companions.');
+}
+if (gardenWinglets.some(({ art }) => !art.classic || !art.sticker)) {
+  throw new Error('Every Garden Winglet must ship with both Classic and Sticker art.');
+}
+const pondsidePals = catalog.collectibles.filter(
+  ({ collectionId }) => collectionId === 'pondside-pals',
+);
+if (pondsidePals.length !== 10) {
+  throw new Error(`Expected 10 Pondside Pals, found ${pondsidePals.length}.`);
+}
+for (const [rarity, expected] of Object.entries(expectedRarities)) {
+  const actual = pondsidePals.filter((collectible) => collectible.rarity === rarity).length;
+  if (actual !== expected) {
+    throw new Error(`Expected ${expected} ${rarity} Pondside Pals, found ${actual}.`);
+  }
+}
+if (pondsidePals.some(({ specialGuest }) => specialGuest)) {
+  throw new Error('Pondside Pals must be ordinary companions.');
+}
+if (pondsidePals.some(({ art }) => !art.classic || !art.sticker)) {
+  throw new Error('Every Pondside Pal must ship with both Classic and Sticker art.');
+}
 for (const [rarity, expected] of Object.entries(expectedRarities)) {
   const actual = nookNeighbors.filter((collectible) => collectible.rarity === rarity).length;
   if (actual !== expected) {

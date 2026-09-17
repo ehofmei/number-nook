@@ -1,6 +1,6 @@
 # Collectible Art Direction and Production
 
-This document defines how Number Nook explores, selects, produces, and verifies collectible artwork. The SVG companions established the simple Classic treatment, while all three ordinary collections now provide interchangeable Polished Sticker sets. Lantern Lane Cats demonstrated an intentional Classic-only rollout before completing Sticker production in catalog 2.6. Both styles remain supported and can receive focused refinements through the Art Lab workflow.
+This document defines how Number Nook explores, selects, produces, and verifies collectible artwork. The SVG companions established the simple Classic treatment, while all five ordinary collections now provide interchangeable Polished Sticker sets. Lantern Lane Cats, Garden Winglets, and Pondside Pals demonstrated intentional Classic-only rollouts followed by complete Sticker production without changing collectible identities. Both styles remain supported and can receive focused refinements through the Art Lab workflow.
 
 ## Goals
 
@@ -164,7 +164,7 @@ After selecting a direction:
 
 New art should normally arrive in small repository packs. This keeps review manageable and lets ordinary companions accompany a Special Guest when the capsule economy needs a broader unowned pool.
 
-Production portraits load and cache on demand. Only the three starter Stickers join the initial PWA precache so first-run onboarding remains complete offline; opening the gallery warms the other portraits. The current thirty-one 768-pixel WebPs are each below 150 KiB. Content validation enforces the per-file limit, and the repeatable browser encoder normalizes larger source masters to the same 768-pixel production size for later collections.
+Production portraits load and cache on demand. Only the three starter Stickers join the initial PWA precache so first-run onboarding remains complete offline; opening the gallery warms the other portraits. The current fifty-one Sticker WebPs are 580–768 pixels and each below 150 KiB. Content validation enforces the dimensions and per-file limit. The repeatable browser encoder keeps 768 pixels and 86% quality when possible, lowers quality to a conservative floor when needed, then steps down resolution only for unusually dense source art.
 
 ## Animation options
 

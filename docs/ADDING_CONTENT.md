@@ -14,6 +14,10 @@ The first expansion pack using this workflow is [The Nookside Pups Collection](.
 
 [Lantern Lane Cats](./LANTERN_LANE_CATS.md) was the first pack deliberately released through the Classic phase before Sticker production. Its staged catalog rollout proved that a collection can safely begin with Classic-only art and later gain complete Sticker coverage without changing IDs, ownership, or equipped state.
 
+[Garden Winglets](./GARDEN_WINGLETS.md) completed the same staged workflow in catalog 2.8. It applies the process to ten recognizable bird species and adds species-accuracy checks to the shared visual review.
+
+[Pondside Pals](./PONDSIDE_PALS.md) completed the staged Classic-to-Sticker workflow in catalog 2.9. Its mixed-species roster demonstrates that precise species slugs, anatomy anchors, themes, dialogue, and dual-style art can share one collection without species-specific application logic.
+
 ## Add a collectible
 
 1. Add the Classic SVG to `public/collectibles/` and the approved Sticker PNG source to `src/dev/assets/`.
@@ -55,7 +59,7 @@ Capsules currently prevent duplicates completely. Lower weights make rare items 
 
 Use the bake-off, style-bible, raster export, and final-art acceptance process in [Collectible Art Direction and Production](./COLLECTIBLE_ART.md) before replacing placeholder art or producing a larger pack.
 
-The catalog supports Classic and Polished Sticker references while preserving one stable collectible ID and ownership record. All three ordinary collections plus Button Bunny now have both styles. Safe fallback remains part of the asset contract and automated tests, so a staged content update can temporarily provide only one style without affecting ownership. The remembered master setting lives in the progress backup and never changes ownership, rarity, economy, or equipped state. The first complete dual-style production brief is [The Nook Neighbors Collection](./NOOK_NEIGHBORS.md), the first non-cat pack is [The Nookside Pups Collection](./NOOKSIDE_PUPS.md), and the Special Guest extension is recorded in [Button Bunny Sticker Record](./BUTTON_BUNNY_STICKER.md).
+The catalog supports Classic and Polished Sticker references while preserving one stable collectible ID and ownership record. All five ordinary collections plus Button Bunny currently have both styles. Lantern Lane Cats, Garden Winglets, and Pondside Pals prove that a staged collection can gain Sticker coverage without changing ownership. Safe fallback remains part of the asset contract and automated tests. The remembered master setting lives in the progress backup and never changes ownership, rarity, economy, or equipped state. The first complete dual-style production brief is [The Nook Neighbors Collection](./NOOK_NEIGHBORS.md), the first non-cat pack is [The Nookside Pups Collection](./NOOKSIDE_PUPS.md), and the Special Guest extension is recorded in [Button Bunny Sticker Record](./BUTTON_BUNNY_STICKER.md).
 
 Each companion has a small theme palette. Themes use semantic tokens, retain fixed correct/incorrect meanings, pass contrast checks, and fall back to the default Number Nook palette when unresolved.
 

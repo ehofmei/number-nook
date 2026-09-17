@@ -2608,6 +2608,7 @@ button.dashboard-card {
 .art-comparison,
 .classic-collection,
 .sticker-anchors,
+.winglet-review,
 .art-lab-notes {
   display: grid;
   gap: 1.2rem;
@@ -2753,20 +2754,23 @@ button.dashboard-card {
   gap: 0.8rem;
   padding-top: 0.2rem;
 }
-.classic-compact-check > div {
+.classic-compact-check > div,
+.winglet-compact-check > div {
   display: flex;
   gap: 0.7rem;
   overflow-x: auto;
   padding: 0.1rem 0.1rem 0.6rem;
 }
-.classic-compact-check figure {
+.classic-compact-check figure,
+.winglet-compact-check figure {
   display: grid;
   flex: 0 0 96px;
   gap: 0.3rem;
   justify-items: center;
   margin: 0;
 }
-.classic-compact-check img {
+.classic-compact-check img,
+.winglet-compact-check img {
   display: block;
   border-radius: 20px;
   box-shadow: 0 7px 18px rgba(44, 32, 91, 0.14);
@@ -2774,10 +2778,65 @@ button.dashboard-card {
     filter 180ms ease,
     opacity 180ms ease;
 }
-.classic-compact-check figcaption {
+.classic-compact-check figcaption,
+.winglet-compact-check figcaption {
   color: var(--muted);
   font-size: 0.75rem;
   font-weight: 850;
+}
+.winglet-review-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.winglet-review-card {
+  overflow: hidden;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(48, 40, 74, 0.08);
+}
+.winglet-review-card > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.winglet-review-card figcaption {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.7rem;
+}
+.winglet-review-card figcaption > span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+.winglet-review-card figcaption small {
+  color: var(--muted);
+  line-height: 1.25;
+}
+.winglet-compact-check {
+  display: grid;
+  gap: 0.8rem;
+}
+.winglet-compact-check > div {
+  gap: 0.4rem;
+}
+.winglet-compact-hint {
+  display: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+@media (max-width: 900px) {
+  .winglet-review-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .sticker-anchor-grid {
   display: grid;
@@ -3630,6 +3689,102 @@ button.dashboard-card {
   border-top: 3px solid var(--theme-accent);
   content: '';
 }
+.companion-motif--seed i {
+  width: 13px;
+  height: 20px;
+  border: 0;
+  border-radius: 70% 30% 65% 35%;
+  background: var(--theme-accent);
+  transform: rotate(35deg);
+}
+.companion-motif--flower i {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  background: var(--theme-glow-secondary);
+  box-shadow:
+    0 -10px var(--theme-accent),
+    0 10px var(--theme-accent),
+    -10px 0 var(--theme-accent),
+    10px 0 var(--theme-accent);
+}
+.companion-motif--feather i {
+  width: 17px;
+  height: 34px;
+  border-width: 3px 0 0 3px;
+  border-radius: 100% 0 100% 0;
+  transform: rotate(28deg);
+}
+.companion-motif--berry i {
+  width: 15px;
+  height: 15px;
+  border: 0;
+  background: var(--theme-accent);
+  box-shadow:
+    13px 3px var(--theme-accent),
+    5px 14px var(--theme-accent);
+}
+.companion-motif--water i {
+  width: 18px;
+  height: 27px;
+  border: 0;
+  border-radius: 70% 30% 65% 35%;
+  background: var(--theme-glow-primary);
+  transform: rotate(45deg);
+  box-shadow: inset 4px 4px 0 color-mix(in srgb, white 55%, transparent);
+}
+.companion-motif--lily-pad i {
+  width: 38px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--theme-accent);
+  clip-path: polygon(0 0, 43% 0, 51% 50%, 61% 0, 100% 0, 100% 100%, 0 100%);
+  opacity: 0.3;
+  transform: rotate(-8deg);
+}
+.companion-motif--shell i {
+  width: 28px;
+  height: 28px;
+  border-width: 4px;
+  background: color-mix(in srgb, var(--theme-accent-soft) 70%, transparent);
+}
+.companion-motif--shell i::after {
+  position: absolute;
+  inset: 6px;
+  border: 3px solid var(--theme-accent);
+  border-left-color: transparent;
+  border-radius: 50%;
+  content: '';
+}
+.companion-motif--ripple i {
+  width: 54px;
+  height: 18px;
+  border-width: 3px;
+  border-radius: 50%;
+  opacity: 0.38;
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--theme-accent) 14%, transparent);
+}
+.companion-motif--reed i {
+  width: 8px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px 999px 50% 50%;
+  background: var(--theme-accent);
+  box-shadow: 11px 9px 0 -1px color-mix(in srgb, var(--theme-accent) 72%, transparent);
+  opacity: 0.28;
+  transform: rotate(-8deg);
+}
+.companion-motif--bubbles i {
+  width: 19px;
+  height: 19px;
+  border-width: 3px;
+  border-color: color-mix(in srgb, var(--theme-accent) 60%, white);
+  opacity: 0.42;
+  box-shadow:
+    18px -15px 0 -5px transparent,
+    18px -15px 0 -2px color-mix(in srgb, var(--theme-accent) 45%, white);
+}
 .companion-motion--calm-float {
   animation: companion-calm-float 4.6s ease-in-out infinite;
 }
@@ -3960,6 +4115,12 @@ button.dashboard-card {
   }
   .classic-roster {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .winglet-review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .winglet-compact-hint {
+    display: block;
   }
   .sticker-anchor-grid {
     grid-template-columns: 1fr;

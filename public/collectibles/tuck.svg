@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#eef6e6"/><stop offset="1" stop-color="#d9e8f2"/></linearGradient>
+    <linearGradient id="wing" x2="1" y2="1"><stop stop-color="#91a9b9"/><stop offset="1" stop-color="#60798c"/></linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="88" fill="url(#bg)"/>
+  <circle cx="323" cy="72" r="34" fill="#fff7c8" opacity=".72"/>
+  <path d="M67 0h82q-17 74-4 142t-10 258H42q17-85 5-174T67 0Z" fill="#eee1c8" stroke="#80664b" stroke-width="9"/>
+  <g fill="none" stroke="#a78e70" stroke-width="7" stroke-linecap="round" opacity=".8"><path d="M75 54h42"/><path d="M62 103h55"/><path d="M78 165h48"/><path d="M59 233h62"/><path d="M73 304h49"/><path d="M58 360h57"/></g>
+  <g transform="rotate(27 225 206)">
+    <path d="M137 125q-33-31-47-63 51 15 81 50Z" fill="#4e6474" stroke="#344755" stroke-width="8"/>
+    <ellipse cx="211" cy="193" rx="75" ry="112" fill="#f7f2e8" stroke="#344755" stroke-width="9"/>
+    <path d="M143 137q72-48 119 30 17 55-28 113-81-8-103-76Z" fill="url(#wing)" stroke="#344755" stroke-width="8"/>
+    <path d="M151 159q47-28 89 4M145 190q52-23 101 4M151 221q47-14 83 8" fill="none" stroke="#d9e5ec" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="245" cy="283" r="58" fill="#f7f2e8" stroke="#344755" stroke-width="9"/>
+    <path d="M198 274q49-63 96-15 5-52-40-64-57 8-56 79Z" fill="#25333d"/>
+    <circle cx="266" cy="279" r="11" fill="#2e2930"/><circle cx="263" cy="275" r="4" fill="#fff"/>
+    <path d="m292 294 61 21-64 3Z" fill="#59626a" stroke="#344755" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M180 288q-18 25-45 17m55 2q-11 31-41 27" fill="none" stroke="#5b4a3e" stroke-width="7" stroke-linecap="round"/>
+    <path d="m136 305-20-12m19 12-22 7m36 22-20-12m20 12-21 8" fill="none" stroke="#5b4a3e" stroke-width="6" stroke-linecap="round"/>
+    <path d="M172 253q-4 27 21 41" fill="none" stroke="#c77a4f" stroke-width="12" stroke-linecap="round" opacity=".75"/>
+  </g>
+  <g fill="#76965f"><ellipse cx="53" cy="77" rx="18" ry="10" transform="rotate(-35 53 77)"/><ellipse cx="145" cy="333" rx="20" ry="11" transform="rotate(28 145 333)"/></g>
+</svg>

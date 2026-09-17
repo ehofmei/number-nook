@@ -36,12 +36,37 @@ const APPROVED_STICKERS = [
   ['gable-sticker-v3.png', 'gable-sticker.webp'],
   ['mosaic-sticker-v2.png', 'mosaic-sticker.webp'],
   ['lumina-sticker-v3.png', 'lumina-sticker.webp'],
+  ['tuck-sticker-v3.png', 'tuck-sticker.webp'],
+  ['marigold-sticker-v3.png', 'marigold-sticker.webp'],
+  ['bluebell-sticker-v3.png', 'bluebell-sticker.webp'],
+  ['tumble-sticker-v3.png', 'tumble-sticker.webp'],
+  ['zinnia-sticker-v1.png', 'zinnia-sticker.webp'],
+  ['bramble-sticker-v1.png', 'bramble-sticker.webp'],
+  ['fern-sticker-v2.png', 'fern-sticker.webp'],
+  ['tempo-sticker-v3.png', 'tempo-sticker.webp'],
+  ['prism-sticker-v1.png', 'prism-sticker.webp'],
+  ['solstice-sticker-v1.png', 'solstice-sticker.webp'],
+  ['moss-sticker-v1.png', 'moss-sticker.webp'],
+  ['pebble-sticker-v2.png', 'pebble-sticker.webp'],
+  ['skim-sticker-v3.png', 'skim-sticker.webp'],
+  ['spiral-sticker-v3.png', 'spiral-sticker.webp'],
+  ['dabble-sticker-v2.png', 'dabble-sticker.webp'],
+  ['glint-sticker-v1.png', 'glint-sticker.webp'],
+  ['willow-sticker-v2.png', 'willow-sticker.webp'],
+  ['ripple-sticker-v3.png', 'ripple-sticker.webp'],
+  ['lotus-sticker-v3.png', 'lotus-sticker.webp'],
+  ['opal-sticker-v2.png', 'opal-sticker.webp'],
 ] as const;
 
 const SOURCE_DIRECTORY = resolve('src/dev/assets');
 const OUTPUT_DIRECTORY = resolve('public/collectibles');
 const WEBP_QUALITY = 0.86;
+const MIN_WEBP_QUALITY = 0.62;
+const QUALITY_STEP = 0.04;
+const MAX_OUTPUT_BYTES = 150_000;
 const MAX_OUTPUT_DIMENSION = 768;
+const MIN_OUTPUT_DIMENSION = 580;
+const DIMENSION_STEP = 64;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -52,39 +77,58 @@ try {
     const outputPath = resolve(OUTPUT_DIRECTORY, outputName);
     const source = await readFile(sourcePath);
     const sourceUrl = `data:image/png;base64,${source.toString('base64')}`;
-    const encoded = await page.evaluate(
-      async ({ sourceUrl: url, quality, maxOutputDimension }) => {
-        const image = new Image();
-        image.src = url;
-        await image.decode();
-        const canvas = document.createElement('canvas');
-        const scale = Math.min(
-          1,
-          maxOutputDimension / image.naturalWidth,
-          maxOutputDimension / image.naturalHeight,
-        );
-        canvas.width = Math.round(image.naturalWidth * scale);
-        canvas.height = Math.round(image.naturalHeight * scale);
-        const context = canvas.getContext('2d');
-        if (!context) throw new Error('Canvas 2D context is unavailable.');
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        const blob = await new Promise<Blob>((resolveBlob, reject) => {
-          canvas.toBlob(
-            (value) => (value ? resolveBlob(value) : reject(new Error('WebP encoding failed.'))),
-            'image/webp',
-            quality,
+    let quality = WEBP_QUALITY;
+    let maxOutputDimension = MAX_OUTPUT_DIMENSION;
+    let encoded = '';
+    let isWithinBudget = false;
+    while (!isWithinBudget) {
+      encoded = await page.evaluate(
+        async ({ sourceUrl: url, quality: currentQuality, maxOutputDimension }) => {
+          const image = new Image();
+          image.src = url;
+          await image.decode();
+          const canvas = document.createElement('canvas');
+          const scale = Math.min(
+            1,
+            maxOutputDimension / image.naturalWidth,
+            maxOutputDimension / image.naturalHeight,
           );
-        });
-        const bytes = new Uint8Array(await blob.arrayBuffer());
-        let binary = '';
-        for (const byte of bytes) binary += String.fromCharCode(byte);
-        return btoa(binary);
-      },
-      { sourceUrl, quality: WEBP_QUALITY, maxOutputDimension: MAX_OUTPUT_DIMENSION },
-    );
+          canvas.width = Math.round(image.naturalWidth * scale);
+          canvas.height = Math.round(image.naturalHeight * scale);
+          const context = canvas.getContext('2d');
+          if (!context) throw new Error('Canvas 2D context is unavailable.');
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          const blob = await new Promise<Blob>((resolveBlob, reject) => {
+            canvas.toBlob(
+              (value) => (value ? resolveBlob(value) : reject(new Error('WebP encoding failed.'))),
+              'image/webp',
+              currentQuality,
+            );
+          });
+          const bytes = new Uint8Array(await blob.arrayBuffer());
+          let binary = '';
+          for (const byte of bytes) binary += String.fromCharCode(byte);
+          return btoa(binary);
+        },
+        { sourceUrl, quality, maxOutputDimension },
+      );
+      isWithinBudget = Buffer.byteLength(encoded, 'base64') <= MAX_OUTPUT_BYTES;
+      if (isWithinBudget) continue;
+      if (quality > MIN_WEBP_QUALITY) {
+        quality = Math.max(MIN_WEBP_QUALITY, quality - QUALITY_STEP);
+        continue;
+      }
+      if (maxOutputDimension <= MIN_OUTPUT_DIMENSION) {
+        throw new Error(`${sourceName} could not be encoded below ${MAX_OUTPUT_BYTES} bytes.`);
+      }
+      maxOutputDimension = Math.max(MIN_OUTPUT_DIMENSION, maxOutputDimension - DIMENSION_STEP);
+      quality = WEBP_QUALITY;
+    }
     await writeFile(outputPath, Buffer.from(encoded, 'base64'));
     const output = await stat(outputPath);
-    console.log(`${sourceName} -> ${outputName} (${Math.round(output.size / 1_024)} KiB)`);
+    console.log(
+      `${sourceName} -> ${outputName} (${Math.round(output.size / 1_024)} KiB at ${maxOutputDimension}px / ${Math.round(quality * 100)}%)`,
+    );
   }
 } finally {
   await browser.close();

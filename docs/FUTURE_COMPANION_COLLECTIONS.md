@@ -2,7 +2,7 @@
 
 This is the living backlog for ordinary companion collections in Number Nook. It keeps promising themes in one place before individual rosters, permanent IDs, rarity assignments, or artwork are approved. New ideas can remain brief here until one is selected for a complete collection document.
 
-The live catalog contains the ten Nook Neighbors, ten Nookside Pups, ten dual-art Lantern Lane Cats, and Button Bunny as a Special Guest. Future ordinary collections should continue using the established four Common, three Uncommon, two Rare, and one Legendary distribution unless acquisition data justifies a change.
+The live catalog contains the ten Nook Neighbors, ten Nookside Pups, ten Lantern Lane Cats, ten Garden Winglets, ten Pondside Pals, and Button Bunny as a Special Guest. All fifty-one companions have dual Classic and Sticker art. Future ordinary collections should continue using the established four Common, three Uncommon, two Rare, and one Legendary distribution unless acquisition data justifies a change.
 
 ## Selection principles
 
@@ -38,13 +38,14 @@ Ten seaside cats who live around a gentle storybook harbor: a shell collector, a
 - **Art opportunities:** Sea-glass colors, striped fabrics, ropes, maps, shells, docks, boats, and lighthouse glow.
 - **Watch-outs:** Keep nautical props restrained and avoid making every cat wear a sailor costume.
 
-### Garden Winglets
+### Garden Winglets — Selected
 
 Ten small birds who share a bright community garden, with personalities inspired by song, seeds, weather, flowers, and flight.
 
 - **Why it works:** Birds create the clearest silhouette change from cats and dogs while remaining cute, colorful, and family-friendly.
 - **Art opportunities:** Dramatically different beaks, crests, tails, wing shapes, perches, flowers, and seasonal palettes.
 - **Watch-outs:** The portrait framing and companion dialogue layout must make small bodies feel as substantial as cat and dog portraits.
+- **Status:** Complete with Classic art in catalog 2.7 and Sticker art in catalog 2.8. Its real-species roster, bird-art guardrails, and production record live in [The Garden Winglets Collection](./GARDEN_WINGLETS.md).
 
 ### Meadow Bunnies
 
@@ -80,7 +81,7 @@ Ten cheerful young dinosaurs from a soft prehistoric valley, each based on a cle
 
 ### Pondside Pals
 
-Ten companions from one lively pond, potentially including frogs, ducks, turtles, salamanders, fish, dragonflies, and an otter.
+**Dual-style collection complete in catalog 2.9.** The collection contains a green frog, painted turtle, pond skater, pond snail, mallard, dragonfly, beaver, river otter, axolotl, and koi. Names, rarities, themes, personalities, dialogue, visual guardrails, production SVGs, and selected Sticker sources are recorded in [The Pondside Pals Collection](./PONDSIDE_PALS.md).
 
 - **Why it works:** A playful mixed-species collection with a clear home and plenty of color.
 - **Art opportunities:** Lily pads, reeds, reflections, rain, bubbles, ripples, shells, and water plants.
@@ -133,10 +134,11 @@ Special Guests should remain rare, use original or appropriately authorized artw
 ## Recommended decision order
 
 1. ~~**Lantern Lane Cats** — best fit for the next ten-member collection and the thirty-one-companion target.~~ Selected and fully implemented in both art styles.
-2. **Garden Winglets** — strongest next non-cat collection and a useful test of radically different silhouettes.
-3. **Meadow Bunnies** — lower-risk non-cat production with a naturally cozy identity.
-4. **Whistlewood Wanderers** — highest immediate variety, but also the most work to make coherent.
-5. **Harbor Whiskers** — strongest later cat collection if a brighter outdoor setting is preferred.
+2. ~~**Garden Winglets** — strongest next non-cat collection and a useful test of radically different silhouettes.~~ Complete in both art styles.
+3. ~~**Pondside Pals** — mixed-species collection with strong silhouette and movement variety.~~ Dual-style collection complete.
+4. **Meadow Bunnies** — lower-risk non-cat production with a naturally cozy identity.
+5. **Whistlewood Wanderers** — highest immediate variety, but also the most work to make coherent.
+6. **Harbor Whiskers** — strongest later cat collection if a brighter outdoor setting is preferred.
 
 Once a collection is selected, create a dedicated document modeled on `NOOKSIDE_PUPS.md`. Define the shared world and art rules first, then review all ten names, roles, silhouettes, palettes, rarities, themes, personality signatures, and image prompts before adding anything to the live catalog.
 

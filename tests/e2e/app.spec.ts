@@ -369,13 +369,13 @@ test('the complete collection shares one remembered art-style preference', async
   await page.getByRole('button', { name: /^Collection/ }).click();
 
   await expect.poll(() => page.evaluate<number>('window.scrollY')).toBe(0);
-  await expect(page.locator('.collection-grid .collectible-card')).toHaveCount(31);
+  await expect(page.locator('.collection-grid .collectible-card')).toHaveCount(51);
   await expect(page.getByRole('button', { name: 'Polished Sticker' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
   await expect(page.getByRole('region', { name: 'Equipped companion' })).toContainText('Moonbeam');
-  await expect(page.getByRole('progressbar', { name: '1 of 31 companions found' })).toHaveAttribute(
+  await expect(page.getByRole('progressbar', { name: '1 of 51 companions found' })).toHaveAttribute(
     'aria-valuenow',
     '1',
   );

@@ -1,5 +1,7 @@
+import { GARDEN_WINGLETS_SIGNATURE_PHRASES } from './signatures/gardenWinglets.ts';
 import { NOOKSIDE_PUPS_SIGNATURE_PHRASES } from './signatures/nooksidePups.ts';
 import { LANTERN_LANE_CATS_SIGNATURE_PHRASES } from './signatures/lanternLaneCats.ts';
+import { PONDSIDE_PALS_SIGNATURE_PHRASES } from './signatures/pondsidePals.ts';
 import type { DialoguePhrase } from './types.ts';
 
 const SHARED_HOME_PHRASES = [
@@ -733,4 +735,6 @@ export const DIALOGUE_PHRASES = [
   ...SIGNATURE_PHRASES,
   ...NOOKSIDE_PUPS_SIGNATURE_PHRASES,
   ...LANTERN_LANE_CATS_SIGNATURE_PHRASES,
+  ...GARDEN_WINGLETS_SIGNATURE_PHRASES,
+  ...PONDSIDE_PALS_SIGNATURE_PHRASES,
 ] as const satisfies readonly DialoguePhrase[];

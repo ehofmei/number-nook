@@ -27,6 +27,7 @@ describe('collectible catalog', () => {
     expect(getCollectible('missing:item')).toBeUndefined();
     expect(getCollection('cozy-cats')?.name).toBe('The Nook Neighbors');
     expect(getCollection('lantern-lane-cats')?.name).toBe('Lantern Lane Cats');
+    expect(getCollection('garden-winglets')?.name).toBe('Garden Winglets');
     expect(getCollection('missing')).toBeUndefined();
   });
 
@@ -81,6 +82,32 @@ describe('collectible catalog', () => {
     expect(laneCats.every(({ art }) => Boolean(art.classic && art.sticker))).toBe(true);
     expect(getCollectibleImage(getCollectible('lantern-lane-cats:crumpet')!, 'sticker')).toBe(
       'collectibles/crumpet-sticker.webp',
+    );
+  });
+
+  it('contains the complete dual-art Garden Winglets rarity distribution', () => {
+    const winglets = catalog.collectibles.filter(
+      ({ collectionId }) => collectionId === 'garden-winglets',
+    );
+    const rarityCounts = winglets.reduce<Record<string, number>>((counts, collectible) => {
+      counts[collectible.rarity] = (counts[collectible.rarity] ?? 0) + 1;
+      return counts;
+    }, {});
+
+    expect(winglets).toHaveLength(10);
+    expect(rarityCounts).toEqual({ common: 4, uncommon: 3, rare: 2, legendary: 1 });
+    expect(winglets.every(({ species, specialGuest }) => species === 'bird' && !specialGuest)).toBe(
+      true,
+    );
+    expect(winglets.every(({ art }) => Boolean(art.classic && art.sticker))).toBe(true);
+    expect(getCollectibleImage(getCollectible('garden-winglets:zinnia')!, 'sticker')).toBe(
+      'collectibles/zinnia-sticker.webp',
+    );
+    expect(getCollectible('garden-winglets:tuck')?.description).toContain(
+      'white-breasted nuthatch',
+    );
+    expect(getCollectible('garden-winglets:tempo')?.description).toContain(
+      'red-bellied woodpecker',
     );
   });
 

@@ -364,16 +364,18 @@ Each operation must ship with its generator invariants, distractor rules, diffic
 
 ## Near-term kid-ready roadmap
 
-The concise authoritative priority list now lives in [Number Nook Next Steps](./NEXT_STEPS.md). This section preserves the broader milestone context. The current priority is collection-directed acquisition and repeat-play motivation before additional math modes. The catalog has reached the thirty-one-companion kid-ready target with complete Classic and Sticker art.
+The concise authoritative priority list now lives in [Number Nook Next Steps](./NEXT_STEPS.md). This section preserves the broader milestone context. The current priorities are validating collection-directed acquisition and choosing the next focused development milestone after completing the Pondside Pals art rollout. The catalog has reached fifty-one companions with both art styles.
 
 1. ~~Split the catalog and personality registries into collection-specific modules while preserving one aggregated public catalog and every permanent ID.~~ Completed in catalog 2.3.
 2. **Nookside Pups is complete**, with ten ordinary dog companions distributed across four Common, three Uncommon, two Rare, and one Legendary. Catalog entries, themes, personalities, phrases, CSS motifs, Classic SVGs, optimized Sticker WebPs, and art-style switching are implemented without species-specific application logic. The roster and dual-art record live in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md).
 3. ~~Design and ship a second ten-member cat collection using the same content, theme, dialogue, economy, and testing contracts.~~ Lantern Lane Cats completed its Classic SVG phase in catalog 2.5 and its ten optimized Sticker portraits in catalog 2.6, raising the dual-art catalog to thirty-one while keeping cats at the center.
-4. Validate and simulate the implemented 60-coin Surprise Capsule, 80-coin Collection Capsule, unlimited daily earnings, and non-blocking 100-coin daily milestone before treating the constants as final.
-5. Replace the subtle equipped-companion treatment with a visual badge, themed outline or glow, and direct `Equipped` label; allow a newly revealed companion to be equipped in place.
-6. ~~Build a data-driven Capsule Shelf with collection progress and themed banners, then add the welcome capsule, 5-coin daily bonus, and 15-coin three-day weekly reward.~~ Completed in save schema 6 and ruleset 8. Collection-completion celebrations remain optional polish.
-7. Family-test acquisition pacing before changing rarity weights or adding another reward system. Direct companion purchases are no longer planned unless collection targeting proves insufficient.
-8. Resume math-mode development in this order: untimed Practice with retries and optional hints, Time Rush, Endless, a daily mixed challenge, and finally Improvement Duel after enough comparable history exists.
+4. **Garden Winglets completed its dual-art rollout** across catalogs 2.7 and 2.8 with ten real-species birds, themes, personalities, signature dialogue, motifs, Classic SVGs, and optimized Sticker portraits.
+5. **Pondside Pals completed its dual-style rollout** in catalog 2.9 with ten mixed-species pond companions, themes, personalities, signature dialogue, pond-specific motifs, production SVGs, and selected Sticker portraits.
+6. Validate and simulate the implemented 60-coin Surprise Capsule, 80-coin Collection Capsule, unlimited daily earnings, and non-blocking 100-coin daily milestone before treating the constants as final.
+7. Replace the subtle equipped-companion treatment with a visual badge, themed outline or glow, and direct `Equipped` label; allow a newly revealed companion to be equipped in place.
+8. ~~Build a data-driven Capsule Shelf with collection progress and themed banners, then add the welcome capsule, 5-coin daily bonus, and 15-coin three-day weekly reward.~~ Completed in save schema 6 and ruleset 8. Collection-completion celebrations remain optional polish.
+9. Family-test acquisition pacing before changing rarity weights or adding another reward system. Direct companion purchases are no longer planned unless collection targeting proves insufficient.
+10. Resume math-mode development in this order: untimed Practice with retries and optional hints, Time Rush, Endless, a daily mixed challenge, and finally Improvement Duel after enough comparable history exists.
 
 The one-time welcome capsule is intentionally different from lowering the regular capsule price. It improves the first session without returning to the earlier capsule-after-every-round economy.
 
@@ -390,7 +392,7 @@ When adding a companion or Special Guest:
 7. Build and test the update path using an older save fixture.
 8. Deploy only after verification passes.
 
-Catalog version 2.6 separates collection, species, rarity, and Special Guest status while preserving stable existing IDs. All thirty-one companions have per-companion themes and both Classic/Sticker assets; the remembered art-style preference and setup, game-header, results, home-shortcut, and collection-spotlight placements are implemented. Companion Capsule is the species-neutral reward name. Content validation, production caching, and phone/tablet regression coverage protect the expansion path. The complete decision is recorded in [Companion Identity, Themes, and Presence](./COMPANION_SYSTEM.md).
+Catalog version 2.9 separates collection, species, rarity, and Special Guest status while preserving stable existing IDs. All fifty-one companions have per-companion themes and both Classic and Sticker assets. The remembered art-style preference and setup, game-header, results, home-shortcut, and collection-spotlight placements are implemented. Companion Capsule is the species-neutral reward name. Content validation, production caching, and phone/tablet regression coverage protect the expansion path. The complete decision is recorded in [Companion Identity, Themes, and Presence](./COMPANION_SYSTEM.md).
 
 ## Completion policy
 
@@ -407,4 +409,4 @@ A feature is complete only when:
 
 ## Current development decision point
 
-Lantern Lane Cats is fully implemented in catalog 2.6 with ten Classic SVGs, ten optimized Sticker portraits, themes, personalities, signature dialogue, economy data, fallback behavior, and collection documentation. The collection-directed reward system is implemented; its active validation work is recorded in [Number Nook Next Steps](./NEXT_STEPS.md). The next full collection should probably be non-cat; current candidates are maintained in [Future Companion Collection Ideas](./FUTURE_COMPANION_COLLECTIONS.md).
+Pondside Pals are complete in catalog 2.9 with ten mixed species, themes, personalities, signature dialogue, economy data, pond-specific motifs, Classic SVGs, selected Sticker portraits, and collection documentation. Collection-directed reward validation continues in parallel. The authoritative order remains in [Number Nook Next Steps](./NEXT_STEPS.md).

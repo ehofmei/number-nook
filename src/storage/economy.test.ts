@@ -31,7 +31,7 @@ describe('capsule transactions', () => {
       collectionId: null,
       coinsSpent: 0,
       ownedCountBefore: 1,
-      eligiblePoolSize: 30,
+      eligiblePoolSize: 50,
     });
     expect(
       openCapsule(

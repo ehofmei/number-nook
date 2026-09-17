@@ -13,12 +13,25 @@ Practice Mode and the collection-directed economy are implemented. Practice incl
 
 The detailed acquisition and pricing contract is in [Economy Tuning](./ECONOMY.md). Companion presentation requirements are in [Companion Identity, Themes, and Presence](./COMPANION_SYSTEM.md).
 
-## After the reward milestone
+## Completed content build: Garden Winglets
 
-1. Add another complete themed companion collection, probably non-cat, using the established dual-art workflow.
-2. Build on Practice with per-skill progress and guided suggestions, then Time Rush, Endless, a daily mixed challenge, and Improvement Duel after enough comparable history exists.
-3. Improve progress presentation with per-skill mastery, guided practice suggestions, and clearer long-term improvement views.
-4. Return to optional polish such as additional composed music, alternate companion expressions, speech, and collection-completion celebrations after observing family play.
+Garden Winglets is complete in catalog 2.8 with ten real backyard and garden bird species, production Classic and Sticker art, themes, personality data, dialogue, and tested per-style fallback. Tuck is a white-breasted nuthatch and Tempo is a red-bellied woodpecker. The roster and production record are in [The Garden Winglets Collection](./GARDEN_WINGLETS.md).
+
+1. Family-test whether the real-species bird collection changes capsule preferences or companion attachment.
+2. Note any weak species read or portrait issue found at actual phone and tablet sizes; preserve the approved source files for focused revisions.
+
+## Completed content build: Pondside Pals
+
+Pondside Pals is complete in catalog 2.9 with ten mixed-species companions, production Classic and Sticker art, themes, personality data, dialogue, pond-specific CSS motifs, and tested per-style selection. The production record and anatomy guardrails are in [The Pondside Pals Collection](./PONDSIDE_PALS.md).
+
+1. Family-test whether the mixed-species collection changes capsule preferences or companion attachment.
+2. Inspect the Sticker contact sheet and actual phone/tablet gallery sizes for any weak species read or crop before beginning another collection.
+
+## After the current milestones
+
+1. Build on Practice with per-skill progress and guided suggestions, then Time Rush, Endless, a daily mixed challenge, and Improvement Duel after enough comparable history exists.
+2. Improve progress presentation with per-skill mastery, guided practice suggestions, and clearer long-term improvement views.
+3. Return to optional polish such as additional composed music, alternate companion expressions, speech, and collection-completion celebrations after observing family play.
 
 ## Deferred decisions
 

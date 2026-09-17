@@ -16,11 +16,13 @@ The generic reward is named **Companion Capsule**. This keeps Button Bunny and f
 
 ## Catalog growth target
 
-The live catalog contains the ten-member Nook Neighbors, ten-member Nookside Pups, ten-member Lantern Lane Cats, and Button Bunny as a Special Guest. The complete expansion rosters are defined in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md) and [The Lantern Lane Cats Collection](./LANTERN_LANE_CATS.md). The expansion uses complete ordinary collections rather than isolated additions:
+The live catalog contains the ten-member Nook Neighbors, Nookside Pups, Lantern Lane Cats, Garden Winglets, and Pondside Pals collections, plus Button Bunny as a Special Guest. The complete expansion rosters are defined in [The Nookside Pups Collection](./NOOKSIDE_PUPS.md), [The Lantern Lane Cats Collection](./LANTERN_LANE_CATS.md), [The Garden Winglets Collection](./GARDEN_WINGLETS.md), and [The Pondside Pals Collection](./PONDSIDE_PALS.md). The expansion uses complete ordinary collections rather than isolated additions:
 
 - **Twenty-one-companion checkpoint:** reached with ten dual-art Nookside Pups using the shared collection, species, dialogue, theme, gallery, capsule, and save behavior.
 - **Thirty-one-companion kid-ready target:** reached with ten dual-art Lantern Lane Cats. Family playtesting remains before calling the target fully polished.
-- **Long-term direction:** grow toward roughly one hundred companions in repository-delivered packs only after the two new collections validate the production workflow.
+- **Forty-one-companion bird checkpoint:** completed in catalog 2.8 with ten real-species Garden Winglets and full Classic/Sticker coverage.
+- **Fifty-one-companion pond checkpoint:** reached in catalog 2.9 with ten mixed-species Pondside Pals and complete Classic and Sticker art.
+- **Long-term direction:** grow toward roughly one hundred companions in repository-delivered packs, using each complete collection to validate the workflow before starting another.
 
 Candidate themes for the next and later packs are maintained in [Future Companion Collection Ideas](./FUTURE_COMPANION_COLLECTIONS.md). Keep that file as the broad backlog; create a full roster document only after choosing a collection.
 
@@ -132,4 +134,4 @@ On a capsule reveal, `Equip {name}` is the primary action and `View collection` 
 14. Add the collection-directed Capsule Shelf, welcome capsule, daily and weekly participation rewards, and collection celebrations.
 15. Tune the larger economy from deterministic acquisition simulations and family play data. Direct purchasing is deferred unless collection selection proves insufficient.
 
-The thirty-one-companion target is fully illustrated in both art styles. The active priorities are maintained in [Number Nook Next Steps](./NEXT_STEPS.md): simulate the collection-directed economy, strengthen equipped-state presentation, equip directly from reveals, and build the Capsule Shelf before the next full collection. The next collection should likely be non-cat and should not reopen species, Guest, art-fallback, theme, ownership, or save architecture.
+All fifty-one companions are fully illustrated in both art styles. Garden Winglets and Pondside Pals completed the staged Classic-to-Sticker workflow while preserving permanent IDs, ownership, themes, and save behavior. The active priorities are maintained in [Number Nook Next Steps](./NEXT_STEPS.md): validate reward pacing and choose the next focused development milestone without reopening Guest, art-fallback, theme, ownership, or save architecture.
