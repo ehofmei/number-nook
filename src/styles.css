@@ -942,6 +942,20 @@ button.dashboard-card {
 .settings-page .page-header {
   justify-content: flex-start;
 }
+.build-version {
+  width: fit-content;
+  margin: 0.55rem 0 0;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--theme-accent) 18%, var(--line));
+  border-radius: 999px;
+  color: var(--theme-accent-strong);
+  background: color-mix(in srgb, var(--theme-accent-soft) 65%, white);
+  font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
 .settings-stack {
   display: grid;
   gap: 1rem;

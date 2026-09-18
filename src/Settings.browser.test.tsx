@@ -27,6 +27,7 @@ describe('Settings in a real browser', () => {
     await render(<SettingsHarness />);
 
     await expect.element(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
+    await expect.element(page.getByLabelText('Application build')).toHaveTextContent(/^Build /);
     await expect.element(page.getByRole('checkbox', { name: 'Sound effects on' })).toBeChecked();
     await expect
       .element(page.getByRole('checkbox', { name: 'Background music off' }))

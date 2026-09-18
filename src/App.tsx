@@ -19,6 +19,7 @@ import {
 import { useAudioPlayer } from './audio/useAudioPlayer';
 import { useMusicPlayer } from './audio/useMusicPlayer';
 import { rememberDialoguePhrase, selectCompanionDialogue } from './companions/engine';
+import { BUILD_LABEL } from './buildInfo';
 import { deriveResultDialogueFacts } from './companions/resultFacts';
 import type { DialogueContext, ResultDialogueFacts, SelectedDialogue } from './companions/types';
 import { AnswerCard } from './components/AnswerCard';
@@ -610,6 +611,9 @@ export function Settings({
           <span className="eyebrow">Device preferences</span>
           <h1>Settings</h1>
           <p>Choose how Number Nook sounds on this device.</p>
+          <p className="build-version" aria-label="Application build">
+            {BUILD_LABEL}
+          </p>
         </div>
       </header>
 

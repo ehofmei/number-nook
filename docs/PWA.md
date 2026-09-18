@@ -15,6 +15,8 @@ The HTML title, application metadata, manifest, and Apple home-screen title all 
 
 The existing `first-math-game:*` local-storage keys are intentionally retained as stable legacy identifiers. Renaming them would strand saves and audio preferences already stored on devices; their internal names are not visible in the interface.
 
+The Settings screen displays the deployed GitHub Actions build number and the first seven characters of its commit SHA. The Pages workflow injects both values at build time so a family tester can distinguish a newly activated service worker from an older installed copy. Local development and production builds identify themselves as local instead of imitating a deployed build.
+
 ## Icon system
 
 `src/assets/app-icon-source.png` is the approved high-resolution source for every installed-app icon and the browser favicon. The source uses the polished Sticker-art direction: a cheerful golden kitten peeking over large `+`, `×`, and `=` tiles on a full-bleed purple background.
