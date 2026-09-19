@@ -2,14 +2,17 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { getCollectible, getCollectibleImage } from '../content/catalog';
 import { formatProblem, generateSession, OPERATION_SYMBOLS, type Problem } from '../domain/math';
 import { SeededRandom } from '../domain/random';
-import { MEADOW_TRAIL, TRAIL_QUEST_LENGTH } from '../trail/trails';
+import { createRandomTrailRun, MEADOW_LEVEL, TRAIL_QUEST_LENGTH } from '../trail/trails';
 
 export const TRAIL_QUEST_LAB_SEED = 20_260_917;
+const TRAIL_QUEST_LAB_TRAIL = createRandomTrailRun(new SeededRandom(TRAIL_QUEST_LAB_SEED), [
+  MEADOW_LEVEL,
+]);
 const FEEDBACK_MS = 780;
 const TRAIL_LENGTH = TRAIL_QUEST_LENGTH;
-const TRAIL_COLLECTIBLES = MEADOW_TRAIL.collectibles;
-const PORTRAIT_ROUTE = MEADOW_TRAIL.portraitRoute;
-const LANDSCAPE_ROUTE = MEADOW_TRAIL.landscapeRoute;
+const TRAIL_ITEMS = TRAIL_QUEST_LAB_TRAIL.items;
+const PORTRAIT_ROUTE = TRAIL_QUEST_LAB_TRAIL.portraitRoute;
+const LANDSCAPE_ROUTE = TRAIL_QUEST_LAB_TRAIL.landscapeRoute;
 
 function buildProblems(): Problem[] {
   return generateSession(
@@ -52,10 +55,11 @@ export function TrailQuestLab() {
   const landscapePosition = LANDSCAPE_ROUTE[trailPosition] ?? LANDSCAPE_ROUTE.at(-1)!;
   const nextPortraitPosition = PORTRAIT_ROUTE[trailPosition + 1] ?? PORTRAIT_ROUTE.at(-1)!;
   const nextLandscapePosition = LANDSCAPE_ROUTE[trailPosition + 1] ?? LANDSCAPE_ROUTE.at(-1)!;
-  const nextCollectible = TRAIL_COLLECTIBLES[trailPosition % TRAIL_COLLECTIBLES.length]!;
+  const portraitCollectibleSide = nextPortraitPosition[0] > 72 ? 'left' : 'right';
+  const nextCollectible = TRAIL_ITEMS[trailPosition % TRAIL_ITEMS.length]!;
   const collectedItems = Array.from(
     { length: stars },
-    (_, index) => TRAIL_COLLECTIBLES[index % TRAIL_COLLECTIBLES.length]!,
+    (_, index) => TRAIL_ITEMS[index % TRAIL_ITEMS.length]!,
   );
 
   const markCollectibleLoaded = useCallback((src: string) => {
@@ -119,7 +123,7 @@ export function TrailQuestLab() {
   }, []);
 
   useEffect(() => {
-    const preloaders = TRAIL_COLLECTIBLES.map(({ src }) => {
+    const preloaders = TRAIL_QUEST_LAB_TRAIL.itemPool.map(({ src }) => {
       const image = new Image();
       image.onload = () => markCollectibleLoaded(src);
       image.src = src;
@@ -209,8 +213,8 @@ export function TrailQuestLab() {
         aria-label={`Sunny is at trail stop ${trailPosition + 1} of ${TRAIL_LENGTH + 1}`}
       >
         <picture className="trail-board__picture" aria-hidden="true">
-          <source media="(orientation: portrait)" srcSet={MEADOW_TRAIL.portraitBoard} />
-          <img src={MEADOW_TRAIL.landscapeBoard} alt="" />
+          <source media="(orientation: portrait)" srcSet={TRAIL_QUEST_LAB_TRAIL.portraitBoard} />
+          <img src={TRAIL_QUEST_LAB_TRAIL.landscapeBoard} alt="" />
         </picture>
 
         {!complete && (
@@ -218,14 +222,11 @@ export function TrailQuestLab() {
             <span className="trail-board__collectible-description" aria-live="polite">
               Next trail treasure: {nextCollectible.name}.
             </span>
-            <img
+            <span
               key={`${trailPosition}-${nextCollectible.name}`}
-              className={`trail-board__collectible${loadedCollectibles.has(nextCollectible.src) ? ' is-loaded' : ''}${feedback?.correct ? ' is-collecting' : ''}`}
-              src={nextCollectible.src}
-              alt=""
+              className={`trail-board__collectible-marker trail-board__collectible-marker--${portraitCollectibleSide}${feedback?.correct ? ' is-collecting' : ''}`}
               aria-hidden="true"
-              data-testid="trail-collectible"
-              onLoad={() => markCollectibleLoaded(nextCollectible.src)}
+              data-testid="trail-collectible-target"
               style={
                 {
                   '--trail-portrait-x': `${nextPortraitPosition[0]}%`,
@@ -234,7 +235,16 @@ export function TrailQuestLab() {
                   '--trail-landscape-y': `${nextLandscapePosition[1]}%`,
                 } as CSSProperties
               }
-            />
+            >
+              <img
+                className={`trail-board__collectible${loadedCollectibles.has(nextCollectible.src) ? ' is-loaded' : ''}${feedback?.correct ? ' is-collecting' : ''}`}
+                src={nextCollectible.src}
+                alt=""
+                aria-hidden="true"
+                data-testid="trail-collectible"
+                onLoad={() => markCollectibleLoaded(nextCollectible.src)}
+              />
+            </span>
           </>
         )}
 
@@ -269,8 +279,16 @@ export function TrailQuestLab() {
                     {index + 1}
                   </span>
                   <strong>{choice}</strong>
-                  {state === 'correct' && <span aria-hidden="true">✓</span>}
-                  {state === 'incorrect' && <span aria-hidden="true">×</span>}
+                  {state === 'correct' && (
+                    <span className="trail-answer__feedback" aria-hidden="true">
+                      ✓
+                    </span>
+                  )}
+                  {state === 'incorrect' && (
+                    <span className="trail-answer__feedback" aria-hidden="true">
+                      ×
+                    </span>
+                  )}
                 </button>
               );
             })}

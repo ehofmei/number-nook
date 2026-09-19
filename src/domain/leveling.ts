@@ -8,6 +8,7 @@ export interface LevelProgress {
   coinsIntoLevel: number;
   coinsForLevel: number;
   percent: number;
+  fillPercent: number;
   nextLevel: number | null;
   nextLevelAt: number | null;
 }
@@ -32,7 +33,7 @@ export function levelForLifetimeCoins(lifetimeCoinsEarned: number): number {
 }
 
 export function levelProgress(lifetimeCoinsEarned: number): LevelProgress {
-  const total = Math.max(0, Math.trunc(lifetimeCoinsEarned));
+  const total = Math.max(0, lifetimeCoinsEarned);
   const level = levelForLifetimeCoins(total);
   if (level === MAX_LEVEL) {
     return {
@@ -41,6 +42,7 @@ export function levelProgress(lifetimeCoinsEarned: number): LevelProgress {
       coinsIntoLevel: coinsToNextLevel(MAX_LEVEL),
       coinsForLevel: coinsToNextLevel(MAX_LEVEL),
       percent: 100,
+      fillPercent: 100,
       nextLevel: null,
       nextLevelAt: null,
     };
@@ -49,12 +51,14 @@ export function levelProgress(lifetimeCoinsEarned: number): LevelProgress {
   const levelStart = coinsToReachLevel(level);
   const coinsForLevel = coinsToNextLevel(level);
   const coinsIntoLevel = total - levelStart;
+  const fillPercent = (coinsIntoLevel / coinsForLevel) * 100;
   return {
     level,
     isMaxLevel: false,
     coinsIntoLevel,
     coinsForLevel,
-    percent: Math.round((coinsIntoLevel / coinsForLevel) * 100),
+    percent: Math.min(99, Math.round(fillPercent)),
+    fillPercent,
     nextLevel: level + 1,
     nextLevelAt: levelStart + coinsForLevel,
   };

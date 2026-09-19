@@ -1,3 +1,4 @@
+import type { RandomSource } from '../domain/random';
 import blueFeather from './assets/trail-collectible-blue-feather-v1.webp';
 import brassKey from './assets/trail-collectible-brass-key-v1.webp';
 import butterfly from './assets/trail-collectible-butterfly-v1.webp';
@@ -14,13 +15,16 @@ import landscapeBoard from './assets/trail-quest-meadow-v1.webp';
 import portraitBoard from './assets/trail-quest-meadow-portrait-v1.webp';
 
 export type TrailPoint = readonly [x: number, y: number];
+export type TrailItemKind = 'treasure' | 'bonus' | 'challenge';
 
-export interface TrailCollectible {
+export interface TrailItemDefinition {
+  id: string;
+  kind: TrailItemKind;
   name: string;
   src: string;
 }
 
-export interface TrailDefinition {
+export interface TrailLevelDefinition {
   id: string;
   name: string;
   destination: string;
@@ -28,23 +32,28 @@ export interface TrailDefinition {
   portraitBoard: string;
   landscapeRoute: readonly TrailPoint[];
   portraitRoute: readonly TrailPoint[];
-  collectibles: readonly TrailCollectible[];
+  itemIds: readonly string[];
 }
 
-export const TRAIL_COLLECTIBLE_LIBRARY = [
-  { name: 'golden leaf', src: goldenLeaf },
-  { name: 'woodland mushroom', src: mushroom },
-  { name: 'pinecone', src: pinecone },
-  { name: 'blue feather', src: blueFeather },
-  { name: 'honeycomb', src: honeycomb },
-  { name: 'rainbow pebble', src: rainbowPebble },
-  { name: 'brass key', src: brassKey },
-  { name: 'moon crystal', src: moonCrystal },
-  { name: 'seashell', src: seashell },
-  { name: 'ladybug', src: ladybug },
-  { name: 'butterfly', src: butterfly },
-  { name: 'trail compass', src: compass },
-] as const satisfies readonly TrailCollectible[];
+export interface TrailRunDefinition extends Omit<TrailLevelDefinition, 'itemIds'> {
+  itemPool: readonly TrailItemDefinition[];
+  items: readonly TrailItemDefinition[];
+}
+
+export const TRAIL_ITEM_LIBRARY = [
+  { id: 'golden-leaf', kind: 'treasure', name: 'golden leaf', src: goldenLeaf },
+  { id: 'woodland-mushroom', kind: 'treasure', name: 'woodland mushroom', src: mushroom },
+  { id: 'pinecone', kind: 'treasure', name: 'pinecone', src: pinecone },
+  { id: 'blue-feather', kind: 'treasure', name: 'blue feather', src: blueFeather },
+  { id: 'honeycomb', kind: 'treasure', name: 'honeycomb', src: honeycomb },
+  { id: 'rainbow-pebble', kind: 'treasure', name: 'rainbow pebble', src: rainbowPebble },
+  { id: 'brass-key', kind: 'treasure', name: 'brass key', src: brassKey },
+  { id: 'moon-crystal', kind: 'treasure', name: 'moon crystal', src: moonCrystal },
+  { id: 'seashell', kind: 'treasure', name: 'seashell', src: seashell },
+  { id: 'ladybug', kind: 'treasure', name: 'ladybug', src: ladybug },
+  { id: 'butterfly', kind: 'treasure', name: 'butterfly', src: butterfly },
+  { id: 'trail-compass', kind: 'treasure', name: 'trail compass', src: compass },
+] as const satisfies readonly TrailItemDefinition[];
 
 const LANDSCAPE_ROUTE = [
   [8, 68],
@@ -61,22 +70,22 @@ const LANDSCAPE_ROUTE = [
 ] as const satisfies readonly TrailPoint[];
 
 const PORTRAIT_ROUTE = [
-  [43, 49],
-  [47, 46],
-  [50, 43],
-  [50, 40],
-  [52, 37],
-  [57, 34],
-  [62, 30],
-  [68, 26],
-  [74, 22],
-  [80, 18],
-  [85, 14],
+  [43, 54],
+  [42, 51],
+  [40, 48],
+  [40, 45],
+  [45, 42],
+  [54, 39],
+  [63, 37],
+  [68, 33],
+  [73, 29],
+  [80, 24],
+  [85, 18],
 ] as const satisfies readonly TrailPoint[];
 
 export const TRAIL_QUEST_LENGTH = 10;
 
-export const MEADOW_TRAIL = {
+export const MEADOW_LEVEL = {
   id: 'sunny-meadow',
   name: 'Sunny Meadow',
   destination: 'picnic nook',
@@ -84,5 +93,45 @@ export const MEADOW_TRAIL = {
   portraitBoard,
   landscapeRoute: LANDSCAPE_ROUTE,
   portraitRoute: PORTRAIT_ROUTE,
-  collectibles: TRAIL_COLLECTIBLE_LIBRARY.slice(0, TRAIL_QUEST_LENGTH),
-} as const satisfies TrailDefinition;
+  itemIds: TRAIL_ITEM_LIBRARY.map(({ id }) => id),
+} as const satisfies TrailLevelDefinition;
+
+export const TRAIL_LEVELS = [MEADOW_LEVEL] as const satisfies readonly TrailLevelDefinition[];
+
+const ITEM_BY_ID = new Map<string, TrailItemDefinition>(
+  TRAIL_ITEM_LIBRARY.map((item) => [item.id, item]),
+);
+
+export function createRandomTrailRun(
+  random: RandomSource,
+  levels: readonly TrailLevelDefinition[] = TRAIL_LEVELS,
+): TrailRunDefinition {
+  if (levels.length === 0) throw new Error('Trail Quest needs at least one level.');
+  const level = random.pick(levels);
+  const uniqueItemIds = new Set(level.itemIds);
+  if (uniqueItemIds.size !== level.itemIds.length) {
+    throw new Error(`Trail level ${level.id} contains duplicate item IDs.`);
+  }
+  const itemPool = level.itemIds.map((id) => {
+    const item = ITEM_BY_ID.get(id);
+    if (!item) throw new Error(`Trail level ${level.id} references unknown item ${id}.`);
+    return item;
+  });
+  const availableTreasures = itemPool.filter(({ kind }) => kind === 'treasure');
+  if (availableTreasures.length < TRAIL_QUEST_LENGTH) {
+    throw new Error(
+      `Trail level ${level.id} needs at least ${TRAIL_QUEST_LENGTH} playable treasures.`,
+    );
+  }
+  return {
+    id: level.id,
+    name: level.name,
+    destination: level.destination,
+    landscapeBoard: level.landscapeBoard,
+    portraitBoard: level.portraitBoard,
+    landscapeRoute: level.landscapeRoute,
+    portraitRoute: level.portraitRoute,
+    itemPool,
+    items: random.shuffle(availableTreasures).slice(0, TRAIL_QUEST_LENGTH),
+  };
+}

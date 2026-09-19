@@ -8,5 +8,6 @@ Preserve the local-first, static GitHub Pages architecture and the existing doma
 
 - For ordinary UI iteration and visual inspection, use the Vite development server so an older service worker cannot serve stale CSS or JavaScript.
 - Use a production build and preview in a fresh or isolated browser context for manifest, install, update, cache, GitHub Pages subpath, and offline checks.
+- Before any Playwright run that targets the production preview, rebuild after the latest source edits. Do not rely on `reuseExistingServer` to prove the preview is current: if a preview is already running, confirm it is serving the new build (for example, by checking the hashed CSS/JavaScript asset names) or restart it before interpreting a failure.
 - If the live page disagrees with the current source or built assets, inspect the loaded/computed state and suspect an older service worker before changing correct code. A normal reload may not replace a service-worker-controlled page.
 - If Chromium or a local test server is blocked by the Codex sandbox, retry through the normal approval/escalation path rather than reporting browser testing as unavailable.

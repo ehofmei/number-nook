@@ -7,7 +7,7 @@ The playable local-first game includes onboarding, Quick Game, Practice, the vis
 ## Project documents
 
 - [Practice Mode](./docs/PRACTICE_MODE.md) — untimed retries, strategy hints, recap, first-attempt rewards, and saved learning detail.
-- [Trail Quest](./docs/TRAIL_QUEST.md) — ten-stop visual trail play, honest attempt tracking, reusable trail content, and responsive/offline requirements.
+- [Trail Quest](./docs/TRAIL_QUEST.md) — ten-stop visual trail play, reusable level content, and the complete art, route, registration, offline, and device-QA checklist for adding another level.
 - [Nook Levels](./docs/LEVELING.md) — the lifetime progression curve, Home and results presentation, level-up animation, persistence, accessibility, and verification contract.
 
 - [Current next steps](./docs/NEXT_STEPS.md) — the short, authoritative list of active priorities, later work, and explicitly deferred decisions.

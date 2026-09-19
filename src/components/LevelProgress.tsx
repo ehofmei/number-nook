@@ -32,7 +32,14 @@ export function LevelProgress({
         aria-valuenow={progress.coinsIntoLevel}
         aria-valuetext={accessibleLabel}
       >
-        <span style={{ width: `${progress.percent}%` }} />
+        <span
+          style={{
+            width: '100%',
+            transform: `scaleX(${progress.fillPercent / 100})`,
+            transformOrigin: 'left center',
+            willChange: 'transform',
+          }}
+        />
       </span>
     </div>
   );
@@ -90,9 +97,7 @@ export function AnimatedLevelProgress({
       const position = Math.min(1, elapsed / duration);
       const eased = 1 - (1 - position) ** 3;
       setDisplayedTotal(
-        Math.floor(
-          previousLifetimeCoinsEarned + (lifetimeCoinsEarned - previousLifetimeCoinsEarned) * eased,
-        ),
+        previousLifetimeCoinsEarned + (lifetimeCoinsEarned - previousLifetimeCoinsEarned) * eased,
       );
       if (position < 1) frame = window.requestAnimationFrame(step);
       else finish();

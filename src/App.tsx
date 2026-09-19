@@ -81,7 +81,7 @@ import {
 } from './storage/save';
 import { openCapsule, type CapsuleChoice } from './storage/economy';
 import { TrailQuestPlay } from './trail/TrailQuestPlay';
-import { TRAIL_QUEST_LENGTH } from './trail/trails';
+import { createRandomTrailRun, TRAIL_QUEST_LENGTH, type TrailRunDefinition } from './trail/trails';
 
 type Screen =
   | 'onboarding'
@@ -108,7 +108,7 @@ interface EquipDialogueEvent {
 
 interface ActiveGame {
   practice: boolean;
-  trail: boolean;
+  trail: TrailRunDefinition | null;
   trailComplete: boolean;
   trailPosition: number;
   attempts: number[];
@@ -2631,7 +2631,8 @@ export default function App() {
     void playCue(GAME_AUDIO_CUES.roundStart);
     const seed = createRandomSeed();
     const now = performance.now();
-    const trail = save.settings.mode === 'trail';
+    const trail =
+      save.settings.mode === 'trail' ? createRandomTrailRun(new SeededRandom(seed)) : null;
     const problems = trail
       ? Array.from({ length: 4 }, (_, batch) =>
           generateSession({ ...save.settings, questionCount: 50 }, new SeededRandom(seed + batch)),
@@ -2947,6 +2948,7 @@ export default function App() {
         complete={game.trailComplete}
         companion={equippedCompanion}
         artStyle={save.artStyle}
+        trail={game.trail}
         soundEnabled={audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0}
         onAnswer={chooseAnswer}
         onToggleAudio={toggleAudio}

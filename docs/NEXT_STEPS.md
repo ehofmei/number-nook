@@ -16,7 +16,7 @@ Trail Quest is implemented as a third playable mode with a responsive meadow boa
 
 1. **Family-test the game loop.** Observe whether ten stops feels satisfying, whether fresh problems after detours feel fair, and whether the treasure animation keeps attention on the equation.
 2. **Inspect real devices.** Check phones and tablets in both orientations, especially board loading, item placement, touch targets, rotation during feedback, and the destination celebration.
-3. **Authoring follow-up.** If another trail is worthwhile, add a small development-only click-to-place coordinate editor before generating several board pairs.
+3. **Expand the reusable content carefully.** Adventures now choose a level and ten unique items from that level's larger pool. If another trail is worthwhile, follow the [new-level checklist](./TRAIL_QUEST.md#adding-another-level), beginning with a small development-only click-to-place coordinate editor and an explicit multi-level offline-cache policy.
 4. **Keep observing rewards.** Record Trail Quest accuracy and Paw Coin pacing alongside Quick Game and Practice so the visual mode does not become an easier reward path.
 
 The detailed acquisition and pricing contract is in [Economy Tuning](./ECONOMY.md). Companion presentation requirements are in [Companion Identity, Themes, and Presence](./COMPANION_SYSTEM.md).

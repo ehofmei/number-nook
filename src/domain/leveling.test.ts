@@ -47,6 +47,16 @@ describe('Nook Levels', () => {
     });
   });
 
+  it('preserves fractional progress for smooth visual animation', () => {
+    expect(levelProgress(49.5)).toMatchObject({
+      level: 1,
+      coinsIntoLevel: 49.5,
+      percent: 99,
+      fillPercent: 99,
+    });
+    expect(levelProgress(79.5).fillPercent).toBeCloseTo(53.636, 3);
+  });
+
   it('clamps malformed totals and visible progress at Level 100', () => {
     expect(levelProgress(-10)).toMatchObject({ level: 1, percent: 0 });
     expect(levelProgress(29_205)).toMatchObject({

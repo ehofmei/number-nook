@@ -3,8 +3,13 @@ import { cleanup, render } from 'vitest-browser-react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { formatProblem, generateSession } from '../domain/math';
 import { SeededRandom } from '../domain/random';
+import { createRandomTrailRun, MEADOW_LEVEL } from '../trail/trails';
 import '../styles.css';
 import { TRAIL_QUEST_LAB_SEED, TrailQuestLab } from './TrailQuestLab';
+
+const TRAIL_QUEST_LAB_TRAIL = createRandomTrailRun(new SeededRandom(TRAIL_QUEST_LAB_SEED), [
+  MEADOW_LEVEL,
+]);
 
 function labProblems() {
   return generateSession(
@@ -25,6 +30,7 @@ describe('TrailQuestLab in a real browser', () => {
 
   it('uses real answer controls and advances the traveler after a correct answer', async () => {
     const [first] = labProblems();
+    const [firstItem, secondItem] = TRAIL_QUEST_LAB_TRAIL.items;
     await render(<TrailQuestLab />);
 
     await expect
@@ -37,10 +43,14 @@ describe('TrailQuestLab in a real browser', () => {
     await expect.element(collectible).toBeVisible();
     await expect.element(collectible).toHaveAttribute('alt', '');
     await expect.element(collectible).toHaveAttribute('aria-hidden', 'true');
-    await expect.element(page.getByText('Next trail treasure: golden leaf.')).toBeInTheDocument();
+    await expect
+      .element(page.getByText(`Next trail treasure: ${firstItem!.name}.`))
+      .toBeInTheDocument();
 
     await page.getByRole('button', { name: `Answer ${first!.correctAnswer}` }).click();
-    await expect.element(page.getByText('Correct! Sunny collected the golden leaf.')).toBeVisible();
+    await expect
+      .element(page.getByText(`Correct! Sunny collected the ${firstItem!.name}.`))
+      .toBeVisible();
     await expect.element(page.getByLabelText('1 trail treasures')).toBeVisible();
     await expect
       .element(page.getByRole('button', { name: `Answer ${first!.correctAnswer}` }))
@@ -51,7 +61,7 @@ describe('TrailQuestLab in a real browser', () => {
     await expect.element(page.getByLabelText('Sunny is at trail stop 2 of 11')).toBeVisible();
     await expect.element(page.getByTestId('trail-collectible')).toBeVisible();
     await expect
-      .element(page.getByText('Next trail treasure: woodland mushroom.'))
+      .element(page.getByText(`Next trail treasure: ${secondItem!.name}.`))
       .toBeInTheDocument();
   });
 

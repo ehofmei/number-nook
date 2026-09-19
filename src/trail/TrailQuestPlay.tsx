@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from 're
 import { getCollectibleImage } from '../content/catalog';
 import type { ArtStyle, CollectibleDefinition } from '../content/schema';
 import { formatProblem, OPERATION_SYMBOLS, type Problem } from '../domain/math';
-import { MEADOW_TRAIL, TRAIL_QUEST_LENGTH, type TrailDefinition } from './trails';
+import { TRAIL_QUEST_LENGTH, type TrailRunDefinition } from './trails';
 
 interface TrailQuestPlayProps {
   problem: Problem;
@@ -13,7 +13,7 @@ interface TrailQuestPlayProps {
   companion: CollectibleDefinition;
   artStyle: ArtStyle;
   soundEnabled: boolean;
-  trail?: TrailDefinition;
+  trail: TrailRunDefinition;
   onAnswer: (answer: number) => void;
   onExit: () => void;
   onToggleAudio: () => void;
@@ -39,7 +39,7 @@ export function TrailQuestPlay({
   companion,
   artStyle,
   soundEnabled,
-  trail = MEADOW_TRAIL,
+  trail,
   onAnswer,
   onExit,
   onToggleAudio,
@@ -48,14 +48,15 @@ export function TrailQuestPlay({
   const [loadedCollectibles, setLoadedCollectibles] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const trailPosition = Math.min(collectedCount, trail.collectibles.length);
+  const trailPosition = Math.min(collectedCount, trail.items.length);
   const currentPosition = trail.landscapeRoute[trailPosition] ?? trail.landscapeRoute.at(-1)!;
   const currentPortraitPosition = trail.portraitRoute[trailPosition] ?? trail.portraitRoute.at(-1)!;
   const nextPosition = trail.landscapeRoute[trailPosition + 1] ?? trail.landscapeRoute.at(-1)!;
   const nextPortraitPosition =
     trail.portraitRoute[trailPosition + 1] ?? trail.portraitRoute.at(-1)!;
-  const nextCollectible = trail.collectibles[trailPosition];
-  const collectedItems = trail.collectibles.slice(0, collectedCount);
+  const portraitCollectibleSide = nextPortraitPosition[0] > 72 ? 'left' : 'right';
+  const nextCollectible = trail.items[trailPosition];
+  const collectedItems = trail.items.slice(0, collectedCount);
 
   const markCollectibleLoaded = useCallback((src: string) => {
     setLoadedCollectibles((current) => {
@@ -74,7 +75,7 @@ export function TrailQuestPlay({
     const sources = [
       trail.landscapeBoard,
       trail.portraitBoard,
-      ...trail.collectibles.map(({ src }) => src),
+      ...trail.itemPool.map(({ src }) => src),
     ];
     const preloaders = sources.map((src) => {
       const image = new Image();
@@ -181,14 +182,11 @@ export function TrailQuestPlay({
             <span className="trail-board__collectible-description" aria-live="polite">
               Next trail treasure: {nextCollectible.name}.
             </span>
-            <img
+            <span
               key={`${trailPosition}-${nextCollectible.name}`}
-              className={`trail-board__collectible${loadedCollectibles.has(nextCollectible.src) ? ' is-loaded' : ''}${feedback?.correct ? ' is-collecting' : ''}`}
-              src={nextCollectible.src}
-              alt=""
+              className={`trail-board__collectible-marker trail-board__collectible-marker--${portraitCollectibleSide}${feedback?.correct ? ' is-collecting' : ''}`}
               aria-hidden="true"
-              data-testid="trail-collectible"
-              onLoad={() => markCollectibleLoaded(nextCollectible.src)}
+              data-testid="trail-collectible-target"
               style={
                 {
                   '--trail-portrait-x': `${nextPortraitPosition[0]}%`,
@@ -197,7 +195,16 @@ export function TrailQuestPlay({
                   '--trail-landscape-y': `${nextPosition[1]}%`,
                 } as CSSProperties
               }
-            />
+            >
+              <img
+                className={`trail-board__collectible${loadedCollectibles.has(nextCollectible.src) ? ' is-loaded' : ''}${feedback?.correct ? ' is-collecting' : ''}`}
+                src={nextCollectible.src}
+                alt=""
+                aria-hidden="true"
+                data-testid="trail-collectible"
+                onLoad={() => markCollectibleLoaded(nextCollectible.src)}
+              />
+            </span>
           </>
         )}
 
@@ -232,8 +239,16 @@ export function TrailQuestPlay({
                     {index + 1}
                   </span>
                   <strong>{choice}</strong>
-                  {state === 'correct' && <span aria-hidden="true">✓</span>}
-                  {state === 'incorrect' && <span aria-hidden="true">×</span>}
+                  {state === 'correct' && (
+                    <span className="trail-answer__feedback" aria-hidden="true">
+                      ✓
+                    </span>
+                  )}
+                  {state === 'incorrect' && (
+                    <span className="trail-answer__feedback" aria-hidden="true">
+                      ×
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -247,7 +262,7 @@ export function TrailQuestPlay({
             </strong>
             <span>{TRAIL_QUEST_LENGTH} trail treasures collected</span>
             <span className="trail-board__treasure-row" aria-hidden="true">
-              {trail.collectibles.map((item) => (
+              {trail.items.map((item) => (
                 <img key={item.name} src={item.src} alt="" />
               ))}
             </span>

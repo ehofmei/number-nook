@@ -166,8 +166,32 @@ test('Trail Quest keeps mistakes at the same stop and saves a completed adventur
   await page.getByRole('button', { name: 'Start game' }).click();
 
   await expect(page.getByText('0 of 10 stops cleared')).toBeVisible();
-  await expect(page.getByText('Next trail treasure: golden leaf.')).toBeAttached();
+  const treasureDescription = page.locator('.trail-board__collectible-description');
+  const firstTreasureDescription = await treasureDescription.textContent();
+  await expect(treasureDescription).toContainText('Next trail treasure:');
   await expect(page.getByLabel('Moonbeam is at trail stop 1 of 11')).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const initialTravelerBox = await page.locator('.trail-board__traveler').boundingBox();
+  const initialCollectibleBox = await page.getByTestId('trail-collectible').boundingBox();
+  if (!initialTravelerBox || !initialCollectibleBox) {
+    throw new Error('Trail Quest portrait sprites need measurable bounds.');
+  }
+  const portraitOverlapWidth = Math.max(
+    0,
+    Math.min(
+      initialTravelerBox.x + initialTravelerBox.width,
+      initialCollectibleBox.x + initialCollectibleBox.width,
+    ) - Math.max(initialTravelerBox.x, initialCollectibleBox.x),
+  );
+  const portraitOverlapHeight = Math.max(
+    0,
+    Math.min(
+      initialTravelerBox.y + initialTravelerBox.height,
+      initialCollectibleBox.y + initialCollectibleBox.height,
+    ) - Math.max(initialTravelerBox.y, initialCollectibleBox.y),
+  );
+  expect(portraitOverlapWidth * portraitOverlapHeight).toBe(0);
 
   const firstEquation = (await page.locator('#trail-equation').textContent()) ?? '';
   const firstCorrect = solveEquation(firstEquation);
@@ -178,20 +202,47 @@ test('Trail Quest keeps mistakes at the same stop and saves a completed adventur
     );
   const wrong = firstChoices.find((choice) => choice !== firstCorrect);
   if (wrong === undefined) throw new Error('Trail Quest needs an incorrect choice.');
+  const answerHeightsBeforeFeedback = await page
+    .locator('.trail-answer')
+    .evaluateAll((buttons) =>
+      buttons.map((button) => Math.round(button.getBoundingClientRect().height * 10) / 10),
+    );
   await page.getByRole('button', { name: `Answer ${wrong}`, exact: true }).click();
   await expect(page.getByText(/That was a small detour/)).toBeVisible();
+  const answerHeightsDuringFeedback = await page
+    .locator('.trail-answer')
+    .evaluateAll((buttons) =>
+      buttons.map((button) => Math.round(button.getBoundingClientRect().height * 10) / 10),
+    );
+  expect(answerHeightsDuringFeedback).toEqual(answerHeightsBeforeFeedback);
   await expect(page.getByText('0 of 10 stops cleared')).toBeVisible();
   await expect(page.locator('#trail-equation')).not.toHaveText(firstEquation);
-  await expect(page.getByText('Next trail treasure: golden leaf.')).toBeAttached();
+  await expect(treasureDescription).toHaveText(firstTreasureDescription ?? '');
 
+  const trailItemSources: string[] = [];
+  const firstItemTarget = await page.getByTestId('trail-collectible-target').evaluate((item) => ({
+    x: (item as HTMLElement).style.getPropertyValue('--trail-portrait-x'),
+    y: (item as HTMLElement).style.getPropertyValue('--trail-portrait-y'),
+  }));
   for (let collected = 0; collected < 10; collected += 1) {
+    const itemSource = await page.getByTestId('trail-collectible').getAttribute('src');
+    if (!itemSource) throw new Error('Trail Quest needs a visible item at every stop.');
+    trailItemSources.push(itemSource);
     const equation = (await page.locator('#trail-equation').textContent()) ?? '';
     const answer = solveEquation(equation);
     await page.getByRole('button', { name: `Answer ${answer}`, exact: true }).click();
     if (collected < 9) {
       await expect(page.getByText(`${collected + 1} of 10 stops cleared`)).toBeVisible();
     }
+    if (collected === 0) {
+      const travelerTarget = await page.locator('.trail-board__traveler').evaluate((traveler) => ({
+        x: (traveler as HTMLElement).style.getPropertyValue('--trail-portrait-x'),
+        y: (traveler as HTMLElement).style.getPropertyValue('--trail-portrait-y'),
+      }));
+      expect(travelerTarget).toEqual(firstItemTarget);
+    }
   }
+  expect(new Set(trailItemSources).size).toBe(10);
 
   await expect(page.getByRole('heading', { name: 'Trail complete!' })).toBeVisible();
   await expect(page.getByText('10 trail treasures collected')).toBeVisible();
@@ -1276,7 +1327,7 @@ test('@pwa Trail Quest art remains available offline after an online visit', asy
     .toBe(2055);
   await expect
     .poll(() => page.evaluate(async () => (await caches.open('number-nook-trail-art-v1')).keys()))
-    .toHaveLength(12);
+    .toHaveLength(14);
 
   await page.getByRole('button', { name: 'Exit game' }).click();
   await context.setOffline(true);
