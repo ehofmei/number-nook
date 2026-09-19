@@ -233,7 +233,12 @@ const legacySaveV6Schema = z.object({
   archivedProgress: archivedProgressSchema,
 });
 
-export const saveSchema = legacySaveV6Schema.extend({ schemaVersion: z.literal(7) });
+const legacySaveV7Schema = legacySaveV6Schema.extend({ schemaVersion: z.literal(7) });
+
+export const saveSchema = legacySaveV7Schema.extend({
+  schemaVersion: z.literal(8),
+  lifetimeCoinsEarned: z.number().int().nonnegative(),
+});
 
 export type SaveData = z.infer<typeof saveSchema>;
 export const DEFAULT_ART_STYLE: ArtStyle = 'sticker';
@@ -335,11 +340,12 @@ function migrateEconomyEvents(events: readonly z.infer<typeof legacyEconomyEvent
 
 export function createInitialSave(name: string, starterId: string): SaveData {
   return {
-    schemaVersion: 7,
+    schemaVersion: 8,
     player: { name: name.trim() },
     settings: DEFAULT_SETTINGS,
     artStyle: DEFAULT_ART_STYLE,
     coins: 0,
+    lifetimeCoinsEarned: 0,
     dailyCoins: { date: '', earned: 0 },
     rewardProgress: {
       welcomeCapsuleStatus: 'locked',
@@ -398,6 +404,7 @@ export function applyCompletedSession(
   return {
     ...save,
     coins: save.coins + coinsEarned,
+    lifetimeCoinsEarned: save.lifetimeCoinsEarned + coinsEarned,
     dailyCoins: { date, earned: earnedAfterSession },
     rewardProgress: {
       welcomeCapsuleStatus:
@@ -461,8 +468,22 @@ export class LocalStorageSaveRepository implements SaveRepository {
     const input = JSON.parse(serialized) as unknown;
     const current = saveSchema.safeParse(input);
     if (current.success) return current.data;
+    const legacyV7 = legacySaveV7Schema.safeParse(input);
+    if (legacyV7.success) {
+      return saveSchema.parse({
+        ...legacyV7.data,
+        schemaVersion: 8,
+        lifetimeCoinsEarned: 0,
+      });
+    }
     const legacyV6 = legacySaveV6Schema.safeParse(input);
-    if (legacyV6.success) return saveSchema.parse({ ...legacyV6.data, schemaVersion: 7 });
+    if (legacyV6.success) {
+      return saveSchema.parse({
+        ...legacyV6.data,
+        schemaVersion: 8,
+        lifetimeCoinsEarned: 0,
+      });
+    }
 
     const retain = (sessions: readonly SessionSummary[]) => {
       const archived = sessions.slice(0, Math.max(0, sessions.length - DETAILED_SESSION_LIMIT));
@@ -477,7 +498,8 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV5.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV5.data,
-        schemaVersion: 7,
+        schemaVersion: 8,
+        lifetimeCoinsEarned: 0,
         sessions,
         rewardProgress: migratedRewardProgress(
           sessions.length > 0 || legacyV5.data.archivedProgress.overall.rounds > 0,
@@ -491,7 +513,8 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV4.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV4.data,
-        schemaVersion: 7,
+        schemaVersion: 8,
+        lifetimeCoinsEarned: 0,
         artStyle: DEFAULT_ART_STYLE,
         sessions,
         rewardProgress: migratedRewardProgress(
@@ -506,7 +529,8 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV3.data.sessions.map(enrichDetailedSession);
       return saveSchema.parse({
         ...legacyV3.data,
-        schemaVersion: 7,
+        schemaVersion: 8,
+        lifetimeCoinsEarned: 0,
         artStyle: DEFAULT_ART_STYLE,
         rewardProgress: migratedRewardProgress(sessions.length > 0),
         economyEvents: migrateEconomyEvents(legacyV3.data.economyEvents),
@@ -519,7 +543,8 @@ export class LocalStorageSaveRepository implements SaveRepository {
       const sessions = legacyV2.data.sessions.map(enrichLegacySession);
       return saveSchema.parse({
         ...legacyV2.data,
-        schemaVersion: 7,
+        schemaVersion: 8,
+        lifetimeCoinsEarned: 0,
         artStyle: DEFAULT_ART_STYLE,
         rewardProgress: migratedRewardProgress(sessions.length > 0),
         economyEvents: [],
@@ -531,7 +556,8 @@ export class LocalStorageSaveRepository implements SaveRepository {
     const sessions = legacyV1.sessions.map(enrichLegacySession);
     return saveSchema.parse({
       ...legacyV1,
-      schemaVersion: 7,
+      schemaVersion: 8,
+      lifetimeCoinsEarned: 0,
       artStyle: DEFAULT_ART_STYLE,
       dailyCoins: { date: '', earned: 0 },
       rewardProgress: migratedRewardProgress(sessions.length > 0),

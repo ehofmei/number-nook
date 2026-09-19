@@ -32,7 +32,8 @@ describe('save data', () => {
     const repository = new LocalStorageSaveRepository();
     const save = createInitialSave(' Ada ', 'cozy-cats:sunny');
     expect(save.player.name).toBe('Ada');
-    expect(save.schemaVersion).toBe(7);
+    expect(save.schemaVersion).toBe(8);
+    expect(save.lifetimeCoinsEarned).toBe(0);
     expect(save.artStyle).toBe('sticker');
     await repository.save(save);
     await expect(repository.load()).resolves.toEqual(save);
@@ -48,11 +49,29 @@ describe('save data', () => {
     void _dailyCoins;
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 1 }));
     expect(migrated).toMatchObject({
-      schemaVersion: 7,
+      schemaVersion: 8,
+      lifetimeCoinsEarned: 0,
       player: { name: 'Ada' },
       coins: 0,
       artStyle: 'sticker',
       dailyCoins: { date: '', earned: 0 },
+    });
+  });
+
+  it('initializes lifetime level progress when migrating a version 7 development save', () => {
+    const repository = new LocalStorageSaveRepository();
+    const current = createInitialSave('Ada', 'cozy-cats:sunny');
+    const { lifetimeCoinsEarned: _lifetimeCoinsEarned, ...legacy } = current;
+    void _lifetimeCoinsEarned;
+
+    const migrated = repository.parseImport(
+      JSON.stringify({ ...legacy, schemaVersion: 7, coins: 42 }),
+    );
+
+    expect(migrated).toMatchObject({
+      schemaVersion: 8,
+      coins: 42,
+      lifetimeCoinsEarned: 0,
     });
   });
 
@@ -118,7 +137,8 @@ describe('save data', () => {
     };
 
     const migrated = repository.parseImport(JSON.stringify(legacyV2));
-    expect(migrated.schemaVersion).toBe(7);
+    expect(migrated.schemaVersion).toBe(8);
+    expect(migrated.lifetimeCoinsEarned).toBe(0);
     expect(migrated.sessions[0]).toMatchObject({
       rulesetVersion: 1,
       coinsPotential: 15,
@@ -160,6 +180,7 @@ describe('save data', () => {
     const once = applyCompletedSession(save, summary, '2026-01-02');
     const twice = applyCompletedSession(once, summary, '2026-01-02');
     expect(once.coins).toBe(33);
+    expect(once.lifetimeCoinsEarned).toBe(33);
     expect(once.sessions.at(-1)).toMatchObject({
       coinsEarned: 33,
       dailyBonusCoins: 5,
@@ -193,6 +214,7 @@ describe('save data', () => {
     const third = applyCompletedSession(second, makeSummary(3), '2026-01-02');
     const fourth = applyCompletedSession(third, makeSummary(4), '2026-01-02');
     expect(fourth.coins).toBe(117);
+    expect(fourth.lifetimeCoinsEarned).toBe(117);
     expect(fourth.sessions.at(-1)).toMatchObject({
       coinsEarned: 28,
       dailyBonusCoins: 0,
@@ -283,7 +305,8 @@ describe('save data', () => {
       JSON.stringify({ ...withoutArchive, schemaVersion: 3, sessions }),
     );
 
-    expect(migrated.schemaVersion).toBe(7);
+    expect(migrated.schemaVersion).toBe(8);
+    expect(migrated.lifetimeCoinsEarned).toBe(0);
     expect(migrated.artStyle).toBe('sticker');
     expect(migrated.sessions).toHaveLength(DETAILED_SESSION_LIMIT);
     expect(migrated.archivedProgress.overall).toMatchObject({ rounds: 5, questions: 50 });
@@ -297,7 +320,11 @@ describe('save data', () => {
 
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 4 }));
 
-    expect(migrated).toMatchObject({ schemaVersion: 7, artStyle: 'sticker' });
+    expect(migrated).toMatchObject({
+      schemaVersion: 8,
+      lifetimeCoinsEarned: 0,
+      artStyle: 'sticker',
+    });
   });
 
   it('migrates an established version 5 save without changing its balance', () => {
@@ -320,7 +347,8 @@ describe('save data', () => {
     );
 
     expect(migrated).toMatchObject({
-      schemaVersion: 7,
+      schemaVersion: 8,
+      lifetimeCoinsEarned: 0,
       coins: 42,
       dailyCoins: { date: '2026-08-30', earned: 30 },
       rewardProgress: { welcomeCapsuleStatus: 'locked' },
@@ -397,6 +425,7 @@ describe('save data', () => {
     expect(cleared.archivedProgress.overall.rounds).toBe(0);
     expect(cleared).toMatchObject({
       coins: withHistory.coins,
+      lifetimeCoinsEarned: withHistory.lifetimeCoinsEarned,
       ownedCollectibleIds: initial.ownedCollectibleIds,
       settings: initial.settings,
       artStyle: initial.artStyle,

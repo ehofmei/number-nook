@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { levelProgress } from '../../src/domain/leveling';
 import type { SaveData } from '../../src/storage/save';
 
 async function onboard(page: Page) {
@@ -341,6 +342,67 @@ test('first launch, game, capsule, gallery, equip, and reload', async ({ page })
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.reload();
   await expect(page.locator('.home-companion')).toContainText(foundName);
+});
+
+test('lifetime Paw Coins advance Level across Home, Results, and Play History', async ({
+  page,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'The coordinated level animation is covered once.');
+  await onboard(page);
+  await page.evaluate(() => {
+    const key = 'first-math-game:save';
+    const save = JSON.parse(localStorage.getItem(key) ?? '{}') as {
+      lifetimeCoinsEarned: number;
+    };
+    save.lifetimeCoinsEarned = 49;
+    localStorage.setItem(key, JSON.stringify(save));
+  });
+  await page.reload();
+
+  await expect(
+    page.getByRole('progressbar', {
+      name: 'Level 1, 98 percent progress to Level 2',
+    }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Start first round' }).click();
+  for (let index = 0; index < 10; index += 1) {
+    const equation = page.locator('#equation');
+    const text = (await equation.textContent()) ?? '';
+    await page.getByRole('button', { name: `Answer ${solveEquation(text)}`, exact: true }).click();
+    if (index < 9) await expect(equation).not.toHaveText(text);
+  }
+
+  await expect(page.getByRole('status')).toContainText('Level up! You reached Level 2.');
+  const resultState = await page.evaluate(() => {
+    const save = JSON.parse(localStorage.getItem('first-math-game:save') ?? '{}') as {
+      lifetimeCoinsEarned: number;
+      sessions: Array<{ coinsEarned: number }>;
+    };
+    return {
+      lifetimeCoinsEarned: save.lifetimeCoinsEarned,
+      coinsEarned: save.sessions.at(-1)?.coinsEarned ?? 0,
+    };
+  });
+  expect(resultState.lifetimeCoinsEarned).toBe(49 + resultState.coinsEarned);
+  const progress = levelProgress(resultState.lifetimeCoinsEarned);
+  const progressLabel = `Level ${progress.level}, ${progress.percent} percent progress to Level ${progress.nextLevel}`;
+  await expect(
+    page.getByRole('progressbar', {
+      name: progressLabel,
+    }),
+  ).toBeVisible();
+
+  await page.getByRole('button', { name: 'Back home' }).click();
+  await expect(
+    page.getByRole('progressbar', {
+      name: progressLabel,
+    }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Your progress' }).click();
+  await expect(page.getByRole('region', { name: 'Lifetime level progress' })).toContainText(
+    'Level 2',
+  );
 });
 
 test('the Capsule Shelf opens a selected collection and records the transaction', async ({
@@ -692,6 +754,10 @@ test('history copies a name-free, versioned analysis export', async ({
   await page.getByRole('button', { name: 'Back home' }).click();
   await page.getByRole('button', { name: 'Your progress' }).click();
   await expect(page.getByRole('heading', { name: 'Play History' })).toBeVisible();
+  const levelLabelBeforeClear = await page
+    .getByRole('region', { name: 'Lifetime level progress' })
+    .getByRole('progressbar')
+    .getAttribute('aria-label');
   await expect(page.locator('.player-companion-dialogue--progress')).toHaveAttribute(
     'data-dialogue-context',
     'progress',
@@ -716,7 +782,7 @@ test('history copies a name-free, versioned analysis export', async ({
   };
   expect(analysis).toMatchObject({
     format: 'number-nook-play-history',
-    exportVersion: 5,
+    exportVersion: 6,
     privacy: { playerNameIncluded: false },
   });
   expect(analysis.sessions).toHaveLength(1);
@@ -725,6 +791,9 @@ test('history copies a name-free, versioned analysis export', async ({
   await page.getByRole('button', { name: 'Clear play history' }).click();
   await page.getByRole('button', { name: 'Confirm clear history' }).click();
   await expect(page.locator('.history-overview article').first()).toContainText('0');
+  await expect(
+    page.getByRole('region', { name: 'Lifetime level progress' }).getByRole('progressbar'),
+  ).toHaveAttribute('aria-label', levelLabelBeforeClear ?? '');
   await expect(
     page.getByText('Complete a round and its balance data will appear here.'),
   ).toBeVisible();
@@ -981,6 +1050,35 @@ test('@visual home responsive layout', async ({ page }, testInfo) => {
   );
   await onboard(page);
   await expect(page).toHaveScreenshot('home.png', { fullPage: true, maxDiffPixels: 50 });
+});
+
+test('@visual level-up results phone layout', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'This baseline targets the phone viewport.');
+  await onboard(page);
+  await page.evaluate(() => {
+    const key = 'first-math-game:save';
+    const save = JSON.parse(localStorage.getItem(key) ?? '{}') as {
+      lifetimeCoinsEarned: number;
+    };
+    save.lifetimeCoinsEarned = 49;
+    localStorage.setItem(key, JSON.stringify(save));
+  });
+  await page.reload();
+  await page.evaluate(() => {
+    Object.defineProperty(performance, 'now', { value: () => 1_000 });
+  });
+  await page.getByRole('button', { name: 'Start first round' }).click();
+  for (let index = 0; index < 10; index += 1) {
+    const equation = page.locator('#equation');
+    const text = (await equation.textContent()) ?? '';
+    await page.getByRole('button', { name: `Answer ${solveEquation(text)}`, exact: true }).click();
+    if (index < 9) await expect(equation).not.toHaveText(text);
+  }
+  await expect(page.getByRole('status')).toContainText('Level up! You reached Level 2.');
+  await expect(page).toHaveScreenshot('level-up-results.png', {
+    fullPage: true,
+    maxDiffPixels: 100,
+  });
 });
 
 test('@visual settings phone layout', async ({ page }, testInfo) => {

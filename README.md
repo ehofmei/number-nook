@@ -2,13 +2,13 @@
 
 An offline-first, multiple-choice arithmetic PWA designed for short, engaging practice sessions on phones and tablets.
 
-The playable local-first game includes onboarding, Quick Game, Practice, the visual Trail Quest mode, starter and collectible companions, configurable mixed-operation rounds, four difficulty levels, scoring, Paw Coins, a duplicate-protected Capsule Shelf, a collection gallery, companion themes, local persistence, backup/restore, audio, and offline PWA support.
+The playable local-first game includes onboarding, Quick Game, Practice, the visual Trail Quest mode, starter and collectible companions, configurable mixed-operation rounds, four difficulty levels, scoring, Paw Coins, Nook Levels, a duplicate-protected Capsule Shelf, a collection gallery, companion themes, local persistence, backup/restore, audio, and offline PWA support.
 
 ## Project documents
 
 - [Practice Mode](./docs/PRACTICE_MODE.md) — untimed retries, strategy hints, recap, first-attempt rewards, and saved learning detail.
 - [Trail Quest](./docs/TRAIL_QUEST.md) — ten-stop visual trail play, honest attempt tracking, reusable trail content, and responsive/offline requirements.
-- [Nook Levels](./docs/LEVELING.md) — the planned lifetime progression curve, Home and results presentation, level-up animation, persistence, accessibility, and verification contract.
+- [Nook Levels](./docs/LEVELING.md) — the lifetime progression curve, Home and results presentation, level-up animation, persistence, accessibility, and verification contract.
 
 - [Current next steps](./docs/NEXT_STEPS.md) — the short, authoritative list of active priorities, later work, and explicitly deferred decisions.
 - [How Number Nook works](./docs/GAME_GUIDE.md) — a plain-language guide to practice rounds, difficulty, score, Paw Coins, companions, progress, settings, and offline play.
@@ -46,7 +46,7 @@ The playable local-first game includes onboarding, Quick Game, Practice, the vis
 
 ## Current status
 
-The complete arithmetic slice supports addition, subtraction, multiplication, division, mixed-operation sessions, Easy through Advanced difficulty, 10–50 question rounds, Quick Game, Practice, ten-stop Trail Quest adventures, constrained-random session composition, keyboard and touch input, scoring, Paw Coins, and detailed post-round review. The newest 30 rounds retain question-level history while older play rolls into lifetime aggregates; analysis exports and complete backup/restore support balance testing and device changes.
+The complete arithmetic slice supports addition, subtraction, multiplication, division, mixed-operation sessions, Easy through Advanced difficulty, 10–50 question rounds, Quick Game, Practice, ten-stop Trail Quest adventures, constrained-random session composition, keyboard and touch input, scoring, Paw Coins, Nook Levels 1–100, and detailed post-round review. The newest 30 rounds retain question-level history while older play rolls into lifetime aggregates; analysis exports and complete backup/restore support balance testing and device changes.
 
 Catalog version 2.9 contains fifty-one companions: the ten Nook Neighbors, ten Nookside Pups, ten Lantern Lane Cats, ten Garden Winglets, ten Pondside Pals, and Button Bunny. All fifty-one companions have production Classic and Sticker art. Every companion has a theme, personality, signature dialogue, rarity and economy data, gallery presentation, capsule eligibility, and save-stable identity. The dialogue engine contains 248 validated phrases across Home, Game Setup, Round Results, idle Capsule, equip confirmation, and Play History. Development Art, Theme, Companion, Sound, Music, and State labs support focused inspection and experimentation.
 

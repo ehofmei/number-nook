@@ -49,6 +49,12 @@ A perfect ten-question round earns 25 Easy coins, 28 Medium coins, 31 Hard coins
 
 The first qualifying round each local day adds 5 coins; qualifying means at least five correct answers. Practicing on three different local days in one Monday-through-Sunday week adds another 15 coins. There is no daily earning cap. Reaching 100 coins earned in one day is a celebration milestone, and normal earnings continue afterward.
 
+## Nook Levels
+
+Every Paw Coin earned also advances the player's permanent Nook Level. Players begin at Level 1, and each new level takes five more earned coins than the one before it. Spending coins on capsules never lowers level progress, and levels do not gate modes, arithmetic, companions, or rewards.
+
+The Home screen shows the current Level and progress toward the next one. After a round, the Paw Coin tally completes before the Level bar advances; crossing a threshold produces one clear level-up celebration. Play History repeats the long-term Level summary. The initial maximum is Level 100, shown as **Nook Legend**, while the saved lifetime total continues growing in case the range is extended later.
+
 ## Companions and capsules
 
 Every player chooses a free starter companion. The first completed round unlocks one free Welcome Capsule. Additional companions come from the Capsule Shelf:
@@ -65,7 +71,7 @@ The collection gallery shows owned and undiscovered companions, collection progr
 
 ## Progress and history
 
-Number Nook stores progress on the current device. It tracks scores, accuracy, timing, operations, difficulties, individual questions, capsules, companions, and longer-term aggregates.
+Number Nook stores progress on the current device. It tracks scores, accuracy, timing, operations, difficulties, individual questions, capsules, companions, Nook Level, and longer-term aggregates.
 
 The newest 30 rounds keep full question-level detail. Older rounds roll into compact lifetime statistics so history does not grow forever. Play history can be copied or exported for analysis, and a complete backup can be downloaded and restored on another device.
 

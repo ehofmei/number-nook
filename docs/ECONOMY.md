@@ -143,8 +143,12 @@ Capsule history and analysis exports record:
 
 This preserves the data needed to compare acquisition strategies and migrate old capsule transactions safely.
 
+## Nook Level relationship
+
+Every Paw Coin actually awarded at round completion also advances the player's permanent Nook Level by the same amount. This is not presented as a second currency: the interface simply animates Level progress after the coin tally. Capsule spending changes the available coin balance but never reduces Level progress. Levels are display-only lifetime progress and do not unlock rewards or change the economy. See [Nook Levels](./LEVELING.md) for the curve and interface contract.
+
 ## Save behavior
 
-Save schema version 7 stores Practice Mode records in addition to the welcome-capsule state, daily and weekly participation progress, unlimited daily earnings, and richer capsule events. Versions 1-6 migrate automatically and keep their prior balance, settings, collection, and meaningful progress. Established saves do not receive a retroactive Welcome Capsule, and previously accumulated coins are never reduced.
+Save schema version 8 stores `lifetimeCoinsEarned` for Nook Levels in addition to the Practice Mode records, welcome-capsule state, daily and weekly participation progress, unlimited daily earnings, and richer capsule events. Versions 1-7 migrate automatically and keep their prior balance, settings, collection, and meaningful progress. Earlier development saves begin at Level 1 without retroactive credit. Established saves do not receive a retroactive Welcome Capsule, and previously accumulated coins are never reduced.
 
 Direct companion purchasing is removed from the active roadmap. Collection Capsules provide targeting without eliminating surprise or adding a separate shop economy. Revisit direct purchase only if family playtesting exposes a problem that collection selection cannot solve. Continue revisiting the daily milestone, both capsule prices, rarity weights, and catalog size together rather than tuning one in isolation.

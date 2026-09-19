@@ -25,6 +25,7 @@ import type { DialogueContext, ResultDialogueFacts, SelectedDialogue } from './c
 import { AnswerCard } from './components/AnswerCard';
 import { CollectibleCard } from './components/CollectibleCard';
 import { CompanionDialogue } from './components/CompanionDialogue';
+import { AnimatedLevelProgress, LevelProgress } from './components/LevelProgress';
 import {
   catalog,
   getCollectible,
@@ -433,6 +434,10 @@ function Home({
         <div>
           <span className="eyebrow">{isFirstRound ? 'Welcome to the Nook' : 'Welcome back'}</span>
           <h1>{save.player.name}'s Number Nook</h1>
+          <LevelProgress
+            lifetimeCoinsEarned={save.lifetimeCoinsEarned}
+            className="level-progress--home"
+          />
         </div>
         <div className="home-status">
           <SoundToggle
@@ -1124,8 +1129,10 @@ function Results({
   onCapsule,
   onReview,
   dailyEarned,
+  lifetimeCoinsEarned,
   presentCoinReward,
   onCoinsPresented,
+  onLevelUp,
 }: {
   summary: SessionSummary;
   resultFacts: ResultDialogueFacts | null;
@@ -1137,13 +1144,17 @@ function Results({
   onCapsule: () => void;
   onReview: () => void;
   dailyEarned: number;
+  lifetimeCoinsEarned: number;
   presentCoinReward: boolean;
   onCoinsPresented: (summaryId: string) => void;
+  onLevelUp: () => void;
 }) {
   const [shouldPresentCoinReward] = useState(presentCoinReward);
+  const animateLevelProgress = shouldPresentCoinReward && summary.coinsEarned > 0;
   const [visibleCoins, setVisibleCoins] = useState(
     shouldPresentCoinReward ? 0 : summary.coinsEarned,
   );
+  const [coinTallyComplete, setCoinTallyComplete] = useState(!animateLevelProgress);
 
   useEffect(() => {
     if (!shouldPresentCoinReward || summary.coinsEarned <= 0) return;
@@ -1153,6 +1164,7 @@ function Results({
       onCoinsPresented(summary.id);
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         setVisibleCoins(summary.coinsEarned);
+        setCoinTallyComplete(true);
         return;
       }
 
@@ -1161,7 +1173,10 @@ function Results({
       interval = window.setInterval(() => {
         step += 1;
         setVisibleCoins(Math.ceil((summary.coinsEarned * step) / steps));
-        if (step >= steps && interval !== undefined) window.clearInterval(interval);
+        if (step >= steps && interval !== undefined) {
+          window.clearInterval(interval);
+          setCoinTallyComplete(true);
+        }
       }, 75);
     }, 650);
 
@@ -1236,6 +1251,22 @@ function Results({
             {summary.correctCount} of {summary.answers.length} correct
           </small>
         </article>
+        <article className="coin-result">
+          <span>Paw Coins</span>
+          <strong key={visibleCoins} className="coin-tally">
+            +{visibleCoins}
+          </strong>
+          <small>{dailyEarned} earned today · keep going if you want!</small>
+        </article>
+        <AnimatedLevelProgress
+          previousLifetimeCoinsEarned={Math.max(0, lifetimeCoinsEarned - summary.coinsEarned)}
+          lifetimeCoinsEarned={lifetimeCoinsEarned}
+          animate={animateLevelProgress}
+          startAnimation={coinTallyComplete}
+          dailyMilestoneReached={summary.dailyMilestoneReached}
+          dailyCoinMilestone={DAILY_COIN_MILESTONE}
+          onLevelUp={onLevelUp}
+        />
         <article>
           <span>
             {summary.settings.mode === 'practice'
@@ -1268,23 +1299,7 @@ function Results({
               : 'accuracy first'}
           </small>
         </article>
-        <article className="coin-result">
-          <span>Paw Coins</span>
-          <strong key={visibleCoins} className="coin-tally">
-            +{visibleCoins}
-          </strong>
-          <small>{dailyEarned} earned today · keep going if you want!</small>
-        </article>
       </section>
-      {summary.dailyMilestoneReached && (
-        <section className="daily-milestone" role="status">
-          <span aria-hidden="true">✦</span>
-          <div>
-            <strong>Daily Paw Coin goal complete!</strong>
-            <p>You reached {DAILY_COIN_MILESTONE} today. Every correct answer still earns coins.</p>
-          </div>
-        </section>
-      )}
       <details className="coin-breakdown">
         <summary>How you earned {summary.coinsEarned} Paw Coins</summary>
         {summary.settings.mode === 'practice' && (
@@ -1575,6 +1590,11 @@ function History({
           />
         </section>
       )}
+
+      <section className="history-level" aria-label="Lifetime level progress">
+        <span className="eyebrow">Lifetime progress</span>
+        <LevelProgress lifetimeCoinsEarned={save.lifetimeCoinsEarned} />
+      </section>
 
       <section className="history-overview" aria-label="Overall play history">
         <article>
@@ -2601,6 +2621,10 @@ export default function App() {
     [playCue],
   );
 
+  const presentLevelUp = useCallback(() => {
+    void playCue(GAME_AUDIO_CUES.levelUp);
+  }, [playCue]);
+
   const startGame = useCallback(() => {
     if (!save) return;
     stopMusic();
@@ -2971,8 +2995,10 @@ export default function App() {
           setScreen('review');
         }}
         dailyEarned={dailyCoinsEarned(save, clock.today())}
+        lifetimeCoinsEarned={save.lifetimeCoinsEarned}
         presentCoinReward={presentedCoinSummaryId !== summary.id}
         onCoinsPresented={presentCoins}
+        onLevelUp={presentLevelUp}
         onCapsule={() => {
           clearCapsuleTimer();
           setCapsuleReward(undefined);

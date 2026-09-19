@@ -49,6 +49,7 @@ describe('play history analysis export', () => {
     });
     expect(emptyAnalysis.configurations).toEqual([]);
     expect(emptyAnalysis.rulesets).toEqual([]);
+    expect(emptyAnalysis.currentState).toMatchObject({ lifetimeCoinsEarned: 0, level: 1 });
 
     const withEvents: SaveData = {
       ...empty,
@@ -95,6 +96,7 @@ describe('play history analysis export', () => {
     expect(serialized).not.toContain('Private Player');
     expect(analysis.privacy.playerNameIncluded).toBe(false);
     expect(analysis.currentState.completedRoundCount).toBe(1);
+    expect(analysis.currentState).toMatchObject({ lifetimeCoinsEarned: 30, level: 1 });
     expect(analysis.overall.totalQuestions).toBe(10);
     expect(analysis.sessions[0]).toMatchObject({
       rulesetVersion: RULESET_VERSION,

@@ -62,7 +62,11 @@ describe('capsule transactions', () => {
   });
 
   it('keeps Collection Capsules in the selected ordinary collection', () => {
-    const initial = { ...createInitialSave('Ada', 'cozy-cats:sunny'), coins: 80 };
+    const initial = {
+      ...createInitialSave('Ada', 'cozy-cats:sunny'),
+      coins: 80,
+      lifetimeCoinsEarned: 80,
+    };
     const result = openCapsule(
       initial,
       catalog.collectibles,
@@ -74,6 +78,7 @@ describe('capsule transactions', () => {
     if (result.status !== 'opened') return;
     expect(result.reward.collectionId).toBe('nookside-pups');
     expect(result.save.coins).toBe(0);
+    expect(result.save.lifetimeCoinsEarned).toBe(80);
     expect(result.save.economyEvents.at(-1)).toMatchObject({
       capsuleKind: 'collection',
       collectionId: 'nookside-pups',

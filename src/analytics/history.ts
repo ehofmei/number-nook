@@ -1,6 +1,7 @@
 import { catalog } from '../content/catalog';
 import type { PracticeRecord } from '../domain/practice';
 import type { DifficultyId, GameSettings, OperationId } from '../domain/math';
+import { levelForLifetimeCoins } from '../domain/leveling';
 import {
   configurationKey,
   mergeArchivedProgress,
@@ -18,7 +19,7 @@ import {
 import { scoreAnswer, type SessionSummary } from '../domain/session';
 import { DETAILED_SESSION_LIMIT, type SaveData } from '../storage/save';
 
-export const PLAY_HISTORY_EXPORT_VERSION = 5;
+export const PLAY_HISTORY_EXPORT_VERSION = 6;
 
 function round(value: number, decimals = 2): number {
   const scale = 10 ** decimals;
@@ -98,6 +99,8 @@ export interface PlayHistoryExport {
   };
   currentState: {
     coinBalance: number;
+    lifetimeCoinsEarned: number;
+    level: number;
     ownedCollectibleCount: number;
     completedRoundCount: number;
   };
@@ -269,6 +272,8 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
     },
     currentState: {
       coinBalance: save.coins,
+      lifetimeCoinsEarned: save.lifetimeCoinsEarned,
+      level: levelForLifetimeCoins(save.lifetimeCoinsEarned),
       ownedCollectibleCount: save.ownedCollectibleIds.length,
       completedRoundCount: overall.rounds,
     },

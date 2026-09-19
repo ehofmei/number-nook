@@ -2,7 +2,7 @@
 
 Nook Levels provide a simple, permanent measure of how much rewarded practice a player has completed. They complement companion collection and skill-specific progress: collection shows what the player has found, future mastery views show what the player is learning, and Level shows the player's overall journey through Number Nook.
 
-This is the final planned player-facing progression feature before the initial release. It must remain small, understandable, local-first, and independent of the companion economy.
+This is the final player-facing progression feature added before the initial release. It remains small, understandable, local-first, and independent of the companion economy.
 
 ## Player-facing contract
 
@@ -94,7 +94,7 @@ The Home bar reflects saved progress immediately and does not animate on initial
 
 ## Results presentation and animation
 
-Every completed round shows a compact Level progress section beneath the main result metrics. Its normal state identifies the current level and shows the updated bar.
+Every completed round shows a compact Level progress section immediately after the first results row, which pairs accuracy with Paw Coins. This keeps the coin tally and subsequent level movement visible together on a phone. Its normal state identifies the current level and shows the updated bar; time and score follow it.
 
 The sequence should make the relationship to Paw Coins apparent without explaining an experience conversion:
 

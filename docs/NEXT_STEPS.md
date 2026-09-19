@@ -4,12 +4,11 @@ This is the short, authoritative view of the current development priorities. Det
 
 ## Current milestone: Nook Levels and launch readiness
 
-Nook Levels are the final planned player-facing feature before the initial release. Level advances automatically with lifetime Paw Coins earned, remains independent of spending and unlocks, and gives completed collectors a lasting progress path. See [Nook Levels](./LEVELING.md) for the curve, interface, animation, persistence, accessibility, and test contract.
+Nook Levels are implemented as the final planned player-facing feature before the initial release. Level advances automatically with lifetime Paw Coins earned, remains independent of spending and unlocks, and gives completed collectors a lasting progress path. See [Nook Levels](./LEVELING.md) for the curve, interface, animation, persistence, accessibility, and test contract.
 
-1. **Implement the pure progression model and persistence.** Derive Levels 1–100 from the saved lifetime Paw Coin total, update it atomically at round completion, and cover boundaries, backup, clearing history, and analysis export.
-2. **Add the three player-facing placements.** Show Level on Home, animate progress and announce level-ups on Results, and add the long-term summary to Play History.
-3. **Complete browser and device QA.** Verify ordinary and multiple level crossings, combined milestone celebrations, reduced motion, muted audio, accessible announcements, theme contrast, and phone/tablet wrapping.
-4. **Prepare the initial release.** After the Level feature passes full verification, close only launch-blocking issues found in family testing and perform the production PWA, offline, and GitHub Pages checks.
+1. **Family-test the Level rhythm.** Observe whether early level-ups arrive clearly, whether the coin tally followed by bar movement explains the relationship without XP copy, and whether Level feels motivating without suggesting mathematical rank.
+2. **Close only launch-blocking issues.** Keep Level, Trail Quest, rewards, and companion behavior stable unless family testing finds a concrete problem.
+3. **Perform the release pass.** Run complete verification plus production PWA, offline, install, update, backup/restore, and GitHub Pages subpath checks before the initial release.
 
 ## Active validation: Trail Quest family testing
 

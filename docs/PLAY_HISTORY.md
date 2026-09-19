@@ -22,7 +22,7 @@ Review is intentionally reflective rather than punitive. It does not change the 
 
 ## Bounded detailed history
 
-Save schema version 4 introduced the newest-30 detailed window, and current schema version 7 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
+Save schema version 4 introduced the newest-30 detailed window, and current schema version 8 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
 
 Archived totals preserve:
 
@@ -42,9 +42,9 @@ This design gives balance analysis a useful recent window while keeping browser 
 
 Recent detailed rounds appear before the per-setup analytics grid. The page shows the newest five detailed rounds and six setup configurations initially; each section can be expanded independently. This prevents either a long play history or a large variety of play-test setups from making the page difficult to scan.
 
-## Analysis export version 5
+## Analysis export version 6
 
-Version 5 includes game mode and per-question Practice attempts, hints, time to solve, and recap records. Exact configuration keys distinguish Practice from Quick Game; missing mode on older data means Quick Game.
+Version 6 adds lifetime Paw Coins earned and the derived current Nook Level. Version 5 added game mode and per-question Practice attempts, hints, time to solve, and recap records. Exact configuration keys distinguish Practice from Quick Game; missing mode on older data means Quick Game.
 
 The Play History analysis export includes:
 
@@ -53,12 +53,13 @@ The Play History analysis export includes:
 - Full settings, equations, choice order, selections, timing, scoring, and reward breakdowns for the newest 30 rounds.
 - Capsule kind, collection, cost, eligible-pool size, and ownership context for retained economy events.
 - Current reward multipliers, participation bonuses, milestone, and capsule prices.
+- Current spendable coins, lifetime coins earned, and derived Nook Level.
 
 The analysis export excludes the player name, account identifiers, installation identifiers, and device identifiers. It remains formatted for human inspection and sharing. The app's internal `localStorage` representation is compact JSON to avoid spending space on indentation.
 
 ## Migration and clearing
 
-Versions 1–6 migrate automatically to current schema version 7. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 added reward progress and richer economy history without changing the detailed-history limit; version 7 adds Practice Mode attempts, hints, and recap details.
+Versions 1–7 migrate automatically to current schema version 8. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 added reward progress and richer economy history without changing the detailed-history limit; version 7 added Practice Mode attempts, hints, and recap details; version 8 adds the lifetime Paw Coin total used by Nook Levels.
 
 **Clear play history** uses a confirmation step and removes:
 
@@ -66,7 +67,7 @@ Versions 1–6 migrate automatically to current schema version 7. If an older sa
 - Archived lifetime progress.
 - Scores and configuration performance summaries derived from those records.
 
-It preserves Paw Coins, daily and weekly reward progress, companions, equipped companion, capsule events, player name, and game settings. This makes it useful for removing development play-test results without resetting collection progress.
+It preserves Paw Coins, lifetime Level progress, daily and weekly reward progress, companions, equipped companion, capsule events, player name, and game settings. This makes it useful for removing development play-test results without resetting collection or Level progress.
 
 The separate [Save backup and restore](./SAVE_BACKUP.md) screen is the recovery mechanism for moving all progress to another device. The Play History analysis JSON is an analysis artifact and cannot be imported as a save file.
 

@@ -7,7 +7,7 @@ Number Nook can move complete local progress between devices without an account 
 A save backup includes:
 
 - Player name and remembered game settings.
-- Paw Coin balance, earned-today total, and daily and weekly participation progress.
+- Paw Coin balance, lifetime coins earned for Nook Level, earned-today total, and daily and weekly participation progress.
 - Owned and equipped companions.
 - Remembered Classic or Polished Sticker art preference.
 - Capsule economy events.
@@ -34,7 +34,7 @@ Invalid files show an error and leave the current save untouched. After a succes
 
 The success message appears only after browser storage accepts the complete restored save. A storage failure leaves the current in-memory progress unchanged and reports that the restore could not be completed.
 
-Current schema version 7 and legacy schema versions 1–6 are supported. Version 7 adds the remembered game mode and Practice attempts, hints, and recap records. Version 6 added Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. Migration preserves these rewards. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
+Current schema version 8 and legacy schema versions 1–7 are supported. Version 8 adds the lifetime Paw Coin total used to derive Nook Level; earlier development saves initialize that total to zero. Version 7 added the remembered game mode and Practice attempts, hints, and recap records. Version 6 added Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
 
 ## Different export types
 
@@ -50,7 +50,7 @@ This separation keeps analysis sharing privacy-conscious and prevents a partial 
 Automated tests cover:
 
 - Current-save export and import round trips.
-- Schema version 1–5 migration.
+- Schema version 1–7 migration.
 - Download naming.
 - Invalid-file rejection without changing the current save.
 - Preview-before-replacement behavior.

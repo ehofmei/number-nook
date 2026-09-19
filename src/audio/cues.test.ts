@@ -39,6 +39,7 @@ describe('audio cue catalog', () => {
       unavailableAction: 'incorrect-tap',
       roundComplete: 'round-complete',
       coinsEarned: 'coin-jingle',
+      levelUp: 'level-up',
       capsuleReveal: 'capsule-anticipation',
       starterSelected: 'companion-pop',
       companionEquipped: 'companion-pop',
