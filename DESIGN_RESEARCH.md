@@ -263,14 +263,20 @@ Then show:
 - The recommended everyday mode.
 - Optional visible elapsed timer.
 
-### 3. Time Rush
+### 3. Trail Quest
+
+- A ten-stop visual journey layered over the existing arithmetic generator.
+- Correct answers collect treasures and move the equipped companion; mistakes record a detour and serve a fresh problem without moving backward.
+- Uses responsive landscape and portrait boards plus data-defined route coordinates, allowing later trails to reuse the same engine.
+
+### 4. Time Rush
 
 - Answer as many as possible in 30 seconds to 5 minutes.
 - Feedback appears in the previous-answer ribbon.
 - Score rewards correct answers and pace.
 - Wrong answers do not subtract coins or end a streak.
 
-### 4. Endless
+### 5. Endless
 
 - Continues until the player stops.
 - Periodic milestones award coins and offer a natural stopping point.

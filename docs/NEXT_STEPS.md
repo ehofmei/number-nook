@@ -2,14 +2,23 @@
 
 This is the short, authoritative view of the current development priorities. Detailed product and architectural decisions remain in the topic documents linked below; this file should stay concise and be updated whenever priorities materially change.
 
-## Current milestone: Practice and collection-directed rewards
+## Current milestone: Nook Levels and launch readiness
 
-Practice Mode and the collection-directed economy are implemented. Practice includes retries, manual/automatic hints, a recap of missed questions, and first-attempt rewards. See [Practice Mode](./PRACTICE_MODE.md) for the contract. The immediate goal is to observe learning and reward pacing before treating the values as settled.
+Nook Levels are the final planned player-facing feature before the initial release. Level advances automatically with lifetime Paw Coins earned, remains independent of spending and unlocks, and gives completed collectors a lasting progress path. See [Nook Levels](./LEVELING.md) for the curve, interface, animation, persistence, accessibility, and test contract.
 
-1. **Family-test pacing.** Record how many questions it takes to open early capsules, whether the 60/80-coin choice feels meaningful, and whether difficulty bonuses feel fair rather than exploitable.
-2. **Validate calendar edges and backup behavior.** Exercise a new local day, a Monday-Sunday boundary, reloads, and export/import after daily, weekly, welcome, and milestone rewards.
-3. **Run acquisition simulations.** Compare Surprise and Collection spending across starter choices, rarity orders, established saves, and projected catalogs of five, ten, and more collections.
-4. **Polish only where testing finds friction.** Tune prices, multipliers, reward copy, shelf density, or reveal timing from observed play rather than adding another economy system preemptively.
+1. **Implement the pure progression model and persistence.** Derive Levels 1–100 from the saved lifetime Paw Coin total, update it atomically at round completion, and cover boundaries, backup, clearing history, and analysis export.
+2. **Add the three player-facing placements.** Show Level on Home, animate progress and announce level-ups on Results, and add the long-term summary to Play History.
+3. **Complete browser and device QA.** Verify ordinary and multiple level crossings, combined milestone celebrations, reduced motion, muted audio, accessible announcements, theme contrast, and phone/tablet wrapping.
+4. **Prepare the initial release.** After the Level feature passes full verification, close only launch-blocking issues found in family testing and perform the production PWA, offline, and GitHub Pages checks.
+
+## Active validation: Trail Quest family testing
+
+Trail Quest is implemented as a third playable mode with a responsive meadow board, ten unique treasures, honest attempt tracking, ordinary rewards and history, and a reusable trail definition. See [Trail Quest](./TRAIL_QUEST.md) for the contract. The immediate goal is to validate whether the visual journey adds enough delight without obscuring the mathematics.
+
+1. **Family-test the game loop.** Observe whether ten stops feels satisfying, whether fresh problems after detours feel fair, and whether the treasure animation keeps attention on the equation.
+2. **Inspect real devices.** Check phones and tablets in both orientations, especially board loading, item placement, touch targets, rotation during feedback, and the destination celebration.
+3. **Authoring follow-up.** If another trail is worthwhile, add a small development-only click-to-place coordinate editor before generating several board pairs.
+4. **Keep observing rewards.** Record Trail Quest accuracy and Paw Coin pacing alongside Quick Game and Practice so the visual mode does not become an easier reward path.
 
 The detailed acquisition and pricing contract is in [Economy Tuning](./ECONOMY.md). Companion presentation requirements are in [Companion Identity, Themes, and Presence](./COMPANION_SYSTEM.md).
 
@@ -29,7 +38,7 @@ Pondside Pals is complete in catalog 2.9 with ten mixed-species companions, prod
 
 ## After the current milestones
 
-1. Build on Practice with per-skill progress and guided suggestions, then Time Rush, Endless, a daily mixed challenge, and Improvement Duel after enough comparable history exists.
+1. Build Time Rush, then per-skill progress and guided suggestions; consider additional Trail Quest boards, Endless, a daily mixed challenge, and Improvement Duel after enough comparable history exists.
 2. Improve progress presentation with per-skill mastery, guided practice suggestions, and clearer long-term improvement views.
 3. Return to optional polish such as additional composed music, alternate companion expressions, speech, and collection-completion celebrations after observing family play.
 

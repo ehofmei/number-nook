@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { artStyleSchema, type ArtStyle } from '../content/schema';
-import { DEFAULT_SETTINGS, DIFFICULTY_IDS, OPERATION_IDS, type GameSettings } from '../domain/math';
+import {
+  DEFAULT_SETTINGS,
+  DIFFICULTY_IDS,
+  GAME_MODE_IDS,
+  OPERATION_IDS,
+  type GameSettings,
+} from '../domain/math';
 import { archiveSessions, createEmptyArchivedProgress } from '../domain/progress';
 import {
   DAILY_COIN_MILESTONE,
@@ -12,7 +18,7 @@ import {
 import type { AnswerRecord, SessionSummary } from '../domain/session';
 
 const settingsSchema = z.object({
-  mode: z.enum(['quick', 'practice']).optional(),
+  mode: z.enum(GAME_MODE_IDS).optional(),
   operations: z
     .array(z.enum(OPERATION_IDS))
     .min(1)

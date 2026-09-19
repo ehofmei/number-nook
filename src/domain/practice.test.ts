@@ -72,6 +72,7 @@ describe('Practice mode', () => {
     expect(configurationKey({ ...DEFAULT_SETTINGS, mode: 'quick' }, 8)).toBe(
       configurationKey(DEFAULT_SETTINGS, 8),
     );
+    expect(configurationKey({ ...DEFAULT_SETTINGS, mode: 'trail' }, 8)).toContain('|trail');
     const save = applyCompletedSession(
       createInitialSave('Practice', 'cozy-cats:sunny'),
       summary,

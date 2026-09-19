@@ -58,6 +58,19 @@ export default defineConfig(({ mode }) => ({
         runtimeCaching: [
           {
             urlPattern: ({ url }) =>
+              url.pathname.includes('/assets/trail-') && /\.(?:png|webp)$/i.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'number-nook-trail-art-v1',
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+            },
+          },
+          {
+            urlPattern: ({ url }) =>
               url.pathname.includes('/collectibles/') && /\.(?:png|webp|avif)$/i.test(url.pathname),
             handler: 'CacheFirst',
             options: {

@@ -20,6 +20,9 @@ export type DifficultyId = (typeof DIFFICULTY_IDS)[number];
 export const QUESTION_COUNTS = [10, 20, 30, 50] as const;
 export type QuestionCount = (typeof QUESTION_COUNTS)[number];
 
+export const GAME_MODE_IDS = ['quick', 'practice', 'trail'] as const;
+export type GameMode = (typeof GAME_MODE_IDS)[number];
+
 export const OPERATION_SYMBOLS: Record<OperationId, string> = {
   addition: '+',
   subtraction: '−',
@@ -42,7 +45,7 @@ export const DIFFICULTY_LABELS: Record<DifficultyId, string> = {
 };
 
 export interface GameSettings {
-  mode?: 'quick' | 'practice';
+  mode?: GameMode;
   operations: OperationId[];
   difficulty: DifficultyId;
   questionCount: QuestionCount;

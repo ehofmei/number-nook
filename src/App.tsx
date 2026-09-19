@@ -42,6 +42,7 @@ import {
   DIFFICULTY_IDS,
   DIFFICULTY_LABELS,
   formatProblem,
+  GAME_MODE_IDS,
   generateSession,
   OPERATION_IDS,
   OPERATION_LABELS,
@@ -78,6 +79,8 @@ import {
   updateSettings,
 } from './storage/save';
 import { openCapsule, type CapsuleChoice } from './storage/economy';
+import { TrailQuestPlay } from './trail/TrailQuestPlay';
+import { TRAIL_QUEST_LENGTH } from './trail/trails';
 
 type Screen =
   | 'onboarding'
@@ -104,6 +107,9 @@ interface EquipDialogueEvent {
 
 interface ActiveGame {
   practice: boolean;
+  trail: boolean;
+  trailComplete: boolean;
+  trailPosition: number;
   attempts: number[];
   firstResponseMs: number | null;
   hintUsed: boolean;
@@ -160,6 +166,13 @@ const CompanionLab = import.meta.env.DEV
       })),
     )
   : null;
+const TrailQuestLab = import.meta.env.DEV
+  ? lazy(() =>
+      import('./dev/TrailQuestLab').then(({ TrailQuestLab: DevelopmentTrailQuestLab }) => ({
+        default: DevelopmentTrailQuestLab,
+      })),
+    )
+  : null;
 
 function DevelopmentViewLoading() {
   return (
@@ -182,7 +195,11 @@ function formatTime(milliseconds: number): string {
 
 function settingsSummary(settings: GameSettings): string {
   const operations = settings.operations.map((operation) => OPERATION_SYMBOLS[operation]).join(' ');
-  return `${settings.mode === 'practice' ? 'Practice · ' : ''}${DIFFICULTY_LABELS[settings.difficulty]} · ${operations} · ${settings.questionCount} questions`;
+  const mode = settings.mode ?? 'quick';
+  const modeLabel = mode === 'practice' ? 'Practice · ' : mode === 'trail' ? 'Trail Quest · ' : '';
+  const lengthLabel =
+    mode === 'trail' ? `${TRAIL_QUEST_LENGTH} treasures` : `${settings.questionCount} questions`;
+  return `${modeLabel}${DIFFICULTY_LABELS[settings.difficulty]} · ${operations} · ${lengthLabel}`;
 }
 
 function difficultyDescription(difficulty: DifficultyId): string {
@@ -405,6 +422,7 @@ function Home({
   const lastSession = save.sessions.at(-1);
   const isFirstRound = !lastSession;
   const isPractice = save.settings.mode === 'practice';
+  const isTrail = save.settings.mode === 'trail';
   const collectionPercent = Math.round(
     (save.ownedCollectibleIds.length / catalog.collectibles.length) * 100,
   );
@@ -437,17 +455,25 @@ function Home({
           <span className="mode-pill">{settingsSummary(save.settings)}</span>
           <h2>
             {isFirstRound
-              ? 'Your first round is ready!'
+              ? isTrail
+                ? 'Your first trail is ready!'
+                : 'Your first round is ready!'
               : isPractice
                 ? 'Ready to practice?'
-                : 'Ready for a quick game?'}
+                : isTrail
+                  ? 'Ready for a Trail Quest?'
+                  : 'Ready for a quick game?'}
           </h2>
           <p>
             {isFirstRound
-              ? `Try ${save.settings.questionCount} questions, earn your first Paw Coins, and see how the Nook feels.`
+              ? isTrail
+                ? 'Collect ten treasures, reach the picnic nook, and earn your first Paw Coins.'
+                : `Try ${save.settings.questionCount} questions, earn your first Paw Coins, and see how the Nook feels.`
               : isPractice
                 ? 'Take your time, use a hint when you need one, and learn from every try.'
-                : 'Aim carefully, find your rhythm, and see what you can improve.'}
+                : isTrail
+                  ? 'Follow the path, collect ten treasures, and reach the picnic nook.'
+                  : 'Aim carefully, find your rhythm, and see what you can improve.'}
           </p>
           <div className="play-actions">
             <button className="primary-button" type="button" onClick={onPlay}>
@@ -812,22 +838,30 @@ function Setup({
         <div className="setting-block">
           <h2>Mode</h2>
           <div className="choice-row">
-            {(['quick', 'practice'] as const).map((mode) => (
+            {GAME_MODE_IDS.map((mode) => (
               <button
                 key={mode}
                 type="button"
                 className={`choice-chip ${(settings.mode ?? 'quick') === mode ? 'choice-chip--selected' : ''}`}
                 aria-pressed={(settings.mode ?? 'quick') === mode}
-                onClick={() => onChange({ ...settings, mode })}
+                onClick={() =>
+                  onChange({
+                    ...settings,
+                    mode,
+                    questionCount: mode === 'trail' ? TRAIL_QUEST_LENGTH : settings.questionCount,
+                  })
+                }
               >
-                {mode === 'quick' ? 'Quick Game' : 'Practice'}
+                {mode === 'quick' ? 'Quick Game' : mode === 'practice' ? 'Practice' : 'Trail Quest'}
               </button>
             ))}
           </div>
           <p>
             {settings.mode === 'practice'
               ? 'Take your time, try again, and get a little help. First answers earn your score and coins.'
-              : 'Answer once per question and see your accuracy and pace.'}
+              : settings.mode === 'trail'
+                ? 'Answer correctly to move along the path and collect ten treasures. A mistake keeps you at the same stop.'
+                : 'Answer once per question and see your accuracy and pace.'}
           </p>
         </div>
         <div className="setting-block">
@@ -868,22 +902,32 @@ function Setup({
           </div>
           <p>{difficultyDescription(settings.difficulty)}</p>
         </div>
-        <div className="setting-block">
-          <h2>Questions</h2>
-          <div className="choice-row">
-            {QUESTION_COUNTS.map((questionCount) => (
-              <button
-                key={questionCount}
-                className={`choice-chip ${settings.questionCount === questionCount ? 'choice-chip--selected' : ''}`}
-                type="button"
-                aria-pressed={settings.questionCount === questionCount}
-                onClick={() => onChange({ ...settings, questionCount })}
-              >
-                {questionCount}
-              </button>
-            ))}
+        {settings.mode === 'trail' ? (
+          <div className="setting-block">
+            <h2>Trail length</h2>
+            <p>
+              {TRAIL_QUEST_LENGTH} treasures lead to the picnic nook. Wrong answers add another
+              problem without moving you backward.
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="setting-block">
+            <h2>Questions</h2>
+            <div className="choice-row">
+              {QUESTION_COUNTS.map((questionCount) => (
+                <button
+                  key={questionCount}
+                  className={`choice-chip ${settings.questionCount === questionCount ? 'choice-chip--selected' : ''}`}
+                  type="button"
+                  aria-pressed={settings.questionCount === questionCount}
+                  onClick={() => onChange({ ...settings, questionCount })}
+                >
+                  {questionCount}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <button className="text-button" type="button" onClick={() => onChange(DEFAULT_SETTINGS)}>
           Reset defaults
         </button>
@@ -1136,16 +1180,22 @@ function Results({
           <span className="celebration-stars" aria-hidden="true">
             ✦ ★ ✦
           </span>
-          <span className="eyebrow">Round complete</span>
+          <span className="eyebrow">
+            {summary.settings.mode === 'trail' ? 'Trail complete' : 'Round complete'}
+          </span>
           <h1>
             {summary.settings.mode === 'practice'
               ? 'A little wiser, a little brighter!'
-              : resultHeadline(resultFacts)}
+              : summary.settings.mode === 'trail'
+                ? 'The picnic nook is yours!'
+                : resultHeadline(resultFacts)}
           </h1>
           <p>
             {summary.settings.mode === 'practice'
               ? `You worked through all ${summary.answers.length} questions. Every little rethink counts.`
-              : `You completed all ${summary.answers.length} questions and added another practice round.`}
+              : summary.settings.mode === 'trail'
+                ? `You collected all ${TRAIL_QUEST_LENGTH} treasures in ${summary.answers.length} problems.`
+                : `You completed all ${summary.answers.length} questions and added another practice round.`}
           </p>
         </div>
         {companion && (
@@ -1163,7 +1213,10 @@ function Results({
                   src={`${import.meta.env.BASE_URL}${getCollectibleImage(companion, artStyle)}`}
                   alt={companion.altText}
                 />
-                <strong>{companion.name} is cheering for your practice!</strong>
+                <strong>
+                  {companion.name} is cheering for your{' '}
+                  {summary.settings.mode === 'trail' ? 'adventure' : 'practice'}!
+                </strong>
               </>
             )}
           </div>
@@ -1171,21 +1224,39 @@ function Results({
       </section>
       <section className="results-grid" aria-label="Game results">
         <article>
-          <span>{summary.settings.mode === 'practice' ? 'First-try accuracy' : 'Accuracy'}</span>
+          <span>
+            {summary.settings.mode === 'practice'
+              ? 'First-try accuracy'
+              : summary.settings.mode === 'trail'
+                ? 'Trail accuracy'
+                : 'Accuracy'}
+          </span>
           <strong>{Math.round(summary.accuracy * 100)}%</strong>
           <small>
             {summary.correctCount} of {summary.answers.length} correct
           </small>
         </article>
         <article>
-          <span>{summary.settings.mode === 'practice' ? 'Worked out' : 'Time'}</span>
+          <span>
+            {summary.settings.mode === 'practice'
+              ? 'Worked out'
+              : summary.settings.mode === 'trail'
+                ? 'Detours'
+                : 'Time'}
+          </span>
           <strong>
             {summary.settings.mode === 'practice'
               ? summary.answers.filter((answer) => !answer.correct).length
-              : formatTime(summary.elapsedMs)}
+              : summary.settings.mode === 'trail'
+                ? summary.answers.filter((answer) => !answer.correct).length
+                : formatTime(summary.elapsedMs)}
           </strong>
           <small>
-            {summary.settings.mode === 'practice' ? 'with another try' : 'thinking time'}
+            {summary.settings.mode === 'practice'
+              ? 'with another try'
+              : summary.settings.mode === 'trail'
+                ? 'extra problems'
+                : 'thinking time'}
           </small>
         </article>
         <article>
@@ -2536,14 +2607,23 @@ export default function App() {
     void playCue(GAME_AUDIO_CUES.roundStart);
     const seed = createRandomSeed();
     const now = performance.now();
+    const trail = save.settings.mode === 'trail';
+    const problems = trail
+      ? Array.from({ length: 4 }, (_, batch) =>
+          generateSession({ ...save.settings, questionCount: 50 }, new SeededRandom(seed + batch)),
+        ).flat()
+      : generateSession(save.settings, new SeededRandom(seed));
     setGame({
       practice: save.settings.mode === 'practice',
+      trail,
+      trailComplete: false,
+      trailPosition: 0,
       attempts: [],
       firstResponseMs: null,
       hintUsed: false,
       recap: null,
       seed,
-      problems: generateSession(save.settings, new SeededRandom(seed)),
+      problems,
       index: 0,
       answers: [],
       questionStartedAt: now,
@@ -2563,7 +2643,7 @@ export default function App() {
 
   const chooseAnswer = useCallback(
     (selectedAnswer: number) => {
-      if (!game || !save || game.feedback) return;
+      if (!game || !save || game.feedback || game.trailComplete) return;
       const problem = game.problems[game.index];
       if (!problem) return;
       if (
@@ -2642,12 +2722,21 @@ export default function App() {
           : game.practice && game.index === game.problems.length - 1
             ? nextAnswers.flatMap((record, index) => (record.correct ? [] : [index]))
             : null;
-        const completed = game.recap
-          ? recap?.length === 0
-          : game.index === game.problems.length - 1 && (!recap || recap.length === 0);
+        const trailCompleted =
+          game.trail &&
+          selectedCorrect &&
+          nextAnswers.filter((record) => record.correct).length >= TRAIL_QUEST_LENGTH;
+        const completed = game.trail
+          ? trailCompleted
+          : game.recap
+            ? recap?.length === 0
+            : game.index === game.problems.length - 1 && (!recap || recap.length === 0);
         if (completed) {
+          const completedProblems = game.trail
+            ? game.problems.slice(0, nextAnswers.length)
+            : game.problems;
           const nextSummary = summarizeSession(
-            game.problems,
+            completedProblems,
             nextAnswers,
             save.settings,
             game.seed,
@@ -2663,9 +2752,25 @@ export default function App() {
           commitSave(nextSave);
           setSummary(storedSummary);
           setResultDialogueFacts(dialogueFacts);
-          setGame(null);
-          setScreen('results');
           void playCue(GAME_AUDIO_CUES.roundComplete);
+          if (game.trail) {
+            setGame({
+              ...game,
+              answers: nextAnswers,
+              feedback: null,
+              previous: { answer, prompt: formatProblem(problem) },
+              trailComplete: true,
+              trailPosition: TRAIL_QUEST_LENGTH,
+            });
+            transitionTimer.current = window.setTimeout(() => {
+              setGame(null);
+              setScreen('results');
+              transitionTimer.current = null;
+            }, 1_500);
+          } else {
+            setGame(null);
+            setScreen('results');
+          }
         } else {
           setGame({
             ...game,
@@ -2678,6 +2783,7 @@ export default function App() {
             questionStartedAt: performance.now(),
             feedback: null,
             previous: { answer, prompt: formatProblem(problem) },
+            trailPosition: game.trailPosition + (game.trail && selectedCorrect ? 1 : 0),
           });
         }
       }, answerFeedbackDelay(selectedCorrect));
@@ -2686,7 +2792,7 @@ export default function App() {
   );
 
   useEffect(() => {
-    if (screen !== 'play' || !game || game.feedback) return;
+    if (screen !== 'play' || !game || game.feedback || game.trailComplete) return;
     const handleKey = (event: KeyboardEvent) => {
       if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
       const index = Number(event.key) - 1;
@@ -2731,6 +2837,12 @@ export default function App() {
     return (
       <Suspense fallback={<DevelopmentViewLoading />}>
         <CompanionLab />
+      </Suspense>
+    );
+  if (developmentView === 'trail' && TrailQuestLab)
+    return (
+      <Suspense fallback={<DevelopmentViewLoading />}>
+        <TrailQuestLab />
       </Suspense>
     );
   if (save === undefined)
@@ -2799,6 +2911,29 @@ export default function App() {
         onStart={startGame}
       />
     );
+  if (screen === 'play' && game?.trail && equippedCompanion) {
+    const problem = game.problems[game.index];
+    if (!problem) return null;
+    return (
+      <TrailQuestPlay
+        problem={problem}
+        feedback={game.feedback}
+        previous={game.previous ? { correct: game.previous.answer.correct } : null}
+        collectedCount={game.trailPosition}
+        complete={game.trailComplete}
+        companion={equippedCompanion}
+        artStyle={save.artStyle}
+        soundEnabled={audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0}
+        onAnswer={chooseAnswer}
+        onToggleAudio={toggleAudio}
+        onExit={() => {
+          if (transitionTimer.current !== null) window.clearTimeout(transitionTimer.current);
+          setGame(null);
+          setScreen('home');
+        }}
+      />
+    );
+  }
   if (screen === 'play' && game)
     return (
       <Play

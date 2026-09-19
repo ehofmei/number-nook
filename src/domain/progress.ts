@@ -61,7 +61,8 @@ export function normalizeSettings(settings: GameSettings): GameSettings {
 
 export function configurationKey(settings: GameSettings, rulesetVersion: number): string {
   const normalized = normalizeSettings(settings);
-  return `ruleset-${rulesetVersion}|${normalized.operations.join('+')}|${normalized.difficulty}|${normalized.questionCount}${settings.mode === 'practice' ? '|practice' : ''}`;
+  const modeSuffix = settings.mode && settings.mode !== 'quick' ? `|${settings.mode}` : '';
+  return `ruleset-${rulesetVersion}|${normalized.operations.join('+')}|${normalized.difficulty}|${normalized.questionCount}${modeSuffix}`;
 }
 
 function answerTotals(

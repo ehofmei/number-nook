@@ -155,6 +155,66 @@ test('Practice retries, hints, recap, rewards, review, and remembered mode', asy
   );
 });
 
+test('Trail Quest keeps mistakes at the same stop and saves a completed adventure', async ({
+  page,
+}) => {
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Trail Quest', exact: true }).click();
+  await expect(page.getByText('10 treasures lead to the picnic nook.')).toBeVisible();
+  await page.getByRole('button', { name: 'Start game' }).click();
+
+  await expect(page.getByText('0 of 10 stops cleared')).toBeVisible();
+  await expect(page.getByText('Next trail treasure: golden leaf.')).toBeAttached();
+  await expect(page.getByLabel('Moonbeam is at trail stop 1 of 11')).toBeVisible();
+
+  const firstEquation = (await page.locator('#trail-equation').textContent()) ?? '';
+  const firstCorrect = solveEquation(firstEquation);
+  const firstChoices = await page
+    .locator('.trail-answer')
+    .evaluateAll((buttons) =>
+      buttons.map((button) => Number(button.getAttribute('aria-label')?.replace('Answer ', ''))),
+    );
+  const wrong = firstChoices.find((choice) => choice !== firstCorrect);
+  if (wrong === undefined) throw new Error('Trail Quest needs an incorrect choice.');
+  await page.getByRole('button', { name: `Answer ${wrong}`, exact: true }).click();
+  await expect(page.getByText(/That was a small detour/)).toBeVisible();
+  await expect(page.getByText('0 of 10 stops cleared')).toBeVisible();
+  await expect(page.locator('#trail-equation')).not.toHaveText(firstEquation);
+  await expect(page.getByText('Next trail treasure: golden leaf.')).toBeAttached();
+
+  for (let collected = 0; collected < 10; collected += 1) {
+    const equation = (await page.locator('#trail-equation').textContent()) ?? '';
+    const answer = solveEquation(equation);
+    await page.getByRole('button', { name: `Answer ${answer}`, exact: true }).click();
+    if (collected < 9) {
+      await expect(page.getByText(`${collected + 1} of 10 stops cleared`)).toBeVisible();
+    }
+  }
+
+  await expect(page.getByRole('heading', { name: 'Trail complete!' })).toBeVisible();
+  await expect(page.getByText('10 trail treasures collected')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'The picnic nook is yours!' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Game results' })).toContainText('91%');
+  await expect(page.getByRole('region', { name: 'Game results' })).toContainText('1extra problems');
+
+  const record = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('first-math-game:save') ?? '{}') as SaveData,
+  );
+  expect(record.settings.mode).toBe('trail');
+  expect(record.sessions[0]?.settings.mode).toBe('trail');
+  expect(record.sessions[0]?.answers).toHaveLength(11);
+  expect(record.sessions[0]?.correctCount).toBe(10);
+
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Ready for a Trail Quest?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await expect(page.getByRole('button', { name: 'Trail Quest', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+});
+
 test('exiting Practice during wrong-answer feedback cancels the pending transition', async ({
   page,
 }) => {
@@ -1084,4 +1144,55 @@ test('@pwa production build works after the network goes offline', async ({
   await expect
     .poll(() => starterPortrait.evaluate((image) => (image as HTMLImageElement).naturalWidth))
     .toBe(768);
+});
+
+test('@pwa Trail Quest art remains available offline after an online visit', async ({
+  page,
+  context,
+  browserName,
+}) => {
+  test.skip(browserName !== 'chromium', 'Offline trail caching is covered once in Chromium.');
+  await page.evaluate('navigator.serviceWorker.ready');
+  await page.reload();
+  await expect
+    .poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller)))
+    .toBe(true);
+
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Trail Quest', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const board = page.locator('.trail-board__picture img');
+  const treasure = page.getByTestId('trail-collectible');
+  await expect
+    .poll(() => board.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(1122);
+  await expect
+    .poll(() => treasure.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(256);
+  await page.setViewportSize({ width: 844, height: 390 });
+  await expect
+    .poll(() => board.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(2055);
+  await expect
+    .poll(() => page.evaluate(async () => (await caches.open('number-nook-trail-art-v1')).keys()))
+    .toHaveLength(12);
+
+  await page.getByRole('button', { name: 'Exit game' }).click();
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Your first trail is ready!' })).toBeVisible();
+  await page.getByRole('button', { name: 'Start first round' }).click();
+  await expect
+    .poll(() => board.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(2055);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect
+    .poll(() => board.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(1122);
+  await expect
+    .poll(() => treasure.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBe(256);
 });

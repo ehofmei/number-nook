@@ -39,7 +39,7 @@ export function deriveResultDialogueFacts(
     personalBest: hasComparableBaseline && summary.score > previousBestScore,
     accuracyImproved: Boolean(latestComparable && summary.accuracy > latestComparable.accuracy),
     paceImproved: Boolean(
-      summary.settings.mode !== 'practice' &&
+      (summary.settings.mode ?? 'quick') === 'quick' &&
       latestComparable &&
       previousPace > 0 &&
       summary.accuracy >= latestComparable.accuracy - MAX_PACE_ACCURACY_DROP &&

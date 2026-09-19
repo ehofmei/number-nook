@@ -8,9 +8,11 @@ Choose one or more operations, a difficulty, and a round length of 10, 20, 30, o
 
 Each question has four choices. Correct answers add to accuracy, score, Paw Coins, progress, and skill history. Incorrect answers never remove progress or currency. At the end of a round, the results screen shows accuracy, thinking time, score, and Paw Coins; **Review questions** shows every problem and the selected and correct answers.
 
-## Quick Game and Practice
+## Quick Game, Practice, and Trail Quest
 
 Quick Game accepts one answer per question and measures accuracy and pace. Practice lets you take your time: wrong choices become disabled, a hint is available after the first miss, and help appears automatically after the second. Missed questions return in a short recap at the end. Only first answers earn score and coins; Practice has no speed bonus. Review shows attempts and hints as well as the first answer. See [Practice Mode](./PRACTICE_MODE.md).
+
+Trail Quest places the equipped companion on a visual path. Every correct answer collects a unique treasure and advances one stop toward the picnic nook. A wrong answer records a detour and serves a fresh problem without moving the companion. The trail ends after ten correct answers, and results measure accuracy across every problem attempted. See [Trail Quest](./TRAIL_QUEST.md).
 
 ## Difficulty
 

@@ -23,7 +23,7 @@ Round review preserves the first answer plus the sequence of attempts, hint use,
 
 ## Persistence and compatibility
 
-Save schema 7 adds the optional `settings.mode` and per-answer `practice` record. Missing mode means Quick Game. Schemas 1–6 migrate without losing collection, coins, participation progress, or prior results. Quick Game retains its existing configuration keys and ruleset 8 generator; Practice uses a distinct configuration suffix. Analysis export 5 includes Practice attempts and hints. The newest 30 detailed rounds retain these records; older rounds use the existing compact archive.
+Save schema 7 adds the optional `settings.mode` and per-answer `practice` record. Missing mode means Quick Game; the same mode field now also accepts Trail Quest. Schemas 1–6 migrate without losing collection, coins, participation progress, or prior results. Quick Game retains its existing configuration keys and ruleset 8 generator; Practice and Trail Quest use distinct configuration suffixes. Analysis export 5 includes Practice attempts and hints. The newest 30 detailed rounds retain these records; older rounds use the existing compact archive.
 
 ## Verification inventory
 

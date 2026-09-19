@@ -12,7 +12,8 @@ export function StateGallery() {
           <p>
             Looking for audio or collectible studies? Open the <a href="?dev=sounds">Sound Lab</a>,{' '}
             <a href="?dev=music">Music Lab</a>, <a href="?dev=art">Art Lab</a>,{' '}
-            <a href="?dev=themes">Theme Lab</a>, or the <a href="?dev=companions">Companion Lab</a>.
+            <a href="?dev=themes">Theme Lab</a>, the <a href="?dev=companions">Companion Lab</a>, or
+            the <a href="?dev=trail">Trail Quest Lab</a>.
           </p>
         </div>
       </header>
