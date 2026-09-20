@@ -267,6 +267,40 @@ test('Trail Quest keeps mistakes at the same stop and saves a completed adventur
   );
 });
 
+test('Trail Quest touch answers return to a neutral border on the next question', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'This regression requires a touch-only viewport.');
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: 'Trail Quest', exact: true }).click();
+  await page.getByRole('button', { name: 'Start game' }).click();
+
+  expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(
+    false,
+  );
+  const equation = page.locator('#trail-equation');
+  const firstEquation = (await equation.textContent()) ?? '';
+  const answer = solveEquation(firstEquation);
+  const chosen = page.getByRole('button', { name: `Answer ${answer}`, exact: true });
+  const answerIndex = await page
+    .locator('.trail-answer')
+    .evaluateAll(
+      (buttons, label) =>
+        buttons.findIndex((button) => button.getAttribute('aria-label') === label),
+      `Answer ${answer}`,
+    );
+  const neutralBorder = await chosen.evaluate((button) => getComputedStyle(button).borderColor);
+
+  await chosen.tap();
+  await expect(equation).not.toHaveText(firstEquation);
+  const samePosition = page.locator('.trail-answer').nth(answerIndex);
+  await expect(samePosition).toHaveClass(/trail-answer--idle/);
+  await expect
+    .poll(() => samePosition.evaluate((button) => getComputedStyle(button).borderColor))
+    .toBe(neutralBorder);
+});
+
 test('exiting Practice during wrong-answer feedback cancels the pending transition', async ({
   page,
 }) => {

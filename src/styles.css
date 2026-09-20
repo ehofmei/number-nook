@@ -2573,9 +2573,11 @@ button.dashboard-card {
     background 160ms ease,
     border-color 160ms ease;
 }
-.trail-answer:not(:disabled):hover {
-  border-color: var(--theme-accent);
-  transform: translateY(-3px);
+@media (hover: hover) and (pointer: fine) {
+  .trail-answer:not(:disabled):hover {
+    border-color: var(--theme-accent);
+    transform: translateY(-3px);
+  }
 }
 .trail-answer:focus-visible {
   outline: 4px solid var(--theme-accent-strong);
