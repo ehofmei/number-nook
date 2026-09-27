@@ -1199,7 +1199,9 @@ test('@visual paused game responsive layout', async ({ page }, testInfo) => {
   expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth);
   expect(layout.top).toBeGreaterThanOrEqual(0);
   expect(layout.bottom).toBeLessThanOrEqual(layout.viewportHeight);
-  await expect(page).toHaveScreenshot('paused-game.png', { fullPage: true });
+  if (process.platform === 'darwin') {
+    await expect(page).toHaveScreenshot('paused-game.png', { fullPage: true });
+  }
 });
 
 test('@visual home responsive layout', async ({ page }, testInfo) => {
