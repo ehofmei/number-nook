@@ -8,6 +8,7 @@ Nook Levels are implemented as the final planned player-facing feature before th
 
 1. **Family-test the Level rhythm.** Observe whether early level-ups arrive clearly, whether the coin tally followed by bar movement explains the relationship without XP copy, and whether Level feels motivating without suggesting mathematical rank.
 2. **Close only launch-blocking issues.** Keep Level, Trail Quest, rewards, and companion behavior stable unless family testing finds a concrete problem.
+   Ruleset version 9 addresses the observed Hard/Advanced multiplication and division ceiling; the next family-test batch should compare its per-operation accuracy and active response times with the retained ruleset-8 baseline.
 3. **Perform the release pass.** Run complete verification plus production PWA, offline, install, update, backup/restore, and GitHub Pages subpath checks before the initial release.
 
 ## Active validation: Trail Quest family testing

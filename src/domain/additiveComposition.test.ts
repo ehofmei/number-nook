@@ -119,15 +119,15 @@ describe('addition and subtraction composition', () => {
       minimumFocus: 2,
     });
     expect(additiveCompositionTargets(20, 'hard')).toEqual({
-      maximumLow: 2,
+      maximumLow: 0,
       minimumFocus: 12,
     });
     expect(additiveCompositionTargets(3, 'advanced')).toEqual({
-      maximumLow: 1,
+      maximumLow: 0,
       minimumFocus: 2,
     });
     expect(additiveCompositionTargets(3, 'hard')).toEqual({
-      maximumLow: 1,
+      maximumLow: 0,
       minimumFocus: 1,
     });
     expect(additiveAnswerLimit(5)).toBe(2);
@@ -197,7 +197,7 @@ describe('addition and subtraction composition', () => {
           : [problem.right, problem.correctAnswer];
       return !isLowChallenge(problem) && isFocusFactorPair(pair[0], pair[1], 'advanced');
     }).length;
-    expect(focusCount).toBe(6);
+    expect(focusCount).toBe(8);
     expect(
       problems.filter(
         ({ operation, correctAnswer }) => operation === 'subtraction' && correctAnswer < 0,

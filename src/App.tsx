@@ -66,6 +66,7 @@ import {
   scoreAnswer,
   summarizeSession,
   type AnswerRecord,
+  type ResponseTimingFlag,
   type SessionSummary,
 } from './domain/session';
 import {
@@ -112,7 +113,7 @@ interface ActiveGame {
   trailComplete: boolean;
   trailPosition: number;
   attempts: number[];
-  firstResponseMs: number | null;
+  firstResponseTiming: ResponseTiming | null;
   hintUsed: boolean;
   recap: number[] | null;
   seed: number;
@@ -120,9 +121,32 @@ interface ActiveGame {
   index: number;
   answers: AnswerRecord[];
   questionStartedAt: number;
-  startedAt: number;
+  questionInactiveMs: number;
+  questionPauseStartedAt: number | null;
+  pauseSource: 'manual' | 'page-hidden' | null;
+  questionTimingFlags: ResponseTimingFlag[];
   feedback: { selected: number; correct: boolean } | null;
   previous: { answer: AnswerRecord; prompt: string } | null;
+}
+
+interface ResponseTiming {
+  activeMs: number;
+  rawMs: number;
+  inactiveMs: number;
+  flags: ResponseTimingFlag[];
+}
+
+const LONG_RESPONSE_MS = 30_000;
+
+function currentResponseTiming(game: ActiveGame, now: number): ResponseTiming {
+  const pendingInactiveMs =
+    game.questionPauseStartedAt === null ? 0 : Math.max(0, now - game.questionPauseStartedAt);
+  const rawMs = Math.max(0, now - game.questionStartedAt);
+  const inactiveMs = game.questionInactiveMs + pendingInactiveMs;
+  const activeMs = Math.max(0, rawMs - inactiveMs);
+  const flags = [...game.questionTimingFlags];
+  if (activeMs >= LONG_RESPONSE_MS && !flags.includes('long-response')) flags.push('long-response');
+  return { activeMs, rawMs, inactiveMs, flags };
 }
 
 const StateGallery = import.meta.env.DEV
@@ -207,8 +231,8 @@ function difficultyDescription(difficulty: DifficultyId): string {
   const descriptions: Record<DifficultyId, string> = {
     easy: 'Foundational facts with friendly number ranges.',
     medium: 'Larger addition and subtraction, with tables through 10.',
-    hard: 'Multi-digit arithmetic and multiplication tables through 12.',
-    advanced: 'Large numbers, tables through 20, and negative subtraction answers.',
+    hard: 'Multi-digit arithmetic, two-digit multiplication, and exact division.',
+    advanced: 'Large numbers, two-digit factors and divisors, and negative subtraction answers.',
   };
   return descriptions[difficulty];
 }
@@ -952,6 +976,7 @@ function Play({
   onAnswer,
   onHint,
   onExit,
+  onPause,
   audioPreferences,
   onToggleAudio,
 }: {
@@ -962,6 +987,7 @@ function Play({
   onAnswer: (answer: number) => void;
   onHint: () => void;
   onExit: () => void;
+  onPause: () => void;
   audioPreferences: AudioPreferences;
   onToggleAudio: () => void;
 }) {
@@ -1014,6 +1040,9 @@ function Play({
           </div>
         </div>
         <div className="game-tools">
+          <button className="icon-button" type="button" onClick={onPause} aria-label="Pause game">
+            <span aria-hidden="true">‖</span>
+          </button>
           <SoundToggle
             enabled={audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0}
             onToggle={onToggleAudio}
@@ -1114,6 +1143,26 @@ function Play({
         </section>
       )}
       <p className="keyboard-hint">Tip: use keys 1–4 to choose an answer.</p>
+    </main>
+  );
+}
+
+function PausedPlay({ onResume, onExit }: { onResume: () => void; onExit: () => void }) {
+  return (
+    <main className="page-shell paused-page">
+      <section className="panel paused-panel" aria-labelledby="paused-heading">
+        <span className="eyebrow">Thinking time stopped</span>
+        <h1 id="paused-heading">Game paused</h1>
+        <p>The question is hidden until you are ready to continue.</p>
+        <div className="result-actions">
+          <button className="primary-button" type="button" onClick={onResume} autoFocus>
+            Resume game
+          </button>
+          <button className="text-button" type="button" onClick={onExit}>
+            Exit game
+          </button>
+        </div>
+      </section>
     </main>
   );
 }
@@ -1466,8 +1515,22 @@ function RoundReview({ summary, onBack }: { summary: SessionSummary; onBack: () 
                 </div>
                 <div>
                   <dt>Time</dt>
-                  <dd>{formatTime(answer.responseMs)}</dd>
+                  <dd>
+                    {formatTime(answer.responseMs)}
+                    {(answer.inactiveResponseMs ?? 0) > 0 && (
+                      <small> active · {formatTime(answer.inactiveResponseMs ?? 0)} paused</small>
+                    )}
+                  </dd>
                 </div>
+                {answer.challenge && (
+                  <div>
+                    <dt>Challenge</dt>
+                    <dd>
+                      {answer.challenge.category[0]?.toUpperCase() +
+                        answer.challenge.category.slice(1)}
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt>Score</dt>
                   <dd>
@@ -2604,7 +2667,11 @@ export default function App() {
 
   useEffect(() => {
     if (screen !== 'play' || !game) return;
-    const interval = window.setInterval(() => setElapsed(performance.now() - game.startedAt), 100);
+    const interval = window.setInterval(() => {
+      const completedMs = game.answers.reduce((total, answer) => total + answer.responseMs, 0);
+      const currentMs = game.feedback ? 0 : currentResponseTiming(game, performance.now()).activeMs;
+      setElapsed(completedMs + currentMs);
+    }, 100);
     return () => window.clearInterval(interval);
   }, [game, screen]);
 
@@ -2644,7 +2711,7 @@ export default function App() {
       trailComplete: false,
       trailPosition: 0,
       attempts: [],
-      firstResponseMs: null,
+      firstResponseTiming: null,
       hintUsed: false,
       recap: null,
       seed,
@@ -2652,7 +2719,10 @@ export default function App() {
       index: 0,
       answers: [],
       questionStartedAt: now,
-      startedAt: now,
+      questionInactiveMs: 0,
+      questionPauseStartedAt: null,
+      pauseSource: null,
+      questionTimingFlags: [],
       feedback: null,
       previous: null,
     });
@@ -2668,7 +2738,7 @@ export default function App() {
 
   const chooseAnswer = useCallback(
     (selectedAnswer: number) => {
-      if (!game || !save || game.feedback || game.trailComplete) return;
+      if (!game || !save || game.feedback || game.trailComplete || game.pauseSource) return;
       const problem = game.problems[game.index];
       if (!problem) return;
       if (
@@ -2678,20 +2748,20 @@ export default function App() {
         return;
       const selectedCorrect = selectedAnswer === problem.correctAnswer;
       const attempts = [...game.attempts, selectedAnswer];
-      const responseMs = Math.max(0, performance.now() - game.questionStartedAt);
-      const firstResponseMs = game.firstResponseMs ?? responseMs;
+      const timing = currentResponseTiming(game, performance.now());
+      const firstResponseTiming = game.firstResponseTiming ?? timing;
       const hintUsed = game.hintUsed || (game.practice && !selectedCorrect && attempts.length >= 2);
       if (game.practice && !selectedCorrect) {
         void playCue(GAME_AUDIO_CUES.incorrectAnswer);
         setGame({
           ...game,
           attempts,
-          firstResponseMs,
+          firstResponseTiming,
           hintUsed,
           feedback: { selected: selectedAnswer, correct: false },
         });
         transitionTimer.current = window.setTimeout(() => {
-          setGame({ ...game, attempts, firstResponseMs, hintUsed, feedback: null });
+          setGame({ ...game, attempts, firstResponseTiming, hintUsed, feedback: null });
         }, answerFeedbackDelay(false));
         return;
       }
@@ -2706,13 +2776,17 @@ export default function App() {
         selectedAnswer: game.practice ? (attempts[0] ?? selectedAnswer) : selectedAnswer,
         correctAnswer: problem.correctAnswer,
         correct: game.practice ? attempts[0] === problem.correctAnswer : selectedCorrect,
-        responseMs: game.practice ? firstResponseMs : responseMs,
+        responseMs: game.practice ? firstResponseTiming.activeMs : timing.activeMs,
+        rawResponseMs: game.practice ? firstResponseTiming.rawMs : timing.rawMs,
+        inactiveResponseMs: game.practice ? firstResponseTiming.inactiveMs : timing.inactiveMs,
+        timingFlags: game.practice ? firstResponseTiming.flags : timing.flags,
+        challenge: problem.challenge,
         ...(game.practice
           ? {
               practice: {
                 attempts,
                 hintUsed,
-                completionMs: responseMs,
+                completionMs: timing.activeMs,
                 recapAttempts: [],
                 recapHintUsed: false,
               },
@@ -2802,10 +2876,14 @@ export default function App() {
             index: recap?.length ? (recap[0] ?? 0) : game.index + 1,
             recap: recap?.length ? recap : null,
             attempts: [],
-            firstResponseMs: null,
+            firstResponseTiming: null,
             hintUsed: false,
             answers: nextAnswers,
             questionStartedAt: performance.now(),
+            questionInactiveMs: 0,
+            questionPauseStartedAt: null,
+            pauseSource: null,
+            questionTimingFlags: [],
             feedback: null,
             previous: { answer, prompt: formatProblem(problem) },
             trailPosition: game.trailPosition + (game.trail && selectedCorrect ? 1 : 0),
@@ -2815,6 +2893,44 @@ export default function App() {
     },
     [commitSave, game, playCue, save],
   );
+
+  const setGamePaused = useCallback((source: 'manual' | 'page-hidden', paused: boolean) => {
+    const now = performance.now();
+    setGame((current) => {
+      if (!current || current.feedback || current.trailComplete) return current;
+      if (paused) {
+        if (current.pauseSource) return current;
+        const flag: ResponseTimingFlag = source === 'manual' ? 'manual-pause' : 'page-hidden';
+        return {
+          ...current,
+          pauseSource: source,
+          questionPauseStartedAt: now,
+          questionTimingFlags: current.questionTimingFlags.includes(flag)
+            ? current.questionTimingFlags
+            : [...current.questionTimingFlags, flag],
+        };
+      }
+      if (current.pauseSource !== source || current.questionPauseStartedAt === null) return current;
+      return {
+        ...current,
+        pauseSource: null,
+        questionInactiveMs:
+          current.questionInactiveMs + Math.max(0, now - current.questionPauseStartedAt),
+        questionPauseStartedAt: null,
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    if (screen !== 'play' || !game) return;
+    const handleVisibility = () => {
+      if (document.hidden) setGamePaused('page-hidden', true);
+      else setGamePaused('page-hidden', false);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    if (document.hidden) handleVisibility();
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [game, screen, setGamePaused]);
 
   useEffect(() => {
     if (screen !== 'play' || !game || game.feedback || game.trailComplete) return;
@@ -2936,6 +3052,17 @@ export default function App() {
         onStart={startGame}
       />
     );
+  if (screen === 'play' && game?.pauseSource === 'manual')
+    return (
+      <PausedPlay
+        onResume={() => setGamePaused('manual', false)}
+        onExit={() => {
+          if (transitionTimer.current !== null) window.clearTimeout(transitionTimer.current);
+          setGame(null);
+          setScreen('home');
+        }}
+      />
+    );
   if (screen === 'play' && game?.trail && equippedCompanion) {
     const problem = game.problems[game.index];
     if (!problem) return null;
@@ -2951,6 +3078,7 @@ export default function App() {
         trail={game.trail}
         soundEnabled={audioPreferences.effectsEnabled && audioPreferences.effectsVolume > 0}
         onAnswer={chooseAnswer}
+        onPause={() => setGamePaused('manual', true)}
         onToggleAudio={toggleAudio}
         onExit={() => {
           if (transitionTimer.current !== null) window.clearTimeout(transitionTimer.current);
@@ -2968,6 +3096,7 @@ export default function App() {
         companion={equippedCompanion}
         artStyle={save.artStyle}
         onAnswer={chooseAnswer}
+        onPause={() => setGamePaused('manual', true)}
         onHint={() =>
           setGame((current) =>
             current && !current.feedback ? { ...current, hintUsed: true } : current,

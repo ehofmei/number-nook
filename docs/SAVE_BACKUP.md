@@ -34,7 +34,7 @@ Invalid files show an error and leave the current save untouched. After a succes
 
 The success message appears only after browser storage accepts the complete restored save. A storage failure leaves the current in-memory progress unchanged and reports that the restore could not be completed.
 
-Current schema version 8 and legacy schema versions 1–7 are supported. Version 8 adds the lifetime Paw Coin total used to derive Nook Level; earlier development saves initialize that total to zero. Version 7 added the remembered game mode and Practice attempts, hints, and recap records. Version 6 added Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
+Current schema version 9 and legacy schema versions 1–8 are supported. Version 9 adds per-question challenge metadata and interruption-aware timing; version 8 added the lifetime Paw Coin total used to derive Nook Level, and earlier development saves initialize that total to zero. Version 7 added the remembered game mode and Practice attempts, hints, and recap records. Version 6 added Welcome Capsule state, daily and weekly participation rewards, unlimited earned-today totals, and richer capsule history. The normal repository migration path is used for both startup and manual restore, so those behaviors cannot drift apart.
 
 ## Different export types
 

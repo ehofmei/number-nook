@@ -30,9 +30,9 @@ describe('session-level low-challenge composition', () => {
   it('defines one global limit rather than rounding once per operation', () => {
     expect(sessionLowChallengeLimit(10, 'easy')).toBe(3);
     expect(sessionLowChallengeLimit(10, 'medium')).toBe(2);
-    expect(sessionLowChallengeLimit(10, 'hard')).toBe(1);
-    expect(sessionLowChallengeLimit(10, 'advanced')).toBe(1);
-    expect(sessionLowChallengeLimit(20, 'advanced')).toBe(2);
+    expect(sessionLowChallengeLimit(10, 'hard')).toBe(0);
+    expect(sessionLowChallengeLimit(10, 'advanced')).toBe(0);
+    expect(sessionLowChallengeLimit(20, 'advanced')).toBe(0);
     expect(sessionLowChallengeLimit(50, 'medium')).toBe(10);
   });
 
@@ -96,7 +96,7 @@ describe('session-level low-challenge composition', () => {
     }
   });
 
-  it('still varies between zero and one Advanced identity across seeds', () => {
+  it('never schedules a Hard or Advanced identity', () => {
     const observed = new Set<number>();
     for (let seed = 0; seed < 500; seed += 1) {
       const problems = generateSession(
@@ -109,6 +109,6 @@ describe('session-level low-challenge composition', () => {
       );
       observed.add(problems.filter(isLowChallenge).length);
     }
-    expect(observed).toEqual(new Set([0, 1]));
+    expect(observed).toEqual(new Set([0]));
   });
 });

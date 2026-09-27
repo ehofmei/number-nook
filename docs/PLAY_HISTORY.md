@@ -11,7 +11,8 @@ Review shows:
 - The original equation and its position in the round.
 - The selected answer and correct answer.
 - Whether the answer was correct.
-- Response time and score for that question.
+- Active response time, excluded paused time when present, and score for that question.
+- The generated challenge category and its factor-pair or regrouping details.
 - Round-level correct count, missed count, and thinking time.
 
 When a round has missed answers, review opens with those answers filtered so the player can immediately see what deserves attention. The player can switch to all questions at any time. A perfect round opens with all questions visible.
@@ -22,7 +23,7 @@ Review is intentionally reflective rather than punitive. It does not change the 
 
 ## Bounded detailed history
 
-Save schema version 4 introduced the newest-30 detailed window, and current schema version 8 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
+Save schema version 4 introduced the newest-30 detailed window, and current schema version 9 preserves it unchanged. Completing round 31 archives the oldest detailed round into additive lifetime totals and keeps rounds 2–31 in detail.
 
 Archived totals preserve:
 
@@ -42,15 +43,15 @@ This design gives balance analysis a useful recent window while keeping browser 
 
 Recent detailed rounds appear before the per-setup analytics grid. The page shows the newest five detailed rounds and six setup configurations initially; each section can be expanded independently. This prevents either a long play history or a large variety of play-test setups from making the page difficult to scan.
 
-## Analysis export version 6
+## Analysis export version 7
 
-Version 6 adds lifetime Paw Coins earned and the derived current Nook Level. Version 5 added game mode and per-question Practice attempts, hints, time to solve, and recap records. Exact configuration keys distinguish Practice from Quick Game; missing mode on older data means Quick Game.
+Version 7 adds per-question challenge metadata, raw and active response times, excluded inactive time, interruption flags, and round-level interruption totals. Version 6 added lifetime Paw Coins earned and the derived current Nook Level. Version 5 added game mode and per-question Practice attempts, hints, time to solve, and recap records. Exact configuration keys distinguish Practice from Quick Game; missing mode on older data means Quick Game.
 
 The Play History analysis export includes:
 
 - Lifetime overall, ruleset, configuration, difficulty, and operation summaries.
 - A `retention` object stating the detailed limit, retained count, and archived count.
-- Full settings, equations, choice order, selections, timing, scoring, and reward breakdowns for the newest 30 rounds.
+- Full settings, equations, choice order, selections, challenge metadata, active/raw timing, interruption flags, scoring, and reward breakdowns for the newest 30 rounds.
 - Capsule kind, collection, cost, eligible-pool size, and ownership context for retained economy events.
 - Current reward multipliers, participation bonuses, milestone, and capsule prices.
 - Current spendable coins, lifetime coins earned, and derived Nook Level.
@@ -59,7 +60,7 @@ The analysis export excludes the player name, account identifiers, installation 
 
 ## Migration and clearing
 
-Versions 1–7 migrate automatically to current schema version 8. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 added reward progress and richer economy history without changing the detailed-history limit; version 7 added Practice Mode attempts, hints, and recap details; version 8 adds the lifetime Paw Coin total used by Nook Levels.
+Versions 1–8 migrate automatically to current schema version 9. If an older save has more than 30 sessions, the oldest sessions are summarized during migration and the newest 30 retain their question details. Version 6 added reward progress and richer economy history without changing the detailed-history limit; version 7 added Practice Mode attempts, hints, and recap details; version 8 added the lifetime Paw Coin total used by Nook Levels; version 9 adds per-question challenge metadata plus raw, active, and interrupted timing.
 
 **Clear play history** uses a confirmation step and removes:
 

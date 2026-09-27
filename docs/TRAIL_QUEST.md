@@ -11,7 +11,7 @@ Sunny Meadow is the first and currently only registered level. The runtime is al
 - A wrong answer records the miss, shows the correction, and serves a fresh problem without moving the companion.
 - The trail ends after ten correct answers. Because mistakes create extra problems, the results screen reports trail accuracy and detours using every attempted problem.
 - Every completed trail participates in ordinary score, Paw Coin, progress, history, review, backup, and participation-reward systems.
-- Trail Quest does not show a timer during play, although response time remains part of the saved question record and existing score calculation.
+- Trail Quest does not show a timer during play, although active response time remains part of the saved question record and existing score calculation. Paused and page-hidden time is excluded from active time while remaining available in the raw timing record.
 
 The ten-stop length is fixed in Game Setup. Operation and difficulty controls remain shared with Quick Game and Practice.
 

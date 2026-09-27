@@ -287,7 +287,7 @@ Folders should be introduced only when needed; this is a target shape, not a req
 - A rapid double tap cannot answer two questions.
 - The first selected answer is the scored answer.
 - The feedback state lasts a controlled deterministic interval.
-- The timer excludes paused time when pause is introduced.
+- The timer excludes manually paused and page-hidden time.
 - Correctness is never conveyed through color alone.
 - The flow works at target phone and tablet viewports without horizontal scrolling.
 - All three starters are visible together at the target phone width, and entering the Nook requires an explicit starter selection.

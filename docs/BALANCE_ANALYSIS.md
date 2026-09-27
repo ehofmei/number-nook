@@ -13,7 +13,7 @@ For each of the newest 30 completed rounds:
 - Selected operations, difficulty, and question count.
 - Total score, score per question, accuracy, elapsed time, and response-time summaries.
 - Base, difficulty-adjusted, accuracy, perfect, daily, and weekly Paw Coin components and the total awarded.
-- Every equation's operation, operands, answer choices and their order, selected answer, correct answer, correctness, response time, and awarded score.
+- Every equation's operation, operands, answer choices and their order, selected answer, correct answer, correctness, challenge category, active/raw timing, interruption flags, and awarded score.
 
 For economy pacing:
 
@@ -23,7 +23,7 @@ For economy pacing:
 
 The export also groups comparable rounds by operation set, difficulty, question count, and ruleset version. Lifetime additive totals remain available after an older round's question detail is retired. This prevents a 50-question mixed round from being directly averaged with a 10-question addition round while keeping local storage bounded. See [Round review and play-history retention](./PLAY_HISTORY.md).
 
-Analysis export version 4 reports its retention window and current economy rules explicitly. Overall, ruleset, configuration, difficulty, and operation averages use lifetime weighted totals; configuration median response time uses only the retained detailed window and is labeled with that scope.
+Current analysis export version 7 reports its retention window and current economy rules explicitly, and adds the challenge and interruption-aware timing fields used for ruleset-9 comparisons. Overall, ruleset, configuration, difficulty, and operation averages use lifetime weighted totals; configuration median response time uses only the retained detailed window and is labeled with that scope.
 
 ## How to share a useful sample
 
@@ -110,6 +110,14 @@ Ruleset version 7 calculates a single low-challenge budget from the complete ses
 ### Version 8 reward baseline
 
 Ruleset version 8 keeps the version 7 question generator and changes the Paw Coin calculation. Correct answers now begin at two coins, receive the 1.00x/1.15x/1.30x/1.50x difficulty multiplier, and may receive accuracy, perfect, daily, and weekly bonuses. The former 30-coin cap is replaced by a non-blocking 100-coin daily milestone. Score and question-difficulty comparisons with version 7 remain meaningful, but coin totals must be compared within version 8.
+
+### Version 9 Hard and Advanced correction
+
+A 28-round ruleset-8 export contained 327 detailed answers. In Quick Game, median correct response times on Hard were about 1.0 seconds for multiplication and 1.1 seconds for division, compared with 2.1 seconds for addition and 2.6 seconds for subtraction. On Advanced, multiplication and division were about 1.4 and 1.6 seconds, compared with 8.0 seconds for addition and 4.1 seconds for subtraction. Hard and Advanced division were also answered perfectly in that retained sample.
+
+Ruleset version 9 removes every Hard/Advanced identity, raises multiplication and division to controlled multi-digit operand shapes, excludes easy anchors from focus classification, and raises the per-operation focus minimum from 60% to 80%. It also records the generated challenge category and complexity metadata with each answer.
+
+Response records now preserve raw and active time separately. Time spent with the page hidden or the game manually paused is excluded from active response time and recorded with interruption flags; active responses of at least 30 seconds receive a long-response flag. Raw timing remains available for auditing, while balance comparisons continue to prefer medians.
 
 ## Primary comparisons
 

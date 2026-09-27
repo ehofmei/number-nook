@@ -32,8 +32,8 @@ interface AdditiveCompositionTargets {
 const LOW_PER_TEN: Record<DifficultyId, number> = {
   easy: 2,
   medium: 1,
-  hard: 1,
-  advanced: 1,
+  hard: 0,
+  advanced: 0,
 };
 
 const FOCUS_PER_TEN: Record<DifficultyId, number> = {

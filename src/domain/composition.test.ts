@@ -91,17 +91,19 @@ describe('composition rules', () => {
     expect(isFocusFactorPair(2, 8, 'easy')).toBe(false);
     expect(isFocusFactorPair(3, 9, 'medium')).toBe(true);
     expect(isFocusFactorPair(5, 9, 'medium')).toBe(false);
-    expect(isFocusFactorPair(6, 12, 'hard')).toBe(true);
+    expect(isFocusFactorPair(6, 12, 'hard')).toBe(false);
+    expect(isFocusFactorPair(6, 13, 'hard')).toBe(true);
     expect(isFocusFactorPair(5, 12, 'hard')).toBe(false);
-    expect(isFocusFactorPair(13, 6, 'advanced')).toBe(true);
-    expect(isFocusFactorPair(12, 20, 'advanced')).toBe(true);
+    expect(isFocusFactorPair(13, 6, 'advanced')).toBe(false);
+    expect(isFocusFactorPair(13, 16, 'advanced')).toBe(true);
+    expect(isFocusFactorPair(13, 20, 'advanced')).toBe(false);
     expect(isFocusFactorPair(13, 5, 'advanced')).toBe(false);
 
     expect(compositionTargets(10, 'easy')).toEqual({ maximumLow: 3, minimumFocus: 0 });
     expect(compositionTargets(5, 'medium')).toEqual({ maximumLow: 1, minimumFocus: 2 });
-    expect(compositionTargets(20, 'hard')).toEqual({ maximumLow: 2, minimumFocus: 12 });
-    expect(compositionTargets(3, 'advanced')).toEqual({ maximumLow: 1, minimumFocus: 2 });
-    expect(compositionTargets(3, 'hard')).toEqual({ maximumLow: 1, minimumFocus: 1 });
+    expect(compositionTargets(20, 'hard')).toEqual({ maximumLow: 0, minimumFocus: 16 });
+    expect(compositionTargets(3, 'advanced')).toEqual({ maximumLow: 0, minimumFocus: 2 });
+    expect(compositionTargets(3, 'hard')).toEqual({ maximumLow: 0, minimumFocus: 2 });
     expect(tableValueLimit(5, 'hard')).toBe(2);
     expect(tableValueLimit(10, 'medium')).toBe(3);
     expect(tableValueLimit(20, 'easy')).toBe(8);
@@ -144,20 +146,64 @@ describe('composition rules', () => {
         new SeededRandom(91),
       );
       for (const problem of problems) {
-        if (problem.operation === 'multiplication') {
+        if (
+          problem.operation === 'multiplication' &&
+          (difficulty === 'easy' || difficulty === 'medium')
+        ) {
           expect(problem.left).toBeLessThanOrEqual(rules.multiplicationFactorMax);
           expect(problem.right).toBeLessThanOrEqual(rules.multiplicationFactorMax);
           expect(
             rules.multiplicationTables.includes(problem.left) ||
               rules.multiplicationTables.includes(problem.right),
           ).toBe(true);
-        } else {
+        } else if (
+          problem.operation === 'division' &&
+          (difficulty === 'easy' || difficulty === 'medium')
+        ) {
           expect(rules.divisionTables).toContain(problem.right);
           expect(problem.correctAnswer).toBeLessThanOrEqual(rules.divisionQuotientMax);
         }
       }
     }
   });
+
+  it('removes identities and uses harder operand shapes on Hard and Advanced', () => {
+    for (const difficulty of ['hard', 'advanced'] as const) {
+      for (const operation of ['multiplication', 'division'] as const) {
+        const problems = generateSession(
+          { operations: [operation], difficulty, questionCount: 20 },
+          new SeededRandom(2_026),
+        );
+        expect(problems.every((problem) => problem.challenge.category !== 'low')).toBe(true);
+        expect(problems.filter((problem) => problem.challenge.category === 'focus')).toHaveLength(
+          16,
+        );
+        for (const problem of problems.filter(({ challenge }) => challenge.category === 'focus')) {
+          const pair = factorPair(problem)!;
+          if (difficulty === 'hard') {
+            expect(Math.min(...pair)).toBeGreaterThanOrEqual(3);
+            expect(Math.max(...pair)).toBeGreaterThanOrEqual(13);
+          } else {
+            expect(Math.min(...pair)).toBeGreaterThanOrEqual(11);
+            expect(pair.every((factor) => factor % 10 !== 0)).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
+  it('satisfies the Hard and Advanced contract across 5,000 representative seeds', () => {
+    for (let seed = 0; seed < 5_000; seed += 1) {
+      const operation = seed % 2 === 0 ? 'multiplication' : 'division';
+      const difficulty = seed % 4 < 2 ? 'hard' : 'advanced';
+      const problems = generateSession(
+        { operations: [operation], difficulty, questionCount: 20 },
+        new SeededRandom(seed),
+      );
+      expectValidComposition(problems, difficulty);
+      expect(problems.every(({ challenge }) => challenge.category !== 'low')).toBe(true);
+    }
+  }, 15_000);
 
   it('fixes the locally reported table-11 and identity clustering seeds', () => {
     const elevenRound = generateSession(

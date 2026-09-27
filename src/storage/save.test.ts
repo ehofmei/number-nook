@@ -32,7 +32,7 @@ describe('save data', () => {
     const repository = new LocalStorageSaveRepository();
     const save = createInitialSave(' Ada ', 'cozy-cats:sunny');
     expect(save.player.name).toBe('Ada');
-    expect(save.schemaVersion).toBe(8);
+    expect(save.schemaVersion).toBe(9);
     expect(save.lifetimeCoinsEarned).toBe(0);
     expect(save.artStyle).toBe('sticker');
     await repository.save(save);
@@ -49,7 +49,7 @@ describe('save data', () => {
     void _dailyCoins;
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 1 }));
     expect(migrated).toMatchObject({
-      schemaVersion: 8,
+      schemaVersion: 9,
       lifetimeCoinsEarned: 0,
       player: { name: 'Ada' },
       coins: 0,
@@ -69,10 +69,20 @@ describe('save data', () => {
     );
 
     expect(migrated).toMatchObject({
-      schemaVersion: 8,
+      schemaVersion: 9,
       coins: 42,
       lifetimeCoinsEarned: 0,
     });
+  });
+
+  it('migrates a version 8 save while preserving lifetime level progress', () => {
+    const repository = new LocalStorageSaveRepository();
+    const current = createInitialSave('Ada', 'cozy-cats:sunny');
+    const migrated = repository.parseImport(
+      JSON.stringify({ ...current, schemaVersion: 8, lifetimeCoinsEarned: 123 }),
+    );
+
+    expect(migrated).toMatchObject({ schemaVersion: 9, lifetimeCoinsEarned: 123 });
   });
 
   it('migrates version 2 sessions into reproducible analysis records', () => {
@@ -137,7 +147,7 @@ describe('save data', () => {
     };
 
     const migrated = repository.parseImport(JSON.stringify(legacyV2));
-    expect(migrated.schemaVersion).toBe(8);
+    expect(migrated.schemaVersion).toBe(9);
     expect(migrated.lifetimeCoinsEarned).toBe(0);
     expect(migrated.sessions[0]).toMatchObject({
       rulesetVersion: 1,
@@ -305,7 +315,7 @@ describe('save data', () => {
       JSON.stringify({ ...withoutArchive, schemaVersion: 3, sessions }),
     );
 
-    expect(migrated.schemaVersion).toBe(8);
+    expect(migrated.schemaVersion).toBe(9);
     expect(migrated.lifetimeCoinsEarned).toBe(0);
     expect(migrated.artStyle).toBe('sticker');
     expect(migrated.sessions).toHaveLength(DETAILED_SESSION_LIMIT);
@@ -321,7 +331,7 @@ describe('save data', () => {
     const migrated = repository.parseImport(JSON.stringify({ ...legacy, schemaVersion: 4 }));
 
     expect(migrated).toMatchObject({
-      schemaVersion: 8,
+      schemaVersion: 9,
       lifetimeCoinsEarned: 0,
       artStyle: 'sticker',
     });
@@ -347,7 +357,7 @@ describe('save data', () => {
     );
 
     expect(migrated).toMatchObject({
-      schemaVersion: 8,
+      schemaVersion: 9,
       lifetimeCoinsEarned: 0,
       coins: 42,
       dailyCoins: { date: '2026-08-30', earned: 30 },

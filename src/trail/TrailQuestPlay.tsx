@@ -16,6 +16,7 @@ interface TrailQuestPlayProps {
   trail: TrailRunDefinition;
   onAnswer: (answer: number) => void;
   onExit: () => void;
+  onPause: () => void;
   onToggleAudio: () => void;
 }
 
@@ -42,6 +43,7 @@ export function TrailQuestPlay({
   trail,
   onAnswer,
   onExit,
+  onPause,
   onToggleAudio,
 }: TrailQuestPlayProps) {
   const equationRef = useRef<HTMLHeadingElement>(null);
@@ -112,15 +114,22 @@ export function TrailQuestPlay({
           <span className="eyebrow">Trail Quest · {trail.name}</span>
           <h1>{complete ? 'Trail complete!' : 'Find the next treasure'}</h1>
         </div>
-        <button
-          className="icon-button sound-toggle"
-          type="button"
-          onClick={onToggleAudio}
-          aria-label={soundEnabled ? 'Mute sound effects' : 'Turn on sound effects'}
-          title={soundEnabled ? 'Mute sound effects' : 'Turn on sound effects'}
-        >
-          <span aria-hidden="true">{soundEnabled ? '🔊' : '🔇'}</span>
-        </button>
+        <div className="game-tools">
+          {!complete && (
+            <button className="icon-button" type="button" onClick={onPause} aria-label="Pause game">
+              <span aria-hidden="true">‖</span>
+            </button>
+          )}
+          <button
+            className="icon-button sound-toggle"
+            type="button"
+            onClick={onToggleAudio}
+            aria-label={soundEnabled ? 'Mute sound effects' : 'Turn on sound effects'}
+            title={soundEnabled ? 'Mute sound effects' : 'Turn on sound effects'}
+          >
+            <span aria-hidden="true">{soundEnabled ? '🔊' : '🔇'}</span>
+          </button>
+        </div>
       </header>
 
       <section className="trail-lab__status" aria-label="Trail status">

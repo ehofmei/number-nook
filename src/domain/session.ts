@@ -1,9 +1,11 @@
 import type { Clock } from './clock';
 import type { PracticeRecord } from './practice';
-import type { GameSettings, OperationId, Problem } from './math';
+import type { ChallengeMetadata, GameSettings, OperationId, Problem } from './math';
 import { calculateRoundCoins, type RoundCoinBreakdown } from './rewards';
 
-export const RULESET_VERSION = 8;
+export const RULESET_VERSION = 9;
+
+export type ResponseTimingFlag = 'page-hidden' | 'manual-pause' | 'long-response';
 
 export interface AnswerRecord {
   practice?: PracticeRecord;
@@ -18,6 +20,10 @@ export interface AnswerRecord {
   correctAnswer: number;
   correct: boolean;
   responseMs: number;
+  rawResponseMs?: number;
+  inactiveResponseMs?: number;
+  timingFlags?: ResponseTimingFlag[];
+  challenge?: ChallengeMetadata;
 }
 
 export interface SessionSummary {

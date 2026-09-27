@@ -1,11 +1,14 @@
 import type { RandomSource } from './random';
 import {
+  additionRegroupCount,
   composeAdditionSubtractionFacts,
+  subtractionBorrowCount,
   type ComposedAdditiveFact,
   type ComposedAdditiveOperation,
 } from './additiveComposition';
 import {
   composeMultiplicationDivisionFacts,
+  isFocusFactorPair,
   type ComposedFact,
   type ComposedOperation,
 } from './composition';
@@ -60,6 +63,16 @@ export interface Problem {
   choices: number[];
   correctChoiceIndex: number;
   skillKey: string;
+  challenge: ChallengeMetadata;
+}
+
+export type ChallengeCategory = 'low' | 'review' | 'focus';
+
+export interface ChallengeMetadata {
+  category: ChallengeCategory;
+  regroupCount?: number;
+  factorPair?: [number, number];
+  negativeAnswer?: boolean;
 }
 
 interface DifficultyRules {
@@ -68,8 +81,10 @@ interface DifficultyRules {
   subtractionOperandMax: number;
   allowNegativeSubtraction: boolean;
   multiplicationTables: readonly number[];
+  multiplicationFactorMin: number;
   multiplicationFactorMax: number;
   divisionTables: readonly number[];
+  divisionQuotientMin: number;
   divisionQuotientMax: number;
 }
 
@@ -80,8 +95,10 @@ export const DIFFICULTY_RULES: Record<DifficultyId, DifficultyRules> = {
     subtractionOperandMax: 20,
     allowNegativeSubtraction: false,
     multiplicationTables: [0, 1, 2, 5, 10],
+    multiplicationFactorMin: 0,
     multiplicationFactorMax: 10,
     divisionTables: [1, 2, 5, 10],
+    divisionQuotientMin: 0,
     divisionQuotientMax: 10,
   },
   medium: {
@@ -90,8 +107,10 @@ export const DIFFICULTY_RULES: Record<DifficultyId, DifficultyRules> = {
     subtractionOperandMax: 100,
     allowNegativeSubtraction: false,
     multiplicationTables: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    multiplicationFactorMin: 0,
     multiplicationFactorMax: 10,
     divisionTables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    divisionQuotientMin: 0,
     divisionQuotientMax: 10,
   },
   hard: {
@@ -99,20 +118,28 @@ export const DIFFICULTY_RULES: Record<DifficultyId, DifficultyRules> = {
     additionSumMax: 1_000,
     subtractionOperandMax: 1_000,
     allowNegativeSubtraction: false,
-    multiplicationTables: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    multiplicationFactorMax: 12,
-    divisionTables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    divisionQuotientMax: 12,
+    multiplicationTables: [3, 4, 6, 7, 8, 9],
+    multiplicationFactorMin: 13,
+    multiplicationFactorMax: 49,
+    divisionTables: [3, 4, 6, 7, 8, 9],
+    divisionQuotientMin: 13,
+    divisionQuotientMax: 49,
   },
   advanced: {
     additionOperandMax: 5_000,
     additionSumMax: 10_000,
     subtractionOperandMax: 1_000,
     allowNegativeSubtraction: true,
-    multiplicationTables: Array.from({ length: 21 }, (_, index) => index),
-    multiplicationFactorMax: 20,
-    divisionTables: Array.from({ length: 20 }, (_, index) => index + 1),
-    divisionQuotientMax: 20,
+    multiplicationTables: Array.from({ length: 19 }, (_, index) => index + 11).filter(
+      (factor) => factor % 10 !== 0,
+    ),
+    multiplicationFactorMin: 11,
+    multiplicationFactorMax: 29,
+    divisionTables: Array.from({ length: 19 }, (_, index) => index + 11).filter(
+      (factor) => factor % 10 !== 0,
+    ),
+    divisionQuotientMin: 11,
+    divisionQuotientMax: 29,
   },
 };
 
@@ -180,6 +207,7 @@ function createProblem(
   minimum: number,
   maximum: number,
   random: RandomSource,
+  challenge: ChallengeMetadata,
   avoidSignedPairs = false,
 ): Problem {
   const choices = buildChoices(
@@ -199,6 +227,7 @@ function createProblem(
     choices,
     correctChoiceIndex: choices.indexOf(correctAnswer),
     skillKey,
+    challenge,
   };
 }
 
@@ -254,6 +283,10 @@ export function generateAdditionProblem(
     0,
     rules.additionSumMax + 100,
     random,
+    {
+      category: left === 0 || right === 0 ? 'low' : 'review',
+      regroupCount: additionRegroupCount(left, right),
+    },
   );
 }
 
@@ -277,6 +310,11 @@ export function generateSubtractionProblem(
     minimum,
     rules.subtractionOperandMax * 2,
     random,
+    {
+      category: right === 0 || left === right ? 'low' : 'review',
+      regroupCount: subtractionBorrowCount(left, right),
+      negativeAnswer: correctAnswer < 0,
+    },
     rules.allowNegativeSubtraction,
   );
 }
@@ -298,6 +336,11 @@ function createComposedAdditiveProblem(
       0,
       rules.additionSumMax + 100,
       random,
+      {
+        category: fact.category === 'negative' ? 'focus' : fact.category,
+        regroupCount: fact.regroupCount,
+        negativeAnswer: false,
+      },
     );
   }
 
@@ -311,6 +354,11 @@ function createComposedAdditiveProblem(
     rules.allowNegativeSubtraction ? -rules.subtractionOperandMax : 0,
     rules.subtractionOperandMax * 2,
     random,
+    {
+      category: fact.category === 'negative' ? 'focus' : fact.category,
+      regroupCount: fact.regroupCount,
+      negativeAnswer: fact.correctAnswer < 0,
+    },
     rules.allowNegativeSubtraction,
   );
 }
@@ -321,7 +369,7 @@ export function generateMultiplicationProblem(
 ): Problem {
   const rules = DIFFICULTY_RULES[difficulty];
   const left = random.pick(rules.multiplicationTables);
-  const right = random.integer(0, rules.multiplicationFactorMax);
+  const right = random.integer(rules.multiplicationFactorMin, rules.multiplicationFactorMax);
   const correctAnswer = left * right;
   const maximum = Math.max(
     30,
@@ -337,13 +385,22 @@ export function generateMultiplicationProblem(
     0,
     maximum,
     random,
+    {
+      category:
+        left <= 1 || right <= 1
+          ? 'low'
+          : isFocusFactorPair(Math.min(left, right), Math.max(left, right), difficulty)
+            ? 'focus'
+            : 'review',
+      factorPair: [Math.min(left, right), Math.max(left, right)],
+    },
   );
 }
 
 export function generateDivisionProblem(random: RandomSource, difficulty: DifficultyId): Problem {
   const rules = DIFFICULTY_RULES[difficulty];
   const right = random.pick(rules.divisionTables);
-  const quotient = random.integer(0, rules.divisionQuotientMax);
+  const quotient = random.integer(rules.divisionQuotientMin, rules.divisionQuotientMax);
   const left = right * quotient;
   return createProblem(
     'division',
@@ -355,6 +412,15 @@ export function generateDivisionProblem(random: RandomSource, difficulty: Diffic
     0,
     Math.max(30, rules.divisionQuotientMax + Math.max(...rules.divisionTables) + 10),
     random,
+    {
+      category:
+        quotient <= 1 || right === 1
+          ? 'low'
+          : isFocusFactorPair(Math.min(right, quotient), Math.max(right, quotient), difficulty)
+            ? 'focus'
+            : 'review',
+      factorPair: [right, quotient],
+    },
   );
 }
 
@@ -383,6 +449,10 @@ function createComposedProblem(
       0,
       maximum,
       random,
+      {
+        category: fact.category,
+        factorPair: [fact.firstFactor, fact.secondFactor],
+      },
     );
   }
 
@@ -399,6 +469,10 @@ function createComposedProblem(
     0,
     Math.max(30, rules.divisionQuotientMax + Math.max(...rules.divisionTables) + 10),
     random,
+    {
+      category: fact.category,
+      factorPair: [fact.firstFactor, fact.secondFactor],
+    },
   );
 }
 

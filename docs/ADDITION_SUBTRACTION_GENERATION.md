@@ -59,10 +59,10 @@ Ruleset version 6 uses the nearest whole question for the Advanced focus minimum
 | --- | ---: | ---: |
 | Easy | 2 per 10 | 3 per 10 |
 | Medium | 1 per 10 | 4 per 10 |
-| Hard | 1 per 10 | 6 per 10 |
-| Advanced | 1 per 10 | 6 per 10 |
+| Hard | 0 | 6 per 10 |
+| Advanced | 0 | 6 per 10 |
 
-Easy uses its full low-challenge allowance as foundational practice. Medium and above vary below their maximum so identities remain present occasionally without becoming predictable.
+Easy uses its full low-challenge allowance as foundational practice. Medium may vary below its maximum so identities remain present occasionally without becoming predictable. Hard and Advanced contain no low-challenge identities under ruleset version 9.
 
 Within subtraction, subtract-zero and zero-difference facts are each limited to 1 per 10. Within addition, zero-operand facts are limited by the overall low-challenge limit.
 
@@ -111,6 +111,8 @@ Ruleset version 6 rounds only Advanced focus minimums to the nearest whole quest
 Ruleset version 6 still rounded each operation's low-challenge maximum upward independently. In a ten-question four-operation Advanced round, three different operations could therefore each contribute one identity even though the intended rate was one per ten questions.
 
 Ruleset version 7 plans one low-challenge budget for the complete round and allocates it deterministically among operations with available non-focus capacity. A ten-question Advanced or Hard round now contains at most one identity across all selected operations; Medium contains at most two and Easy at most three. Advanced focus and negative-subtraction minimums, ordinary review facts, operand ranges, and distractors are unchanged.
+
+Ruleset version 9 reduces the Hard and Advanced complete-round low-challenge budget to zero. Addition by zero, subtraction by zero, and zero-difference subtraction remain available only on Easy and Medium.
 
 ## Acceptance criteria
 

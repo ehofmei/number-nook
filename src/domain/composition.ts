@@ -31,15 +31,15 @@ interface CategoryTargets {
 const LOW_PER_TEN: Record<DifficultyId, number> = {
   easy: 3,
   medium: 2,
-  hard: 1,
-  advanced: 1,
+  hard: 0,
+  advanced: 0,
 };
 
 const FOCUS_PER_TEN: Record<DifficultyId, number> = {
   easy: 0,
   medium: 5,
-  hard: 6,
-  advanced: 6,
+  hard: 8,
+  advanced: 8,
 };
 
 function maximumPerTen(count: number, perTen: number): number {
@@ -76,23 +76,61 @@ export function isFocusFactorPair(
   secondFactor: number,
   difficulty: DifficultyId,
 ): boolean {
+  const lower = Math.min(firstFactor, secondFactor);
+  const higher = Math.max(firstFactor, secondFactor);
   switch (difficulty) {
     case 'easy':
       return false;
     case 'medium':
       return (
-        firstFactor >= 3 &&
-        secondFactor >= 3 &&
-        firstFactor !== 5 &&
-        secondFactor !== 5 &&
-        firstFactor !== 10 &&
-        secondFactor !== 10
+        lower >= 3 && higher >= 3 && lower !== 5 && higher !== 5 && lower !== 10 && higher !== 10
       );
     case 'hard':
-      return firstFactor >= 6 && secondFactor >= 6;
+      return lower >= 3 && lower <= 9 && lower !== 5 && higher >= 13 && higher <= 49;
     case 'advanced':
-      return (firstFactor >= 13 && secondFactor >= 6) || (secondFactor >= 13 && firstFactor >= 6);
+      return (
+        lower >= 11 &&
+        lower <= 29 &&
+        higher >= 11 &&
+        higher <= 29 &&
+        lower % 10 !== 0 &&
+        higher % 10 !== 0
+      );
   }
+}
+
+function factorPairs(difficulty: DifficultyId, ranges: CompositionRanges): Array<[number, number]> {
+  if (difficulty === 'hard') {
+    const review = Array.from({ length: 7 }, (_, index) => index + 6)
+      .filter((factor) => factor !== 10)
+      .flatMap((first, firstIndex, factors) =>
+        factors.slice(firstIndex).map((second) => [first, second] as [number, number]),
+      );
+    const focus = [3, 4, 6, 7, 8, 9].flatMap((first) =>
+      Array.from({ length: 37 }, (_, index) => [first, index + 13] as [number, number]),
+    );
+    return [...review, ...focus];
+  }
+  if (difficulty === 'advanced') {
+    const review = [6, 7, 8, 9].flatMap((first) =>
+      Array.from({ length: 17 }, (_, index) => [first, index + 13] as [number, number]),
+    );
+    const focusFactors = Array.from({ length: 19 }, (_, index) => index + 11).filter(
+      (factor) => factor % 10 !== 0,
+    );
+    const focus = focusFactors.flatMap((first, firstIndex) =>
+      focusFactors.slice(firstIndex).map((second) => [first, second] as [number, number]),
+    );
+    return [...review, ...focus];
+  }
+  const pairs = new Map<string, [number, number]>();
+  for (const table of ranges.multiplicationTables) {
+    for (let partner = 0; partner <= ranges.multiplicationFactorMax; partner += 1) {
+      const pair: [number, number] = [Math.min(table, partner), Math.max(table, partner)];
+      pairs.set(pair.join(':'), pair);
+    }
+  }
+  return [...pairs.values()];
 }
 
 function classifyCandidate(
@@ -128,47 +166,50 @@ function multiplicationCandidates(
   ranges: CompositionRanges,
 ): ComposedFact[] {
   const candidates = new Map<string, ComposedFact>();
-  for (const table of ranges.multiplicationTables) {
-    for (let partner = 0; partner <= ranges.multiplicationFactorMax; partner += 1) {
-      const firstFactor = Math.min(table, partner);
-      const secondFactor = Math.max(table, partner);
-      const skillKey = `multiplication:${firstFactor}×${secondFactor}`;
-      const classification = classifyCandidate(
-        'multiplication',
-        firstFactor,
-        secondFactor,
-        difficulty,
-      );
-      candidates.set(skillKey, {
-        operation: 'multiplication',
-        firstFactor,
-        secondFactor,
-        skillKey,
-        ...classification,
-        designatedFocusTable: classification.category === 'focus' ? secondFactor : null,
-      });
-    }
+  for (const [firstFactor, secondFactor] of factorPairs(difficulty, ranges)) {
+    const skillKey = `multiplication:${firstFactor}×${secondFactor}`;
+    const classification = classifyCandidate(
+      'multiplication',
+      firstFactor,
+      secondFactor,
+      difficulty,
+    );
+    candidates.set(skillKey, {
+      operation: 'multiplication',
+      firstFactor,
+      secondFactor,
+      skillKey,
+      ...classification,
+      designatedFocusTable: classification.category === 'focus' ? secondFactor : null,
+    });
   }
   return [...candidates.values()];
 }
 
 function divisionCandidates(difficulty: DifficultyId, ranges: CompositionRanges): ComposedFact[] {
   const candidates: ComposedFact[] = [];
-  for (const divisor of ranges.divisionTables) {
-    for (let quotient = 0; quotient <= ranges.divisionQuotientMax; quotient += 1) {
-      const dividend = divisor * quotient;
-      const skillKey = `division:${dividend}÷${divisor}`;
-      const classification = classifyCandidate('division', divisor, quotient, difficulty);
-      candidates.push({
-        operation: 'division',
-        firstFactor: divisor,
-        secondFactor: quotient,
-        skillKey,
-        ...classification,
-        designatedFocusTable:
-          classification.category === 'focus' ? Math.max(divisor, quotient) : null,
-      });
-    }
+  const pairs =
+    difficulty === 'easy' || difficulty === 'medium'
+      ? ranges.divisionTables.flatMap((divisor) =>
+          Array.from(
+            { length: ranges.divisionQuotientMax + 1 },
+            (_, quotient) => [divisor, quotient] as [number, number],
+          ),
+        )
+      : factorPairs(difficulty, ranges);
+  for (const [divisor, quotient] of pairs) {
+    const dividend = divisor * quotient;
+    const skillKey = `division:${dividend}÷${divisor}`;
+    const classification = classifyCandidate('division', divisor, quotient, difficulty);
+    candidates.push({
+      operation: 'division',
+      firstFactor: divisor,
+      secondFactor: quotient,
+      skillKey,
+      ...classification,
+      designatedFocusTable:
+        classification.category === 'focus' ? Math.max(divisor, quotient) : null,
+    });
   }
   return candidates;
 }

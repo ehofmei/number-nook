@@ -15,8 +15,8 @@ const OPERATIONS: readonly OperationId[] = [
 const SESSION_LOW_PER_TEN: Record<DifficultyId, number> = {
   easy: 3,
   medium: 2,
-  hard: 1,
-  advanced: 1,
+  hard: 0,
+  advanced: 0,
 };
 
 function maximumPerTen(count: number, perTen: number): number {

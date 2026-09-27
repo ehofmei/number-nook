@@ -23,7 +23,7 @@ Round review preserves the first answer plus the sequence of attempts, hint use,
 
 ## Persistence and compatibility
 
-Save schema 7 added the optional `settings.mode` and per-answer `practice` record; current schema 8 adds lifetime Paw Coins for Nook Levels. Missing mode means Quick Game; the same mode field now also accepts Trail Quest. Schemas 1–7 migrate without losing collection, coins, participation progress, or prior results, although pre-release saves begin Level progress at zero. Quick Game retains its existing configuration keys and ruleset 8 generator; Practice and Trail Quest use distinct configuration suffixes. Analysis export 6 retains Practice attempts and hints and adds Level progress. The newest 30 detailed rounds retain these records; older rounds use the existing compact archive.
+Save schema 7 added the optional `settings.mode` and per-answer `practice` record; schema 8 added lifetime Paw Coins for Nook Levels; current schema 9 adds challenge metadata and interruption-aware timing. Missing mode means Quick Game; the same mode field now also accepts Trail Quest. Schemas 1–8 migrate without losing collection, coins, participation progress, or prior results, although pre-release saves begin Level progress at zero. Practice and Trail Quest use distinct configuration suffixes. Analysis export 7 retains Practice attempts, hints, challenge metadata, active timing, and Level progress. The newest 30 detailed rounds retain these records; older rounds use the existing compact archive.
 
 ## Verification inventory
 

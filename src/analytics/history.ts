@@ -16,10 +16,10 @@ import {
   DIFFICULTY_COIN_MULTIPLIERS,
   SURPRISE_CAPSULE_COST,
 } from '../domain/rewards';
-import { scoreAnswer, type SessionSummary } from '../domain/session';
+import { scoreAnswer, type AnswerRecord, type SessionSummary } from '../domain/session';
 import { DETAILED_SESSION_LIMIT, type SaveData } from '../storage/save';
 
-export const PLAY_HISTORY_EXPORT_VERSION = 6;
+export const PLAY_HISTORY_EXPORT_VERSION = 7;
 
 function round(value: number, decimals = 2): number {
   const scale = 10 ** decimals;
@@ -145,6 +145,10 @@ export interface PlayHistoryExport {
       questionCount: number;
       accuracyPercent: number;
       elapsedMs: number;
+      rawElapsedMs: number;
+      inactiveMs: number;
+      interruptedQuestionCount: number;
+      longResponseCount: number;
       averageResponseMs: number;
       medianResponseMs: number;
       fastestResponseMs: number;
@@ -169,6 +173,10 @@ export interface PlayHistoryExport {
       correctAnswer: number;
       correct: boolean;
       responseMs: number;
+      rawResponseMs: number;
+      inactiveResponseMs: number;
+      timingFlags: string[];
+      challenge: AnswerRecord['challenge'] | null;
       scoreAwarded: number;
       practice?: PracticeRecord;
     }>;
@@ -343,6 +351,20 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
           questionCount: session.answers.length,
           accuracyPercent: round(session.accuracy * 100),
           elapsedMs: session.elapsedMs,
+          rawElapsedMs: session.answers.reduce(
+            (total, answer) => total + (answer.rawResponseMs ?? answer.responseMs),
+            0,
+          ),
+          inactiveMs: session.answers.reduce(
+            (total, answer) => total + (answer.inactiveResponseMs ?? 0),
+            0,
+          ),
+          interruptedQuestionCount: session.answers.filter(
+            (answer) => (answer.timingFlags?.length ?? 0) > 0,
+          ).length,
+          longResponseCount: session.answers.filter((answer) =>
+            answer.timingFlags?.includes('long-response'),
+          ).length,
           averageResponseMs: round(average(responseTimes)),
           medianResponseMs: round(median(responseTimes)),
           fastestResponseMs: Math.min(...responseTimes),
@@ -367,6 +389,10 @@ export function buildPlayHistoryExport(save: SaveData, generatedAt: string): Pla
           correctAnswer: answer.correctAnswer,
           correct: answer.correct,
           responseMs: answer.responseMs,
+          rawResponseMs: answer.rawResponseMs ?? answer.responseMs,
+          inactiveResponseMs: answer.inactiveResponseMs ?? 0,
+          timingFlags: [...(answer.timingFlags ?? [])],
+          challenge: answer.challenge ?? null,
           scoreAwarded: scoreAnswer(
             answer.correct,
             answer.responseMs,

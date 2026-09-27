@@ -30,6 +30,10 @@ function addRound(
     correctAnswer: problem.correctAnswer,
     correct: index !== incorrectIndex,
     responseMs: 500 + index * 100,
+    rawResponseMs: 750 + index * 100,
+    inactiveResponseMs: 250,
+    timingFlags: ['page-hidden' as const],
+    challenge: problem.challenge,
   }));
   const clock = new FakeClock(Date.UTC(2026, 0, seed, 12));
   const summary = summarizeSession(problems, answers, settings, seed, clock);
@@ -119,6 +123,12 @@ describe('play history analysis export', () => {
     expect(firstQuestion?.choices).toHaveLength(4);
     expect(firstQuestion?.selectedChoiceIndex).toEqual(expect.any(Number));
     expect(firstQuestion?.responseMs).toBe(500);
+    expect(firstQuestion).toMatchObject({
+      rawResponseMs: 750,
+      inactiveResponseMs: 250,
+      timingFlags: ['page-hidden'],
+    });
+    expect(['low', 'review', 'focus']).toContain(firstQuestion?.challenge?.category);
     expect(firstQuestion?.scoreAwarded).toEqual(expect.any(Number));
   });
 

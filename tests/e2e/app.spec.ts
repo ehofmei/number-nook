@@ -790,6 +790,54 @@ test('long Advanced questions fit iPhone portrait and landscape without selectab
   expect(layout.fontSize).toBeGreaterThanOrEqual(36);
 });
 
+test('Advanced multiplication pauses active timing and records challenge metadata', async ({
+  page,
+}) => {
+  await onboard(page);
+  await page.getByRole('button', { name: 'Change game' }).click();
+  await page.getByRole('button', { name: /Multiplication/ }).click();
+  await page.getByRole('button', { name: /Addition/ }).click();
+  await page.getByRole('button', { name: /Subtraction/ }).click();
+  await page.getByRole('button', { name: 'Advanced', exact: true }).click();
+  await expect(page.getByText(/two-digit factors and divisors/i)).toBeVisible();
+  await page.getByRole('button', { name: 'Start game' }).click();
+
+  const equation = page.locator('#equation');
+  const firstEquation = (await equation.textContent()) ?? '';
+  const operands = firstEquation.match(/(\d+)\s*×\s*(\d+)/);
+  expect(operands).not.toBeNull();
+  expect(Number(operands?.[1])).toBeGreaterThan(1);
+  expect(Number(operands?.[2])).toBeGreaterThan(1);
+
+  await page.waitForTimeout(100);
+  await page.getByRole('button', { name: 'Pause game' }).click();
+  await expect(page.getByRole('heading', { name: 'Game paused' })).toBeVisible();
+  await expect(equation).toHaveCount(0);
+  await page.waitForTimeout(400);
+  await page.getByRole('button', { name: 'Resume game' }).click();
+  await expect(equation).toHaveText(firstEquation);
+
+  for (let index = 0; index < 10; index += 1) {
+    const text = (await equation.textContent()) ?? '';
+    await page.getByRole('button', { name: `Answer ${solveEquation(text)}`, exact: true }).click();
+    if (index < 9) await expect(equation).not.toHaveText(text);
+  }
+
+  await page.getByRole('button', { name: 'Review questions' }).click();
+  await expect(page.getByText('Challenge', { exact: true })).toHaveCount(10);
+  await expect(page.getByText(/paused/).first()).toBeVisible();
+  const save = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('first-math-game:save') ?? '{}') as SaveData,
+  );
+  const firstAnswer = save.sessions[0]?.answers[0];
+  expect(firstAnswer?.challenge?.category).toMatch(/focus|review/);
+  expect(firstAnswer?.timingFlags).toContain('manual-pause');
+  expect(firstAnswer?.inactiveResponseMs).toBeGreaterThanOrEqual(350);
+  expect((firstAnswer?.rawResponseMs ?? 0) - (firstAnswer?.responseMs ?? 0)).toBeGreaterThanOrEqual(
+    350,
+  );
+});
+
 test('a stationary pointer does not highlight the next answer after keyboard play', async ({
   page,
 }, testInfo) => {
@@ -847,7 +895,7 @@ test('history copies a name-free, versioned analysis export', async ({
     'data-dialogue-context',
     'progress',
   );
-  await expect(page.getByText('Ruleset 8').first()).toBeVisible();
+  await expect(page.getByText('Ruleset 9').first()).toBeVisible();
   await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
   await expect.poll(() => page.evaluate<number>('window.scrollY')).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Review round' }).click();
@@ -867,7 +915,7 @@ test('history copies a name-free, versioned analysis export', async ({
   };
   expect(analysis).toMatchObject({
     format: 'number-nook-play-history',
-    exportVersion: 6,
+    exportVersion: 7,
     privacy: { playerNameIncluded: false },
   });
   expect(analysis.sessions).toHaveLength(1);
@@ -1126,6 +1174,32 @@ test('@visual Practice hint phone layout', async ({ page }, testInfo) => {
   expect(Math.min(...phoneLayout.answerHeights)).toBeGreaterThanOrEqual(44);
   expect(phoneLayout.hintWidth).toBeLessThanOrEqual(phoneLayout.viewportWidth);
   await expect(page).toHaveScreenshot('practice-hint.png', { fullPage: true });
+});
+
+test('@visual paused game responsive layout', async ({ page }, testInfo) => {
+  test.skip(
+    !['chromium', 'phone'].includes(testInfo.project.name),
+    'This baseline targets desktop Chromium and the phone viewport.',
+  );
+  await onboard(page);
+  await page.getByRole('button', { name: 'Start first round' }).click();
+  await page.getByRole('button', { name: 'Pause game' }).click();
+  const layout = await page.locator('.paused-panel').evaluate((panel) => {
+    const bounds = panel.getBoundingClientRect();
+    return {
+      left: bounds.left,
+      right: bounds.right,
+      top: bounds.top,
+      bottom: bounds.bottom,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+    };
+  });
+  expect(layout.left).toBeGreaterThanOrEqual(0);
+  expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth);
+  expect(layout.top).toBeGreaterThanOrEqual(0);
+  expect(layout.bottom).toBeLessThanOrEqual(layout.viewportHeight);
+  await expect(page).toHaveScreenshot('paused-game.png', { fullPage: true });
 });
 
 test('@visual home responsive layout', async ({ page }, testInfo) => {

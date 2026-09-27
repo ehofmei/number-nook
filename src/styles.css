@@ -1657,6 +1657,23 @@ button.dashboard-card {
   margin: 0;
   font-weight: 900;
 }
+.review-card dd small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.paused-page {
+  display: grid;
+  place-items: center;
+}
+.paused-panel {
+  width: min(100%, 520px);
+  text-align: center;
+}
+.paused-panel .result-actions {
+  align-items: stretch;
+}
 .review-empty {
   text-align: center;
 }

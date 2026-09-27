@@ -8,6 +8,8 @@ Choose one or more operations, a difficulty, and a round length of 10, 20, 30, o
 
 Each question has four choices. Correct answers add to accuracy, score, Paw Coins, progress, and skill history. Incorrect answers never remove progress or currency. At the end of a round, the results screen shows accuracy, thinking time, score, and Paw Coins; **Review questions** shows every problem and the selected and correct answers.
 
+The pause control hides the current question and stops active thinking time until play resumes. Time spent while the page is hidden is excluded in the same way. History retains both active and raw timing so interrupted questions can be recognized during later review.
+
 ## Quick Game, Practice, and Trail Quest
 
 Quick Game accepts one answer per question and measures accuracy and pace. Practice lets you take your time: wrong choices become disabled, a hint is available after the first miss, and help appears automatically after the second. Missed questions return in a short recap at the end. Only first answers earn score and coins; Practice has no speed bonus. Review shows attempts and hints as well as the first answer. See [Practice Mode](./PRACTICE_MODE.md).
@@ -18,8 +20,8 @@ Trail Quest places the equipped companion on a visual path. Every correct answer
 
 - **Easy:** small numbers and introductory facts.
 - **Medium:** broader elementary facts and larger addition and subtraction.
-- **Hard:** substantially larger arithmetic, carrying and borrowing, and multiplication and division through 12.
-- **Advanced:** the widest number ranges, negative subtraction answers, and deliberately demanding composition.
+- **Hard:** substantially larger arithmetic, carrying and borrowing, two-digit-by-one-digit multiplication, and its exact division facts.
+- **Advanced:** the widest number ranges, negative subtraction answers, bounded two-digit-by-two-digit multiplication, and exact division with two-digit factors.
 
 Difficulty changes both the questions and the Paw Coin reward for correct answers. Easy remains a valid and rewarding choice, while successful higher-difficulty practice earns a modest bonus for the additional time and effort.
 

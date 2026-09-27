@@ -15,6 +15,19 @@ Related references:
 - [Testing strategy](./TEST_STRATEGY.md)
 - [Research and product design](../DESIGN_RESEARCH.md)
 
+## Ruleset version 9 difficulty correction
+
+Ruleset version 9 replaces the Hard and Advanced multiplication/division bands after retained play history showed that ordinary table facts were answered near the interface-speed floor while multi-digit addition and subtraction took several times longer.
+
+| Difficulty | Review shapes | Focus shapes | Focus minimum | Identities |
+| --- | --- | --- | ---: | ---: |
+| Hard | challenging `6–12` table facts, excluding the `10` anchor | one factor in `3–9` excluding `5`, the other in `13–49` | 8 per 10 | none |
+| Advanced | one factor in `6–9`, the other in `13–29` | both factors in `11–29`, excluding multiples of `10` | 8 per 10 | none |
+
+Division uses the same factor shapes directionally: divisor and quotient form the stored factor pair, and the dividend is their exact product. Hard and Advanced also remove addition/subtraction identities so the complete-round low-challenge budget is zero. Easy and Medium retain the earlier foundational behavior described below.
+
+Every generated problem now carries stable challenge metadata. The saved answer and analysis export retain its `low`, `review`, or `focus` category plus the factor pair or additive regroup count, so later rulesets do not need to reconstruct the original classification.
+
 ## Vocabulary
 
 ### Seeded randomness
@@ -46,7 +59,9 @@ A division fact is low-challenge when any of these apply:
 
 A fact matching more than one condition counts once toward the overall low-challenge limit and toward each applicable subtype limit.
 
-### Review and focus facts
+### Legacy ruleset 3–8 review and focus facts
+
+The table below records the earlier classifications needed to interpret retained ruleset 3–8 history. Ruleset 9 keeps the Easy and Medium rows and replaces the Hard and Advanced rows with the shapes documented above.
 
 Review facts preserve retrieval of previously introduced material. Focus facts provide the intended challenge of the selected difficulty.
 
@@ -84,16 +99,16 @@ This makes the rules meaningful in mixed rounds containing only a few multiplica
 | --- | ---: | ---: |
 | Easy | 3 per 10 | No separate minimum |
 | Medium | 2 per 10 | 5 per 10 |
-| Hard | 1 per 10 | 6 per 10 |
-| Advanced | 1 per 10 | 6 per 10 |
+| Hard | 0 | 8 per 10 multiplication/division questions |
+| Advanced | 0 | 8 per 10 multiplication/division questions |
 
 Within division:
 
 - Zero-quotient facts are limited to 1 per 10 at every difficulty.
-- Identity facts are limited to 2 per 10 on Easy and 1 per 10 on Medium, Hard, and Advanced.
-- Unit-divisor facts are limited to 2 per 10 on Easy and 1 per 10 on Medium, Hard, and Advanced.
+- Identity facts are limited to 2 per 10 on Easy and 1 per 10 on Medium; Hard and Advanced contain none.
+- Unit-divisor facts are limited to 2 per 10 on Easy and 1 per 10 on Medium; Hard and Advanced contain none.
 
-Easy deliberately uses its full low-challenge allowance as foundational practice. Medium and above vary below their maximum and fill remaining slots with eligible review facts.
+Easy deliberately uses its full low-challenge allowance as foundational practice. Medium may vary below its maximum. Hard and Advanced use review facts for the non-focus slots without introducing low-challenge identities.
 
 ### Variety constraints
 
