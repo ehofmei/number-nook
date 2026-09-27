@@ -611,21 +611,27 @@ test('the complete collection shares one remembered art-style preference', async
   const buttonBunnyPortrait = page
     .locator('.collection-grid .collectible-card')
     .last()
-    .locator('img');
-  await expect(buttonBunnyPortrait).toHaveAttribute('src', /button-bunny-sticker\.webp$/);
-  const poppyPortrait = page.locator('.collection-grid .collectible-card').nth(10).locator('img');
-  await expect(poppyPortrait).toHaveAttribute('src', /poppy-sticker\.webp$/);
-  const crumpetPortrait = page.locator('.collection-grid .collectible-card').nth(20).locator('img');
-  await expect(crumpetPortrait).toHaveAttribute('src', /crumpet-sticker\.webp$/);
+    .locator('.collectible-art-image');
+  await expect(buttonBunnyPortrait).toHaveCSS('background-image', /button-bunny-sticker\.webp/);
+  const poppyPortrait = page
+    .locator('.collection-grid .collectible-card')
+    .nth(10)
+    .locator('.collectible-art-image');
+  await expect(poppyPortrait).toHaveCSS('background-image', /poppy-sticker\.webp/);
+  const crumpetPortrait = page
+    .locator('.collection-grid .collectible-card')
+    .nth(20)
+    .locator('.collectible-art-image');
+  await expect(crumpetPortrait).toHaveCSS('background-image', /crumpet-sticker\.webp/);
 
   await page.getByRole('button', { name: 'Simple SVG' }).click();
   await expect(page.getByRole('button', { name: 'Moonbeam' }).locator('img')).toHaveAttribute(
     'src',
     /moonbeam\.svg$/,
   );
-  await expect(buttonBunnyPortrait).toHaveAttribute('src', /button-bunny\.svg$/);
-  await expect(poppyPortrait).toHaveAttribute('src', /poppy\.svg$/);
-  await expect(crumpetPortrait).toHaveAttribute('src', /crumpet\.svg$/);
+  await expect(buttonBunnyPortrait).toHaveCSS('background-image', /button-bunny\.svg/);
+  await expect(poppyPortrait).toHaveCSS('background-image', /poppy\.svg/);
+  await expect(crumpetPortrait).toHaveCSS('background-image', /crumpet\.svg/);
   await page.reload();
   await page.getByRole('button', { name: /^Collection/ }).click();
   await expect(page.getByRole('button', { name: 'Simple SVG' })).toHaveAttribute(

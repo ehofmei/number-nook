@@ -106,6 +106,8 @@ The unified gallery should continue to show every companion. As the catalog grow
 - show Special Guests inline with a visible badge;
 - never require separate ownership, reward, shop, or equip logic for a species.
 
+Locked portraits must not use an image element. Mobile browsers can expose the unfiltered source of a CSS-dimmed image through a long-press preview, so locked cards use a non-interactive background layer, suppress touch callouts and context menus, and keep the question-mark cover visible. Owned portraits remain non-draggable while retaining their normal accessible alternative text.
+
 Equipped state must be more obvious than the current text-only treatment. Use the same visual language anywhere a selectable companion appears:
 
 - a strong theme-colored outline or glow around the equipped portrait or card;

@@ -20,13 +20,22 @@ export function CollectibleCard({
   artStyle = 'classic',
   onSelect,
 }: CollectibleCardProps) {
+  const image = `${import.meta.env.BASE_URL}${getCollectibleImage(collectible, artStyle)}`;
   const content = (
     <>
-      <div className={`collectible-art ${owned ? '' : 'collectible-art--locked'}`}>
-        <img
-          src={`${import.meta.env.BASE_URL}${getCollectibleImage(collectible, artStyle)}`}
-          alt={owned ? collectible.altText : ''}
-        />
+      <div
+        className={`collectible-art ${owned ? '' : 'collectible-art--locked'}`}
+        onContextMenu={(event) => event.preventDefault()}
+      >
+        {owned ? (
+          <img src={image} alt={collectible.altText} draggable={false} />
+        ) : (
+          <span
+            className="collectible-art-image"
+            style={{ backgroundImage: `url("${image}")` }}
+            aria-hidden="true"
+          />
+        )}
         {!owned && (
           <span className="lock-mark" aria-hidden="true">
             ?

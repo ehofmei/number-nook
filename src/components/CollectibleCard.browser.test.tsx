@@ -43,4 +43,20 @@ describe('CollectibleCard in a real browser', () => {
     const portrait = page.getByRole('img', { name: pup.altText });
     await expect.element(portrait).toHaveAttribute('src', '/collectibles/poppy-sticker.webp');
   });
+
+  it('does not expose locked art as a long-pressable image', async () => {
+    const sunny = getCollectible('cozy-cats:sunny')!;
+    await render(<CollectibleCard collectible={sunny} owned={false} artStyle="sticker" />);
+
+    const lockedArt = document.querySelector<HTMLElement>('.collectible-art--locked');
+    const portrait = document.querySelector<HTMLElement>('.collectible-art-image');
+    const contextMenu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+
+    expect(lockedArt).not.toBeNull();
+    expect(lockedArt?.querySelector('img')).toBeNull();
+    expect(portrait?.tagName).toBe('SPAN');
+    expect(portrait?.style.backgroundImage).toContain('/collectibles/sunny-sticker.webp');
+    expect(lockedArt?.dispatchEvent(contextMenu)).toBe(false);
+    expect(contextMenu.defaultPrevented).toBe(true);
+  });
 });

@@ -482,14 +482,25 @@ button.collectible-card {
   overflow: hidden;
   width: 100%;
   background: #f1edf7;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.collectible-art img {
+.collectible-art img,
+.collectible-art-image {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.collectible-art--locked img {
+.collectible-art img {
+  -webkit-user-drag: none;
+}
+.collectible-art-image {
+  background-position: center;
+  background-size: cover;
+}
+.collectible-art--locked .collectible-art-image {
   filter: grayscale(1) brightness(0.25) contrast(0.5);
   opacity: 0.32;
 }
