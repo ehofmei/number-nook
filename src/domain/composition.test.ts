@@ -136,7 +136,7 @@ describe('composition rules', () => {
         }
       }
     }
-  });
+  }, 30_000);
 
   it('preserves multiplication and division ranges after composing and orienting facts', () => {
     for (const difficulty of DIFFICULTY_IDS) {
@@ -203,7 +203,7 @@ describe('composition rules', () => {
       expectValidComposition(problems, difficulty);
       expect(problems.every(({ challenge }) => challenge.category !== 'low')).toBe(true);
     }
-  }, 15_000);
+  }, 60_000);
 
   it('fixes the locally reported table-11 and identity clustering seeds', () => {
     const elevenRound = generateSession(

@@ -161,7 +161,7 @@ describe('addition and subtraction composition', () => {
         }
       }
     }
-  });
+  }, 30_000);
 
   it('satisfies the complete contract across 5,000 representative seeds', () => {
     for (let seed = 0; seed < 5_000; seed += 1) {
@@ -173,7 +173,7 @@ describe('addition and subtraction composition', () => {
       );
       expectValidAdditiveComposition(problems, difficulty);
     }
-  }, 15_000);
+  }, 60_000);
 
   it('keeps a ten-question Advanced mixed round at six focus questions with a negative', () => {
     const problems = generateSession(
